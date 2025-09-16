@@ -1,6 +1,4 @@
 "use client";
-import Link from "next/link";
-import { ChevronsLeftIcon, ChevronsRightIcon, Moon } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
 
 import {
@@ -11,21 +9,23 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { SidebarTrigger, useSidebar } from "./ui/sidebar";
-const NavBar = () => {
-  const { open, toggleSidebar } = useSidebar();
+import { SidebarTrigger } from "@/components/ui/sidebar";
+import { Separator } from "@/components/ui/separator";
 
+export const SiteHeader = () => {
   return (
-    <nav className=" p-4 flex items-center justify-between shadow-[0_10px_15px_-3px_rgba(0,0,0,0.1)] mb-2 ">
-      <button onClick={toggleSidebar}>
-        {open ? <ChevronsLeftIcon /> : <ChevronsRightIcon />}
-      </button>
-
-      <div className=" flex items-center gap-5 justify-between ">
-        <Link href="/">Dashboard</Link>
-        <Moon></Moon>
+    <header className="flex h-(--header-height) shrink-0 items-center gap-2 border-b transition-[width,height] ease-linear group-has-data-[collapsible=icon]/sidebar-wrapper:h-(--header-height)">
+      <div className="flex w-full items-center gap-1 px-4 lg:gap-2 lg:px-6">
+        <SidebarTrigger className="-ml-1" />
+        <Separator
+          orientation="vertical"
+          className="mx-2 data-[orientation=vertical]:h-4"
+        />
+        {/* <h1 className="text-base font-medium">Documents</h1> */}
+        {/* <Link href="/">Dashboard</Link> */}
+        {/* <Moon></Moon> */}
         <DropdownMenu>
-          <DropdownMenuTrigger>
+          <DropdownMenuTrigger className="ml-auto">
             <Avatar>
               <AvatarImage src="https://github.com/shadcn.png" />
               <AvatarFallback>CN</AvatarFallback>
@@ -41,8 +41,6 @@ const NavBar = () => {
           </DropdownMenuContent>
         </DropdownMenu>
       </div>
-    </nav>
+    </header>
   );
 };
-
-export default NavBar;

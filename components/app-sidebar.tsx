@@ -58,9 +58,11 @@ const mainItems = [
   { title: "Settings", url: "/vendor/settings", icon: SettingsIcon },
 ];
 
-const AppSidebar = () => {
+export const AppSidebar = ({
+  ...props
+}: React.ComponentProps<typeof Sidebar>) => {
   return (
-    <Sidebar collapsible="icon">
+    <Sidebar collapsible="icon" {...props}>
       {/* Header / Logo */}
       <SidebarHeader>
         <SidebarMenu>
@@ -73,9 +75,7 @@ const AppSidebar = () => {
           </SidebarMenuItem>
         </SidebarMenu>
       </SidebarHeader>
-
       <SidebarSeparator />
-
       <SidebarContent>
         {/* Main application links */}
         <SidebarGroup>
@@ -233,5 +233,3 @@ const AppSidebar = () => {
     </Sidebar>
   );
 };
-
-export default AppSidebar;

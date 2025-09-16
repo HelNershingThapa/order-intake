@@ -16,10 +16,8 @@ export default function OrdersPage({
   searchParams: SearchParams;
 }) {
   return (
-    <div className="mx-auto max-w-6xl p-6">
-      <Suspense fallback={<OrdersLoading />}>
-        <OrdersContent searchParams={searchParams} />
-      </Suspense>
-    </div>
+    <Suspense fallback={<OrdersLoading />}>
+      <OrdersContent searchParams={searchParams} />
+    </Suspense>
   );
 }
