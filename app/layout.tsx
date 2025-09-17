@@ -1,7 +1,7 @@
-// app/layout.tsx (Server Component)
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
+import Providers from "./providers";
 
 const geistSans = Geist({ subsets: ["latin"], variable: "--font-geist-sans" });
 const geistMono = Geist_Mono({
@@ -9,7 +9,10 @@ const geistMono = Geist_Mono({
   variable: "--font-geist-mono",
 });
 
-export const metadata: Metadata = { title: "App", description: "..." };
+export const metadata: Metadata = {
+  title: "Baato Order Management",
+  description: "Manage your orders efficiently with Baato.",
+};
 
 export default function RootLayout({
   children,
@@ -17,13 +20,11 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    // Important if a client ThemeProvider will toggle className
     <html lang="en" suppressHydrationWarning>
-      {/* No client-only logic here */}
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        {children}
+        <Providers>{children}</Providers>
       </body>
     </html>
   );

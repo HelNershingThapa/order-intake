@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -34,7 +34,6 @@ export const CoordinatePickerDialog: React.FC<CoordinatePickerDialogProps> = ({
   const MAP_STYLE = MAPTILER_KEY
     ? `https://api.maptiler.com/maps/streets/style.json?key=${MAPTILER_KEY}`
     : "https://basemaps.cartocdn.com/gl/positron-gl-style/style.json";
-  const mapRef = useRef<any>(null);
   const [point, setPoint] = useState<{ lat: number; lng: number } | null>(null);
 
   useEffect(() => {
@@ -68,7 +67,6 @@ export const CoordinatePickerDialog: React.FC<CoordinatePickerDialogProps> = ({
           <div className="h-[420px] w-full rounded-md overflow-hidden border relative">
             {open && (
               <Map
-                ref={mapRef}
                 initialViewState={{
                   latitude: point?.lat ?? 27.7,
                   longitude: point?.lng ?? 85.3,

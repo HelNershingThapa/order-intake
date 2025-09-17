@@ -26,10 +26,13 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-
-import { orderSchema, type OrderFormData } from "./order-schema";
+import {
+  orderSchema,
+  type OrderFormData,
+} from "@/components/orders/order-schema";
 import { createOrder, updateOrder } from "@/lib/order-service";
 import { OrderDetails } from "@/types/order";
+import { OrderLocationMap } from "@/components/orders/order-location-map";
 
 type OrderFormProps = {
   initialData?: OrderDetails;
@@ -243,9 +246,8 @@ export default function OrderForm({ initialData, mode }: OrderFormProps) {
                 )}
               />
             </div>
-
             <Separator />
-
+            <OrderLocationMap />
             {/* Coordinates */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <FormField
