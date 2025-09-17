@@ -1,5 +1,6 @@
 "use client";
-import { useEffect, useState } from "react";
+
+import { useEffect, useState, useRef } from "react";
 import { Separator } from "@/components/ui/separator";
 import { Check } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -17,17 +18,75 @@ import { useGeocoding } from "@/components/bulk-import/use-geocoding";
 import { type CsvRow } from "@/utils/csv-parser";
 
 export default function Page() {
+  // --- Persistence (localStorage) ---
+  const STORAGE_KEY = "bulk-import-state-v1";
+  interface PersistedState {
+    step: (typeof steps)[number]["value"]; // current step value
+    orders: CsvRow[];
+    headers: string[];
+    mapping: ReturnType<typeof createEmptyMapping>;
+  }
+  // Guard to avoid persisting immediately on first hydration restore
+  const hydratedRef = useRef(false);
   const [currentStep, setCurrentStep] = useState<
     (typeof steps)[number]["value"]
   >(steps[0].value);
-  const [data, setData] = useState<CsvRow[]>([]);
+  const [orders, setOrders] = useState<CsvRow[]>([]);
   const [headers, setHeaders] = useState<string[]>([]);
   const [mapping, setMapping] = useState(createEmptyMapping());
 
   const updateMapping = (key: CanonicalKey, value: string) =>
     setMapping((m) => ({ ...m, [key]: value }));
 
-  const geocode = useGeocoding({ data, mapping });
+  const geocode = useGeocoding({ data: orders, mapping });
+
+  // Hydrate from localStorage once on mount
+  useEffect(() => {
+    try {
+      const raw =
+        typeof window !== "undefined"
+          ? window.localStorage.getItem(STORAGE_KEY)
+          : null;
+      if (!raw) return;
+      const parsed = JSON.parse(raw) as Partial<PersistedState> | null;
+      if (!parsed) return;
+      // Basic validation
+      if (parsed.headers && Array.isArray(parsed.headers))
+        setHeaders(parsed.headers);
+      if (parsed.orders && Array.isArray(parsed.orders))
+        setOrders(parsed.orders as CsvRow[]);
+      if (parsed.mapping && typeof parsed.mapping === "object")
+        setMapping(parsed.mapping);
+      if (parsed.step && steps.some((s) => s.value === parsed.step))
+        setCurrentStep(parsed.step);
+    } catch (e) {
+      console.warn("Failed to hydrate bulk import state", e);
+    } finally {
+      hydratedRef.current = true;
+    }
+  }, []);
+
+  // Persist whenever relevant state changes (after hydration)
+  useEffect(() => {
+    if (!hydratedRef.current) return; // skip initial render before hydration
+    if (typeof window === "undefined") return;
+    try {
+      if (!orders.length) {
+        // If no orders, clear persisted state to avoid stale data.
+        window.localStorage.removeItem(STORAGE_KEY);
+        return;
+      }
+      const data: PersistedState = {
+        step: currentStep,
+        orders,
+        headers,
+        mapping,
+      };
+      window.localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+    } catch (e) {
+      console.warn("Failed to persist bulk import state", e);
+    }
+  }, [orders, headers, mapping, currentStep]);
 
   // Auto advance to duplicates when all geocoded
   useEffect(() => {
@@ -36,10 +95,22 @@ export default function Page() {
       geocode.geocodeRows.length &&
       geocode.geocodeRows.every((r) => r.status === "success")
     ) {
-      const t = setTimeout(() => setCurrentStep("duplicates"), 500);
+      const t = setTimeout(() => setCurrentStep("review"), 500);
       return () => clearTimeout(t);
     }
   }, [currentStep, geocode.geocodeRows]);
+
+  // If user refreshes while on errors step before geocoding started, resume automatically
+  useEffect(() => {
+    if (!hydratedRef.current) return;
+    if (
+      currentStep === "errors" &&
+      orders.length &&
+      !geocode.geocodeRows.length
+    ) {
+      geocode.startGeocoding();
+    }
+  }, [currentStep, orders.length, geocode.geocodeRows.length]);
 
   return (
     <div className="space-y-6">
@@ -101,7 +172,7 @@ export default function Page() {
         <UploadFileStep
           onParsed={({ headers, rows }) => {
             setHeaders(headers);
-            setData(rows);
+            setOrders(rows);
             setCurrentStep("map");
           }}
         />

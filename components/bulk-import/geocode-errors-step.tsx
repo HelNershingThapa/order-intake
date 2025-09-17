@@ -37,8 +37,8 @@ export function GeocodeErrorsStep({
   return (
     <div className="space-y-4">
       <div className="space-y-1">
-        <h3 className="text-sm font-medium">Fix Geocoding Errors</h3>
-        <p className="text-xs text-muted-foreground">
+        <h3 className="font-medium">Fix Geocoding Errors</h3>
+        <p className="text-sm text-muted-foreground max-w-2xl">
           We attempted to geocode each order. Provide coordinates for rows that
           failed. This step will advance automatically once all rows have valid
           coordinates.
@@ -53,11 +53,14 @@ export function GeocodeErrorsStep({
           <span className="text-blue-600">Geocoding in progress...</span>
         )}
       </div>
-      {failed === 0 && geocodeRows.length > 0 && (
-        <div className="text-sm text-green-600 font-medium flex items-center gap-2">
-          <Check className="h-4 w-4" /> All rows geocoded. Advancing shortly...
-        </div>
-      )}
+      {failed === 0 &&
+        geocodeRows.length > 0 &&
+        geocodeRows.length === success && (
+          <div className="text-sm text-green-600 font-medium flex items-center gap-2">
+            <Check className="h-4 w-4" /> All rows geocoded. Advancing
+            shortly...
+          </div>
+        )}
       {failed > 0 && (
         <div className="rounded-md border overflow-hidden">
           <Table>

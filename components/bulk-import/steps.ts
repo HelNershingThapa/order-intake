@@ -5,7 +5,7 @@ export const steps = [
   { title: "Upload File", value: "upload" },
   { title: "Map Header Columns", value: "map" },
   { title: "Fix Geocoding Errors", value: "errors" },
-  { title: "Duplicate Handling", value: "duplicates" },
+  { title: "Review Locations", value: "review" },
   { title: "Add to Folder", value: "folder" },
 ] as const;
 
