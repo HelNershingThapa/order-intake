@@ -12,7 +12,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Loader2 } from "lucide-react";
-import { OrderFilters } from "@/app/types/order";
+import { OrderFilters } from "@/types/order";
 
 export function FilterBar({ filters }: { filters: OrderFilters }) {
   const router = useRouter();

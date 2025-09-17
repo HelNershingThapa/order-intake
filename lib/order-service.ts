@@ -1,12 +1,8 @@
 import { serverFetch } from "./serverFetch";
-import {
-  OrderListResponse,
-  OrderFilters,
-  OrderDetails,
-} from "../app/types/order";
+import { OrderListResponse, OrderFilters, OrderDetails } from "@/types/order";
 
 export async function getOrders(
-  filters: OrderFilters = {}
+  filters: OrderFilters = {},
 ): Promise<OrderListResponse> {
   const {
     search,
@@ -40,7 +36,7 @@ export async function createOrder(data: any): Promise<OrderDetails> {
 
 export async function updateOrder(
   orderId: string,
-  data: any
+  data: any,
 ): Promise<OrderDetails> {
   return serverFetch<OrderDetails>(`/orders/${orderId}`, {
     method: "PUT",

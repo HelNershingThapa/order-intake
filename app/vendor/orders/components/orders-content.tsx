@@ -12,7 +12,7 @@ import {
 } from "@/components/ui/table";
 import { Calendar, MapPin, Package, Pencil, Plus } from "lucide-react";
 import { getOrders } from "@/lib/order-service";
-import { OrderFilters } from "@/app/types/order";
+import { OrderFilters } from "@/types/order";
 import { FilterBar } from "./filter-bar";
 import { Pagination } from "./pagination";
 import { DeleteOrderButton } from "./delete-order-button";
@@ -25,7 +25,7 @@ function parseFilters(searchParams: any): OrderFilters {
       ? searchParams.status
       : "all",
     geocode_status: ["pending", "ok", "failed"].includes(
-      searchParams.geocode_status
+      searchParams.geocode_status,
     )
       ? searchParams.geocode_status
       : "all",
@@ -58,10 +58,10 @@ export async function OrdersContent({ searchParams }: { searchParams: any }) {
 
   const totalPages = Math.ceil(data.total / data.page_size);
   const geocodedCount = data.items.filter(
-    (o) => o.geocode_status === "ok"
+    (o) => o.geocode_status === "ok",
   ).length;
   const needsAttentionCount = data.items.filter((o) =>
-    ["pending", "failed"].includes(o.geocode_status)
+    ["pending", "failed"].includes(o.geocode_status),
   ).length;
 
   return (

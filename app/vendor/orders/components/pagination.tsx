@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { ChevronLeft, ChevronRight } from "lucide-react";
-import { OrderFilters } from "@/app/types/order";
+import { OrderFilters } from "@/types/order";
 
 function buildQuery(filters: OrderFilters, page: number): string {
   const params = new URLSearchParams();

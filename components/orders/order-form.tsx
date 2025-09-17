@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useTransition, useEffect } from "react";
+import { useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { Resolver, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -29,7 +29,7 @@ import {
 
 import { orderSchema, type OrderFormData } from "./order-schema";
 import { createOrder, updateOrder } from "@/lib/order-service";
-import { OrderDetails } from "@/app/types/order";
+import { OrderDetails } from "@/types/order";
 
 type OrderFormProps = {
   initialData?: OrderDetails;

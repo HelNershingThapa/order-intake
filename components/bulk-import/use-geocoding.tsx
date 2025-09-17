@@ -1,5 +1,7 @@
 "use client";
+
 import { useCallback, useEffect, useState } from "react";
+import { search, places } from "@/app/vendor/actions";
 import {
   optionalKeys,
   requiredKeys,
@@ -22,25 +24,27 @@ export function useGeocoding({ data, mapping }: UseGeocodingArgs) {
   const [pickerOpen, setPickerOpen] = useState(false);
   const [pickerRowId, setPickerRowId] = useState<number | null>(null);
 
-  const simulateGeocodeAPI = (
-    address: string,
-  ): Promise<{ lat: number; lng: number } | null> => {
-    return new Promise((resolve) => {
-      const delay = 150 + Math.random() * 450;
-      setTimeout(() => {
-        if (address && address.trim().length > 3 && Math.random() < 0.7) {
-          const lat = 26.4 + Math.random() * (30.4 - 26.4);
-          const lng = 80 + Math.random() * (88.2 - 80);
-          resolve({
-            lat: parseFloat(lat.toFixed(5)),
-            lng: parseFloat(lng.toFixed(5)),
-          });
-        } else {
-          resolve(null);
-        }
-      }, delay);
-    });
-  };
+  /**
+   * Geocode an address using Baato search + places API via server actions.
+   * 1. search(query) -> take first result placeId
+   * 2. places(placeId) -> centroid { lat, lon }
+   * Returns { lat, lng } or null if not found / error.
+   */
+  const geocodeAddress = useCallback(async (address: string) => {
+    const query = address?.trim();
+    if (!query) return null;
+    const searchRes = await search(query);
+    const first = searchRes?.data?.[0];
+    if (!first) return null;
+    const placeRes = await places(String(first.placeId));
+    const place = placeRes?.data?.[0];
+    const lat = place?.centroid?.lat;
+    const lon = place?.centroid?.lon;
+    if (typeof lat === "number" && typeof lon === "number") {
+      return { lat, lng: lon };
+    }
+    return null;
+  }, []);
 
   function transformRow(
     r: GeocodedRow,
@@ -116,7 +120,7 @@ export function useGeocoding({ data, mapping }: UseGeocodingArgs) {
       for (const row of pending) {
         if (cancelled) return;
         const addr = (row.mapped.delivery_address_text || "").toString();
-        const result = await simulateGeocodeAPI(addr);
+        const result = await geocodeAddress(addr).catch(() => null);
         updateRow(row.id, result);
       }
       setGeocodeInProgress(false);
@@ -125,7 +129,7 @@ export function useGeocoding({ data, mapping }: UseGeocodingArgs) {
     return () => {
       cancelled = true;
     };
-  }, [geocodeRows, geocodeStarted]);
+  }, [geocodeRows, geocodeStarted, geocodeAddress]);
 
   const failedGeocodes = geocodeRows.filter((r) => r.status === "failed");
   const pendingGeocodes = geocodeRows.filter(
