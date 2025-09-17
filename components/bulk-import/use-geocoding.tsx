@@ -104,25 +104,27 @@ export function useGeocoding({ data, mapping }: UseGeocodingArgs) {
     if (!geocodeStarted || !pending.length) return;
     let cancelled = false;
     setGeocodeInProgress(true);
-    const updateRow = (
-      rowId: number,
-      result: { lat: number; lng: number } | null,
-    ) => {
-      setGeocodeRows((prev) => {
-        const updated: GeocodedRow[] = [];
-        for (const r of prev) {
-          updated.push(transformRow(r, rowId, result));
-        }
-        return updated;
-      });
-    };
     const run = async () => {
-      for (const row of pending) {
-        if (cancelled) return;
+      // Geocode all pending rows concurrently
+      const tasks = pending.map(async (row, index) => {
         const addr = (row.mapped.delivery_address_text || "").toString();
-        const result = await geocodeAddress(addr).catch(() => null);
-        updateRow(row.id, result);
-      }
+        const res = await geocodeAddress(addr).catch(() => null);
+        return {
+          rowId: row.id,
+          result: res as { lat: number; lng: number } | null,
+        };
+      });
+      const results = await Promise.all(tasks);
+      if (cancelled) return;
+
+      // Build a lookup and update all affected rows in one pass
+      const byId = new Map<number, { lat: number; lng: number } | null>();
+      for (const r of results) byId.set(r.rowId, r.result);
+      setGeocodeRows((prev) =>
+        prev.map((r) =>
+          byId.has(r.id) ? transformRow(r, r.id, byId.get(r.id) ?? null) : r,
+        ),
+      );
       setGeocodeInProgress(false);
     };
     run();
