@@ -99,6 +99,16 @@ export function useGeocoding({ data, mapping }: UseGeocodingArgs) {
     initializeGeocodeRows();
   }, [data.length, initializeGeocodeRows]);
 
+  // Allow hydrating from persisted state (e.g., after a refresh)
+  const hydrateFromPersisted = useCallback(
+    (rows: GeocodedRow[], started: boolean = true) => {
+      if (!Array.isArray(rows)) return;
+      setGeocodeRows(rows);
+      setGeocodeStarted(Boolean(started));
+    },
+    [],
+  );
+
   useEffect(() => {
     const pending = geocodeRows.filter((r) => r.status === "pending");
     if (!geocodeStarted || !pending.length) return;
@@ -184,6 +194,7 @@ export function useGeocoding({ data, mapping }: UseGeocodingArgs) {
     startGeocoding,
     geocodeInProgress,
     geocodeStarted,
+    hydrateFromPersisted,
     failedGeocodes,
     stats: {
       failed: failedGeocodes.length,

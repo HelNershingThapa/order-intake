@@ -10,10 +10,12 @@ import {
   createEmptyMapping,
   requiredKeys,
   type CanonicalKey,
+  type GeocodedRow,
 } from "@/components/bulk-import/steps";
 import { UploadFileStep } from "@/components/bulk-import/upload-file-step";
 import { MapColumnsStep } from "@/components/bulk-import/map-columns-step";
 import { GeocodeErrorsStep } from "@/components/bulk-import/geocode-errors-step";
+import { ReviewStep } from "@/components/bulk-import/review-step";
 import { useGeocoding } from "@/components/bulk-import/use-geocoding";
 import { type CsvRow } from "@/utils/csv-parser";
 
@@ -25,6 +27,10 @@ export default function Page() {
     orders: CsvRow[];
     headers: string[];
     mapping: ReturnType<typeof createEmptyMapping>;
+    geocoding?: {
+      rows: GeocodedRow[];
+      started: boolean;
+    };
   }
   // Guard to avoid persisting immediately on first hydration restore
   const hydratedRef = useRef(false);
@@ -59,6 +65,17 @@ export default function Page() {
         setMapping(parsed.mapping);
       if (parsed.step && steps.some((s) => s.value === parsed.step))
         setCurrentStep(parsed.step);
+      // Hydrate geocoding rows if present
+      if (
+        parsed.geocoding &&
+        Array.isArray(parsed.geocoding.rows) &&
+        parsed.geocoding.rows.length
+      ) {
+        geocode.hydrateFromPersisted(
+          parsed.geocoding.rows as any[],
+          Boolean(parsed.geocoding.started),
+        );
+      }
     } catch (e) {
       console.warn("Failed to hydrate bulk import state", e);
     } finally {
@@ -81,12 +98,23 @@ export default function Page() {
         orders,
         headers,
         mapping,
+        geocoding: {
+          rows: geocode.geocodeRows,
+          started: geocode.geocodeStarted,
+        },
       };
       window.localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
     } catch (e) {
       console.warn("Failed to persist bulk import state", e);
     }
-  }, [orders, headers, mapping, currentStep]);
+  }, [
+    orders,
+    headers,
+    mapping,
+    currentStep,
+    geocode.geocodeRows,
+    geocode.geocodeStarted,
+  ]);
 
   // Auto advance to duplicates when all geocoded
   useEffect(() => {
@@ -202,6 +230,13 @@ export default function Page() {
           geocodeInProgress={geocode.geocodeInProgress}
           openPickerForRow={geocode.openPickerForRow}
           setRowLatLng={geocode.setRowLatLng}
+        />
+      )}
+      {currentStep === "review" && (
+        <ReviewStep
+          rows={geocode.geocodeRows}
+          onBack={() => setCurrentStep("errors")}
+          onContinue={() => setCurrentStep("folder")}
         />
       )}
       <CoordinatePickerDialog
