@@ -75,6 +75,7 @@ export const CoordinatePickerDialog: React.FC<CoordinatePickerDialogProps> = ({
                 mapStyle={MAP_STYLE}
                 style={{ width: "100%", height: "100%" }}
                 dragRotate={false}
+                attributionControl={false}
                 onClick={handleMapClick}
               >
                 {point && (

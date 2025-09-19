@@ -77,6 +77,7 @@ export default function LocationMap({
           }}
           style={{ width: "100%", height: 300 }}
           mapStyle={`https://api.maptiler.com/maps/streets/style.json?key=${MAP_KEY}`}
+          attributionControl={false}
           onClick={handleMapClick}
         >
           <NavigationControl position="top-right" />

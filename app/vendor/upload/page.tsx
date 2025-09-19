@@ -18,6 +18,9 @@ import { GeocodeErrorsStep } from "@/components/bulk-import/geocode-errors-step"
 import { ReviewStep } from "@/components/bulk-import/review-step";
 import { useGeocoding } from "@/components/bulk-import/use-geocoding";
 import { type CsvRow } from "@/utils/csv-parser";
+import { toast } from "sonner";
+import { useMutation } from "@tanstack/react-query";
+import { uploadOrders } from "./actions";
 
 export default function Page() {
   // --- Persistence (localStorage) ---
@@ -45,6 +48,36 @@ export default function Page() {
     setMapping((m) => ({ ...m, [key]: value }));
 
   const geocode = useGeocoding({ data: orders, mapping });
+
+  const mutation = useMutation({
+    mutationFn: uploadOrders,
+    onSuccess: (res) => {
+      const created = res?.created?.length ?? 0;
+      const failed = res?.failed?.length ?? 0;
+      toast.success("Bulk upload complete", {
+        description: `Created: ${created} • Failed: ${failed}`,
+      });
+      // Clear persisted state after successful upload
+      try {
+        if (typeof window !== "undefined") {
+          window.localStorage.removeItem(STORAGE_KEY);
+        }
+      } catch {}
+
+      // Reset state in UI
+      setOrders([]);
+      setHeaders([]);
+      setMapping(createEmptyMapping());
+      setCurrentStep(steps[0].value);
+    },
+    onError: (error) => {
+      toast.error("Bulk upload failed", {
+        description:
+          JSON.stringify(error?.message, null, 2) ||
+          "An error occurred while uploading orders",
+      });
+    },
+  });
 
   // Hydrate from localStorage once on mount
   useEffect(() => {
@@ -139,6 +172,87 @@ export default function Page() {
       geocode.startGeocoding();
     }
   }, [currentStep, orders.length, geocode.geocodeRows.length]);
+
+  // Build RawOrder[] from successful geocoded rows and submit to backend
+  const handleSubmitOrders = async () => {
+    if (mutation.isPending) return;
+    try {
+      const successRows = geocode.geocodeRows.filter(
+        (r) => r.status === "success" && r.lat != null && r.lng != null,
+      );
+      if (!successRows.length) {
+        toast.error("No geocoded rows to upload");
+        return;
+      }
+
+      const parseNumber = (v: any): number | undefined => {
+        if (typeof v === "number") return Number.isFinite(v) ? v : undefined;
+        const s = String(v ?? "")
+          .replace(/,/g, "")
+          .trim();
+        const n = parseFloat(s);
+        return Number.isFinite(n) ? n : undefined;
+      };
+
+      const parseDimensions = (
+        v: any,
+      ): { l: number; w: number; h: number } | undefined => {
+        if (v == null) return undefined;
+        if (typeof v === "object") {
+          const l = parseNumber((v as any).l);
+          const w = parseNumber((v as any).w);
+          const h = parseNumber((v as any).h);
+          if (l && w && h) return { l, w, h };
+          return undefined;
+        }
+        const s = String(v);
+        const nums = s
+          .split(/[^0-9.]+/)
+          .map((x) => parseFloat(x))
+          .filter((n) => Number.isFinite(n));
+        if (nums.length >= 3) {
+          return { l: nums[0], w: nums[1], h: nums[2] };
+        }
+        return undefined;
+      };
+
+      const items = successRows.map((r) => {
+        const rawW = parseNumber(r.mapped.parcel_weight);
+        let weight_kg: number;
+        if (rawW == null || !Number.isFinite(rawW) || rawW <= 0) {
+          // enforce > 0 if missing/invalid
+          weight_kg = 0.01;
+        } else if (rawW > 1000) {
+          // cap at 1000 if it exceeds
+          weight_kg = 1000;
+        } else {
+          weight_kg = rawW;
+        }
+        return {
+          recipient_name: String(r.mapped.recipient_name ?? ""),
+          recipient_phone: String(r.mapped.recipient_phone ?? ""),
+          delivery_address_text: String(r.mapped.delivery_address_text ?? ""),
+          municipality: r.mapped.municipality
+            ? String(r.mapped.municipality)
+            : undefined,
+          ward: r.mapped.ward ? String(r.mapped.ward) : undefined,
+          tole: r.mapped.tole ? String(r.mapped.tole) : undefined,
+          landmark: r.mapped.landmark ? String(r.mapped.landmark) : undefined,
+          lat: r.lat ?? undefined,
+          lng: r.lng ?? undefined,
+          // Ensure weight > 0 and cap at 1000 (assign 1000 if it exceeds)
+          weight_kg,
+          dimensions: parseDimensions(r.mapped.dimensions),
+        };
+      });
+
+      mutation.mutate(items);
+    } catch (e: any) {
+      toast.error("Bulk upload failed", {
+        description: e?.message || "An error occurred while uploading orders",
+      });
+    }
+  };
 
   return (
     <div className="space-y-6">
@@ -236,7 +350,8 @@ export default function Page() {
         <ReviewStep
           rows={geocode.geocodeRows}
           onBack={() => setCurrentStep("errors")}
-          onContinue={() => setCurrentStep("folder")}
+          onSubmit={handleSubmitOrders}
+          isPending={mutation.isPending}
         />
       )}
       <CoordinatePickerDialog

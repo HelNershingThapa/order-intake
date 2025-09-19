@@ -6,7 +6,6 @@ export const steps = [
   { title: "Map Header Columns", value: "map" },
   { title: "Fix Geocoding Errors", value: "errors" },
   { title: "Review Locations", value: "review" },
-  { title: "Add to Folder", value: "folder" },
 ] as const;
 
 export const requiredKeys = [

@@ -1,11 +1,12 @@
 "use server";
+
 import { cookies } from "next/headers";
 
-const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL!;
+const API_BASE = process.env.API_BASE_URL!;
 
 export async function serverFetch<T = any>(
   path: string,
-  init?: RequestInit
+  init?: RequestInit,
 ): Promise<T> {
   const apiKey = (await cookies()).get("api_key")?.value ?? "";
   const url = `${API_BASE.replace(/\/$/, "")}${
@@ -27,7 +28,7 @@ export async function serverFetch<T = any>(
   if (!res.ok) {
     const msg = await safeMsg(res);
     const err = new Error(
-      msg || `Request failed with status: ${res.status}`
+      msg || `Request failed with status: ${res.status}`,
     ) as any;
     err.status = res.status;
     err.body = msg;

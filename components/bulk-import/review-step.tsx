@@ -16,7 +16,8 @@ import type { GeoJSONSource } from "maplibre-gl";
 interface ReviewStepProps {
   rows: GeocodedRow[]; // includes all; we will filter to successful
   onBack?: () => void;
-  onContinue?: () => void;
+  onSubmit?: () => void;
+  isPending: boolean;
 }
 
 type Feature = GeoJSON.Feature<GeoJSON.Point, { id: number; label?: string }>;
@@ -40,7 +41,12 @@ function toGeoJSON(rows: GeocodedRow[]): GeoJSON.FeatureCollection {
   return { type: "FeatureCollection", features: feats };
 }
 
-export function ReviewStep({ rows, onBack, onContinue }: ReviewStepProps) {
+export function ReviewStep({
+  rows,
+  onBack,
+  onSubmit,
+  isPending,
+}: ReviewStepProps) {
   const geojson = useMemo(() => toGeoJSON(rows), [rows]);
   const mapRef = useRef<any>(null);
   const [selectedId, setSelectedId] = useState<number | null>(null);
@@ -225,14 +231,14 @@ export function ReviewStep({ rows, onBack, onContinue }: ReviewStepProps) {
                 Back
               </Button>
             )}
-            {onContinue && (
+            {onSubmit && (
               <Button
                 type="button"
                 size="sm"
-                onClick={onContinue}
-                disabled={!successRows.length}
+                onClick={onSubmit}
+                disabled={!successRows.length || isPending}
               >
-                Continue
+                Submit
               </Button>
             )}
           </div>
@@ -249,6 +255,7 @@ export function ReviewStep({ rows, onBack, onContinue }: ReviewStepProps) {
             fitBoundsOptions={{ padding: 15 }}
             mapStyle={MAP_STYLE}
             interactiveLayerIds={[clusterLayer.id!, "unclustered-point"]}
+            attributionControl={false}
             onClick={handleMapClick}
           >
             <Source

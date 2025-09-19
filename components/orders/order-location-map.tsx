@@ -50,6 +50,7 @@ export const OrderLocationMap = () => {
         mapStyle={`https://api.baato.io/api/v1/styles/breeze?key=${process.env.NEXT_PUBLIC_BAATO_ACCESS_TOKEN}`}
         dragRotate={false}
         onClick={handleMapClick}
+        attributionControl={false}
       >
         {point && (
           <Marker

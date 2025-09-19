@@ -28,6 +28,8 @@ export type Order = OrderSummary & {
   };
 };
 
+export type OrderDetails = OrderSummary & RawOrder;
+
 export type OrderListResponse = {
   items: OrderSummary[];
   page: number;
@@ -41,4 +43,10 @@ export type OrderFilters = {
   geocode_status?: "all" | GeocodeStatus;
   page?: number;
   page_size?: number;
+};
+
+// Bulk upload response shape returned by backend
+export type BulkUploadResponse = {
+  created: OrderSummary[];
+  failed: { index: number; error: string }[];
 };
