@@ -15,7 +15,7 @@ import { getOrders } from "@/lib/order-service";
 import { OrderFilters } from "@/types/order";
 import { FilterBar } from "./filter-bar";
 import { Pagination } from "./pagination";
-import { DeleteOrderButton } from "./delete-order-button";
+import { DeleteOrderButton } from "./delete-order-dialog";
 import { Suspense } from "react";
 
 function parseFilters(searchParams: any): OrderFilters {

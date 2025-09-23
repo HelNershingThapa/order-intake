@@ -10,7 +10,7 @@ export type OrderSummary = {
   updated_at: string;
 };
 
-export type OrderDetails = OrderSummary & {
+export type Order = OrderSummary & {
   recipient_name: string;
   recipient_phone: string;
   delivery_address_text: string;

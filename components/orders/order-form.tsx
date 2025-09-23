@@ -31,16 +31,16 @@ import {
   type OrderFormData,
 } from "@/components/orders/order-schema";
 import { createOrder, updateOrder } from "@/lib/order-service";
-import { OrderDetails } from "@/types/order";
+import { Order } from "@/types/order";
 import { OrderLocationMap } from "@/components/orders/order-location-map";
 
 type OrderFormProps = {
-  initialData?: OrderDetails;
+  initialData?: Order;
   mode: "create" | "edit";
 };
 
 // Extract default values to prevent hydration mismatches
-const getDefaultValues = (initialData?: OrderDetails): OrderFormData => {
+const getDefaultValues = (initialData?: Order): OrderFormData => {
   if (initialData) {
     return {
       recipient_name: initialData.recipient_name || "",

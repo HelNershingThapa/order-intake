@@ -1,5 +1,5 @@
 import { serverFetch } from "./serverFetch";
-import { OrderListResponse, OrderFilters, OrderDetails } from "@/types/order";
+import type { OrderListResponse, OrderFilters, Order } from "@/types/order";
 
 export async function getOrders(
   filters: OrderFilters = {},
@@ -23,22 +23,19 @@ export async function getOrders(
   return serverFetch<OrderListResponse>(`/orders?${params.toString()}`);
 }
 
-export async function getOrder(orderId: string): Promise<OrderDetails> {
-  return serverFetch<OrderDetails>(`/orders/${orderId}`);
+export async function getOrder(orderId: string): Promise<Order> {
+  return serverFetch<Order>(`/orders/${orderId}`);
 }
 
-export async function createOrder(data: any): Promise<OrderDetails> {
-  return serverFetch<OrderDetails>("/orders", {
+export async function createOrder(data: any): Promise<Order> {
+  return serverFetch<Order>("/orders", {
     method: "POST",
     body: JSON.stringify(data),
   });
 }
 
-export async function updateOrder(
-  orderId: string,
-  data: any,
-): Promise<OrderDetails> {
-  return serverFetch<OrderDetails>(`/orders/${orderId}`, {
+export async function updateOrder(orderId: string, data: any): Promise<Order> {
+  return serverFetch<Order>(`/orders/${orderId}`, {
     method: "PUT",
     body: JSON.stringify(data),
   });

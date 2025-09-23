@@ -4,7 +4,7 @@ import { schema, State } from "./stats";
 
 export async function loginAction(
   prev: State,
-  formData: FormData
+  formData: FormData,
 ): Promise<State> {
   const parsed = schema.safeParse({
     name: formData.get("name"),
@@ -28,7 +28,7 @@ export async function loginAction(
   const { name, apikey } = parsed.data;
 
   try {
-    const baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL!;
+    const baseUrl = process.env.API_BASE_URL!;
     const res = await fetch(`${baseUrl.replace(/\/$/, "")}/vendor/me`, {
       method: "GET",
       headers: { "X-API-Key": apikey, Accept: "application/json" },
