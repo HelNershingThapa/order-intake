@@ -15,7 +15,7 @@ export const columns: ColumnDef<OrderSummary>[] = [
       <DataTableColumnHeader column={column} title="Order ID" />
     ),
     cell: ({ row }) => (
-      <div className="w-[120px]">{row.getValue("order_id")}</div>
+      <div className="max-w-[200px] truncate">{row.getValue("order_id")}</div>
     ),
     enableSorting: false,
     enableHiding: false,
@@ -84,7 +84,7 @@ export const columns: ColumnDef<OrderSummary>[] = [
       }
 
       return (
-        <div className="flex w-[120px] items-center">
+        <div className="flex items-center">
           {geocodeStatus.icon && (
             <geocodeStatus.icon className="mr-2 h-4 w-4 text-muted-foreground" />
           )}
