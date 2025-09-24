@@ -11,6 +11,7 @@ import { DataTableViewOptions } from "./data-table-view-options";
 
 import { orderStatuses, geocodeStatuses } from "./config";
 import { DataTableFacetedFilter } from "./data-table-faceted-filter";
+import { GenerateRunSheet } from "./generate-run-sheet";
 
 interface DataTableToolbarProps<TData> {
   table: Table<TData>;
@@ -72,6 +73,7 @@ export function DataTableToolbar<TData>({
         )}
       </div>
       <div className="flex items-center gap-2">
+        {table.options.enableRowSelection && <GenerateRunSheet table={table} />}
         <DataTableViewOptions table={table} />
         <Button size="sm" asChild>
           <Link href="/vendor/orders/new">Add Order</Link>

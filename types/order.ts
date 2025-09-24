@@ -28,7 +28,7 @@ export type Order = OrderSummary & {
   };
 };
 
-export type OrderDetails = OrderSummary & RawOrder;
+export type OrderDetails = OrderSummary & Order;
 
 export type OrderListResponse = {
   items: OrderSummary[];
@@ -49,4 +49,27 @@ export type OrderFilters = {
 export type BulkUploadResponse = {
   created: OrderSummary[];
   failed: { index: number; error: string }[];
+};
+
+export type RunBooking = {
+  orderId: string;
+  priority: number;
+  quantity: number;
+  weight: number;
+  length: number;
+  width: number;
+  height: number;
+  customerName: string;
+  contactNumber: string;
+  address: string;
+};
+
+export type CreateRunRequest = {
+  businessNumber: string;
+  runStartTime: string;
+  runEndTime: string;
+  readyToPickupTime: string;
+  runName: string;
+  runBookings: RunBooking[];
+  apiKey: string;
 };

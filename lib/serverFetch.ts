@@ -7,8 +7,10 @@ const API_BASE = process.env.API_BASE_URL!;
 export async function serverFetch<T = any>(
   path: string,
   init?: RequestInit,
+  isAdmin = false,
 ): Promise<T> {
-  const apiKey = (await cookies()).get("api_key")?.value ?? "";
+  const adminKey = process.env.ADMIN_API_KEY ?? "";
+  const apiKey = !isAdmin ? (await cookies()).get("api_key")?.value ?? "" : "";
   const url = `${API_BASE.replace(/\/$/, "")}${
     path.startsWith("/") ? path : `/${path}`
   }`;
@@ -18,7 +20,13 @@ export async function serverFetch<T = any>(
     headers: {
       Accept: "application/json",
       "Content-Type": "application/json",
-      ...(apiKey ? { "X-API-Key": apiKey } : {}),
+      ...(isAdmin
+        ? adminKey
+          ? { "X-Admin-Key": adminKey }
+          : {}
+        : apiKey
+        ? { "X-API-Key": apiKey }
+        : {}),
       ...(init?.headers ?? {}),
     },
     cache: "no-store",

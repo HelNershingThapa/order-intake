@@ -3,6 +3,7 @@ import type { OrderListResponse, OrderFilters, Order } from "@/types/order";
 
 export async function getOrders(
   filters: OrderFilters = {},
+  isAdmin: boolean = false,
 ): Promise<OrderListResponse> {
   const {
     search,

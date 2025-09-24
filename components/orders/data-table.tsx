@@ -31,17 +31,23 @@ import { usePathname, useRouter } from "next/navigation";
 interface DataTableProps<TValue> {
   columns: ColumnDef<OrderSummary, TValue>[];
   data: OrderListResponse;
+  isAdmin?: boolean;
 }
 
-export function DataTable<TValue>({ columns, data }: DataTableProps<TValue>) {
+export function DataTable<TValue>({
+  columns,
+  data,
+  isAdmin = false,
+}: DataTableProps<TValue>) {
   const pathname = usePathname();
   const { replace } = useRouter();
   const [columnVisibility, setColumnVisibility] =
-    React.useState<VisibilityState>({});
+    React.useState<VisibilityState>({ select: isAdmin });
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
     [],
   );
   const [sorting, setSorting] = React.useState<SortingState>([]);
+  const [rowSelection, setRowSelection] = React.useState({});
 
   const table = useReactTable({
     data: data.items,
@@ -50,9 +56,12 @@ export function DataTable<TValue>({ columns, data }: DataTableProps<TValue>) {
       sorting,
       columnVisibility,
       columnFilters,
+      rowSelection,
     },
+    enableRowSelection: isAdmin,
     manualFiltering: true,
     manualPagination: true,
+    onRowSelectionChange: setRowSelection,
     onSortingChange: setSorting,
     onPaginationChange: (updater) => {
       // Update search params on pagination change
@@ -72,6 +81,7 @@ export function DataTable<TValue>({ columns, data }: DataTableProps<TValue>) {
     getSortedRowModel: getSortedRowModel(),
     getFacetedRowModel: getFacetedRowModel(),
     getFacetedUniqueValues: getFacetedUniqueValues(),
+    getRowId: (order) => order.order_id,
   });
 
   return (

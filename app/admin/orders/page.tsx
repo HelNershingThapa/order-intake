@@ -32,7 +32,7 @@ export default async function OrdersPage(props: {
 }) {
   const searchParams = await props.searchParams;
   const filters = parseFilters(searchParams);
-  const ordersResponse = await getOrders(filters);
+  const ordersResponse = await getOrders(filters, true);
 
   return (
     <div className="space-y-8">
@@ -44,7 +44,7 @@ export default async function OrdersPage(props: {
           </p>
         </div>
       </div>
-      <DataTable data={ordersResponse} columns={columns} />
+      <DataTable data={ordersResponse} columns={columns} isAdmin />
     </div>
   );
 }
