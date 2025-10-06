@@ -1,6 +1,7 @@
 "use server";
 
 import type { CreateRunRequest } from "@/types/order";
+import type { Run, RunListResponse } from "@/types/vrs";
 
 export async function generateRun({
   apiKey,
@@ -37,5 +38,18 @@ export async function generateRun({
   // }
 
   // Endpoint may return a body; callers currently ignore it and expect void
+  return data;
+}
+
+export async function getRuns(apiKey: string): Promise<Run[]> {
+  const res = await fetch("https://vrs.baato.io/api/v1/run/run-list", {
+    method: "GET",
+    headers: {
+      Accept: "application/json",
+      "X-Token": apiKey,
+    },
+    cache: "no-store",
+  });
+  const { data } = (await res.json()) as RunListResponse;
   return data;
 }
