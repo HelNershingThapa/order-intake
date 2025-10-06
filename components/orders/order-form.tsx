@@ -35,7 +35,7 @@ import { Order } from "@/types/order";
 import { OrderLocationMap } from "@/components/orders/order-location-map";
 
 type OrderFormProps = {
-  initialData?: Order;
+  initialData?: Order & { id: string };
   mode: "create" | "edit";
 };
 
@@ -99,9 +99,8 @@ export default function OrderForm({ initialData, mode }: OrderFormProps) {
           toast.success(`Order created (#${result.order_id})`);
           router.push("/vendor/orders");
         } else if (initialData) {
-          const result = await updateOrder(initialData.order_id, data);
-          toast.success(`Order updated (#${result.order_id})`);
-          router.push("/vendor/orders");
+          await updateOrder(initialData.id, data);
+          toast.success(`Order updated (#${initialData.id})`);
         }
       } catch (error: any) {
         toast.error(`Failed to ${mode} order`, {
@@ -117,7 +116,7 @@ export default function OrderForm({ initialData, mode }: OrderFormProps) {
         <CardTitle>
           {mode === "create"
             ? "Create Order"
-            : `Edit Order #${initialData?.order_id}`}
+            : `Edit Order #${initialData?.id}`}
         </CardTitle>
       </CardHeader>
 

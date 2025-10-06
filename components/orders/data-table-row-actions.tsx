@@ -47,7 +47,7 @@ export function DataTableRowActions<TData>({
             </Link>
           </DropdownMenuItem>
           <DropdownMenuItem asChild>
-            <Link href={`/vendor/orders/${order.order_id}/edit`}>
+            <Link href={`/vendor/orders/${order.order_id}`}>
               <Edit className="mr-2 h-4 w-4" />
               Edit Order
             </Link>

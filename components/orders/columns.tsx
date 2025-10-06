@@ -8,6 +8,7 @@ import { DataTableRowActions } from "./data-table-row-actions";
 import type { OrderSummary } from "@/types/order";
 import { format } from "date-fns";
 import { Checkbox } from "@/components/ui/checkbox";
+import Link from "next/link";
 
 export const columns: ColumnDef<OrderSummary>[] = [
   {
@@ -40,7 +41,14 @@ export const columns: ColumnDef<OrderSummary>[] = [
       <DataTableColumnHeader column={column} title="Order ID" />
     ),
     cell: ({ row }) => (
-      <div className="max-w-[200px] truncate">{row.getValue("order_id")}</div>
+      <div className="max-w-[200px] truncate">
+        <Link
+          href={`/vendor/orders/${row.getValue("order_id")}`}
+          className="font-medium hover:underline"
+        >
+          {row.getValue("order_id")}
+        </Link>
+      </div>
     ),
     enableSorting: false,
     enableHiding: false,

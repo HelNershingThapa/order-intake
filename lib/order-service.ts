@@ -37,7 +37,7 @@ export async function createOrder(data: any): Promise<Order> {
 
 export async function updateOrder(orderId: string, data: any): Promise<Order> {
   return serverFetch<Order>(`/orders/${orderId}`, {
-    method: "PUT",
+    method: "PATCH",
     body: JSON.stringify(data),
   });
 }

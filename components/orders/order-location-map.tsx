@@ -92,7 +92,6 @@ export const SearchAddress = () => {
       setIsPlaceLoading(true);
       // Fetch place details using the OSM ID
       const placeDetails = await places(searchResult.osmId);
-      console.log("placeDetails:", placeDetails);
       if (placeDetails) {
         map?.flyTo({
           center: {
@@ -114,7 +113,6 @@ export const SearchAddress = () => {
   return (
     <Command shouldFilter={false}>
       <CommandInput
-        autoFocus
         placeholder="Search address..."
         value={query}
         isLoading={isPlaceLoading}
