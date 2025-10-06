@@ -1,235 +1,87 @@
 "use client";
 
-import Image from "next/image";
-import Link from "next/link";
-import cover from "@/public/baato_maps_cover.jpeg";
-
+import * as React from "react";
 import {
-  ChartColumnIncreasing,
-  Package,
-  Upload,
-  Settings as SettingsIcon,
-  Plus,
-  PlusCircle,
-  Pencil,
-  MapPin,
-  PlayCircle,
-  UploadCloud,
-  Table,
-  CheckSquare,
-  User2,
-  ChevronDown,
-} from "lucide-react";
+  IconDashboard,
+  IconListDetails,
+  IconFileUpload,
+  // IconSettingsBolt,
+} from "@tabler/icons-react";
 
+import { NavMain } from "@/components/nav-main";
+import { NavUser } from "@/components/nav-user";
 import {
   Sidebar,
   SidebarContent,
   SidebarFooter,
-  SidebarGroup,
-  SidebarGroupAction,
-  SidebarGroupContent,
-  SidebarGroupLabel,
   SidebarHeader,
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
-  SidebarSeparator,
-} from "./ui/sidebar";
+} from "@/components/ui/sidebar";
+import Link from "next/link";
+import Image from "next/image";
 
-import {
-  Collapsible,
-  CollapsibleContent,
-  CollapsibleTrigger,
-} from "@radix-ui/react-collapsible";
+const data = {
+  user: {
+    name: "suraj",
+    email: "suraj@example.com",
+    avatar: "/avatars/shadcn.jpg",
+  },
+  navMain: [
+    {
+      title: "Dashboard",
+      url: "/vendor/dashboard",
+      icon: IconDashboard,
+    },
+    {
+      title: "Orders",
+      url: "/vendor/orders",
+      icon: IconListDetails,
+    },
+    {
+      title: "Bulk Upload",
+      url: "/vendor/upload",
+      icon: IconFileUpload,
+    },
+    // {
+    //   title: "Settings",
+    //   url: "/vendor/settings",
+    //   icon: IconSettingsBolt,
+    // },
+  ],
+};
 
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "./ui/dropdown-menu";
-
-const mainItems = [
-  { title: "Dashboard", url: "/vendor/dashboard", icon: ChartColumnIncreasing },
-  { title: "Orders", url: "/vendor/orders", icon: Package },
-  { title: "Bulk Upload", url: "/vendor/upload", icon: Upload },
-  { title: "Settings", url: "/vendor/settings", icon: SettingsIcon },
-];
-
-export const AppSidebar = ({
-  ...props
-}: React.ComponentProps<typeof Sidebar>) => {
+export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   return (
-    <Sidebar collapsible="icon" {...props}>
-      {/* Header / Logo */}
+    <Sidebar collapsible="offcanvas" {...props}>
       <SidebarHeader>
         <SidebarMenu>
           <SidebarMenuItem>
-            <SidebarMenuButton asChild>
+            <SidebarMenuButton
+              asChild
+              className="data-[slot=sidebar-menu-button]:!p-1.5"
+            >
               <Link href="/">
-                <Image src={cover} alt="Baato Maps cover" />
+                <div className="relative w-full h-16">
+                  <Image
+                    src={"/baato_maps_cover.jpeg"}
+                    alt="Baato Maps cover"
+                    fill
+                    objectFit="cover"
+                  />
+                </div>
               </Link>
             </SidebarMenuButton>
           </SidebarMenuItem>
         </SidebarMenu>
       </SidebarHeader>
-      <SidebarSeparator />
       <SidebarContent>
-        {/* Main application links */}
-        <SidebarGroup>
-          <SidebarGroupLabel>Application</SidebarGroupLabel>
-          <SidebarGroupContent>
-            <SidebarMenu>
-              {mainItems.map((item) => (
-                <SidebarMenuItem key={item.title}>
-                  <SidebarMenuButton asChild>
-                    <Link href={item.url}>
-                      <item.icon className="mr-2" />
-                      <span>{item.title}</span>
-                    </Link>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              ))}
-            </SidebarMenu>
-          </SidebarGroupContent>
-        </SidebarGroup>
-
-        {/* Orders group (collapsible) */}
-        <Collapsible defaultOpen className="group/orders">
-          <SidebarGroup>
-            <SidebarGroupLabel asChild>
-              <CollapsibleTrigger className="flex w-full items-center">
-                Orders
-                <ChevronDown className="ml-auto transition-transform group-data-[state=open]/orders:rotate-180" />
-              </CollapsibleTrigger>
-            </SidebarGroupLabel>
-
-            <CollapsibleContent>
-              <SidebarGroupContent>
-                <SidebarMenu>
-                  <SidebarMenuItem>
-                    <SidebarMenuButton asChild>
-                      <Link href="/vendor/orders/new">
-                        <PlusCircle className="mr-2" />
-                        Create Order
-                      </Link>
-                    </SidebarMenuButton>
-                  </SidebarMenuItem>
-                  <SidebarMenuItem>
-                    <SidebarMenuButton asChild>
-                      <Link href="/vendor/orders/update">
-                        <Pencil className="mr-2" />
-                        Update Order
-                      </Link>
-                    </SidebarMenuButton>
-                  </SidebarMenuItem>
-                  <SidebarMenuItem>
-                    <SidebarMenuButton asChild>
-                      <Link href="/vendor/orders/geostatus">
-                        <MapPin className="mr-2" />
-                        Update Geostatus
-                      </Link>
-                    </SidebarMenuButton>
-                  </SidebarMenuItem>
-                  <SidebarMenuItem>
-                    <SidebarMenuButton asChild>
-                      <Link href="/vendor/orders/actions">
-                        <PlayCircle className="mr-2" />
-                        Take Action
-                      </Link>
-                    </SidebarMenuButton>
-                  </SidebarMenuItem>
-                </SidebarMenu>
-              </SidebarGroupContent>
-            </CollapsibleContent>
-          </SidebarGroup>
-        </Collapsible>
-
-        {/* Bulk Upload group (collapsible) */}
-        <Collapsible defaultOpen className="group/upload">
-          <SidebarGroup>
-            <SidebarGroupLabel asChild>
-              <CollapsibleTrigger className="flex w-full items-center">
-                Bulk Upload
-                <ChevronDown className="ml-auto transition-transform group-data-[state=open]/upload:rotate-180" />
-              </CollapsibleTrigger>
-            </SidebarGroupLabel>
-
-            <CollapsibleContent>
-              <SidebarGroupContent>
-                <SidebarMenu>
-                  <SidebarMenuItem>
-                    <SidebarMenuButton asChild>
-                      <Link href="/vendor/upload/csv">
-                        <UploadCloud className="mr-2" />
-                        Upload CSV
-                      </Link>
-                    </SidebarMenuButton>
-                  </SidebarMenuItem>
-                  <SidebarMenuItem>
-                    <SidebarMenuButton asChild>
-                      <Link href="/vendor/upload/edit-rows">
-                        <Table className="mr-2" />
-                        Edit Each Row
-                      </Link>
-                    </SidebarMenuButton>
-                  </SidebarMenuItem>
-                  <SidebarMenuItem>
-                    <SidebarMenuButton asChild>
-                      <Link href="/vendor/upload/row-status">
-                        <CheckSquare className="mr-2" />
-                        Update Row Status
-                      </Link>
-                    </SidebarMenuButton>
-                  </SidebarMenuItem>
-                  <SidebarMenuItem>
-                    <SidebarMenuButton asChild>
-                      <Link href="/vendor/upload/actions">
-                        <PlayCircle className="mr-2" />
-                        Take Action
-                      </Link>
-                    </SidebarMenuButton>
-                  </SidebarMenuItem>
-                </SidebarMenu>
-              </SidebarGroupContent>
-            </CollapsibleContent>
-          </SidebarGroup>
-        </Collapsible>
+        <NavMain items={data.navMain} />
       </SidebarContent>
-
-      {/* Footer / Account */}
       <SidebarFooter>
-        <SidebarMenu>
-          <SidebarMenuItem>
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <SidebarMenuButton>
-                  <User2 className="mr-2" />
-                  Suraj
-                </SidebarMenuButton>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end">
-                <DropdownMenuLabel>My Account</DropdownMenuLabel>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem asChild>
-                  <Link href="/profile">Profile</Link>
-                </DropdownMenuItem>
-                <DropdownMenuItem asChild>
-                  <Link href="/billing">Billing</Link>
-                </DropdownMenuItem>
-                <DropdownMenuItem asChild>
-                  <Link href="/team">Team</Link>
-                </DropdownMenuItem>
-                <DropdownMenuItem asChild>
-                  <Link href="/subscription">Subscription</Link>
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
-          </SidebarMenuItem>
-        </SidebarMenu>
+        <NavUser user={data.user} />
       </SidebarFooter>
     </Sidebar>
   );
-};
+}

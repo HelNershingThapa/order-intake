@@ -77,7 +77,7 @@ export async function OrdersContent({ searchParams }: { searchParams: any }) {
         <Link href="/vendor/orders/new">
           <Button>
             <Plus className="h-4 w-4 mr-2" />
-            Create Order
+            Add Order
           </Button>
         </Link>
       </div>

@@ -114,9 +114,7 @@ export default function OrderForm({ initialData, mode }: OrderFormProps) {
     <Card>
       <CardHeader>
         <CardTitle>
-          {mode === "create"
-            ? "Create Order"
-            : `Edit Order #${initialData?.id}`}
+          {mode === "create" ? "Add Order" : `Edit Order #${initialData?.id}`}
         </CardTitle>
       </CardHeader>
 
@@ -359,7 +357,7 @@ export default function OrderForm({ initialData, mode }: OrderFormProps) {
           <CardFooter>
             <Button type="submit" disabled={isPending} className="mr-2">
               {isPending && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
-              {mode === "create" ? "Create Order" : "Update Order"}
+              {mode === "create" ? "Add Order" : "Update Order"}
             </Button>
             <Button
               type="button"
