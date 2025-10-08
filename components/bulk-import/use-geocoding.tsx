@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
-import { search, places } from "@/app/vendor/actions";
+import { search, places } from "@/app/(main)/vendor/actions";
 import {
   optionalKeys,
   requiredKeys,

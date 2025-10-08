@@ -79,6 +79,7 @@ export function GenerateRunSheet<TData>({
     queryKey: ["runs", apiKey],
     queryFn: () => getRuns(apiKey),
     enabled: !!apiKey,
+    refetchOnWindowFocus: true,
   });
 
   // 1. Define your form.

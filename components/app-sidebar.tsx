@@ -5,7 +5,7 @@ import {
   IconDashboard,
   IconListDetails,
   IconFileUpload,
-  // IconSettingsBolt,
+  IconSettingsBolt,
 } from "@tabler/icons-react";
 
 import { NavMain } from "@/components/nav-main";
@@ -21,6 +21,8 @@ import {
 } from "@/components/ui/sidebar";
 import Link from "next/link";
 import Image from "next/image";
+
+import { usePathname } from "next/navigation";
 
 const data = {
   user: {
@@ -44,15 +46,26 @@ const data = {
       url: "/vendor/upload",
       icon: IconFileUpload,
     },
-    // {
-    //   title: "Settings",
-    //   url: "/vendor/settings",
-    //   icon: IconSettingsBolt,
-    // },
+    {
+      title: "Settings",
+      url: "/admin/settings",
+      icon: IconSettingsBolt,
+    },
   ],
 };
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
+  const pathname = usePathname();
+  const isAdminRoute =
+    pathname?.startsWith("/admin") || pathname?.startsWith("/main/admin");
+  const basePrefix = isAdminRoute ? "/admin" : "/vendor";
+  const filtered = isAdminRoute
+    ? data.navMain.filter((item) => ["Orders", "Settings"].includes(item.title))
+    : data.navMain.filter((item) => item.title !== "Settings");
+  const navItems = filtered.map((item) => ({
+    ...item,
+    url: item.url.replace(/^\/(admin|vendor)/, basePrefix),
+  }));
   return (
     <Sidebar collapsible="offcanvas" {...props}>
       <SidebarHeader>
@@ -60,15 +73,15 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
           <SidebarMenuItem>
             <SidebarMenuButton
               asChild
-              className="data-[slot=sidebar-menu-button]:!p-1.5"
+              className="data-[slot=sidebar-menu-button]:!p-1.5 h-full"
             >
               <Link href="/">
                 <div className="relative w-full h-16">
                   <Image
-                    src={"/baato_maps_cover.jpeg"}
+                    src={"/logo.svg"}
                     alt="Baato Maps cover"
                     fill
-                    objectFit="cover"
+                    objectFit="contain"
                   />
                 </div>
               </Link>
@@ -77,7 +90,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         </SidebarMenu>
       </SidebarHeader>
       <SidebarContent>
-        <NavMain items={data.navMain} />
+        <NavMain items={navItems} />
       </SidebarContent>
       <SidebarFooter>
         <NavUser user={data.user} />

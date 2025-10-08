@@ -12,7 +12,7 @@ import SubmitSection from "@/components/admin/SubmitSection";
 import {
   createVendorAction,
   type CreateVendorState,
-} from "@/app/admin/create-vendor/actions";
+} from "@/app/(main)/admin/create-vendor/actions";
 
 interface VendorFormData {
   name: string;
@@ -34,7 +34,7 @@ export default function CreateVendorFormClient() {
   });
 
   const [marker, setMarker] = useState<{ lat: number; lon: number } | null>(
-    null
+    null,
   );
   const [coords, setCoords] = useState({ lat: "", lon: "" });
 

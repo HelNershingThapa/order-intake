@@ -9,6 +9,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import Link from "next/link";
 
 export function LoginForm({ ...props }) {
   return (
@@ -46,7 +47,7 @@ export function LoginForm({ ...props }) {
                   <Input id="password" type="password" required />
                 </div>
                 <Button type="submit" className="w-full">
-                  Login
+                  <Link href="/admin/orders">Login</Link>
                 </Button>
               </div>
               <div className="text-center text-sm">
