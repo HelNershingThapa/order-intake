@@ -23,6 +23,7 @@ import Link from "next/link";
 import Image from "next/image";
 
 import { usePathname } from "next/navigation";
+import { Vendor } from "@/types/miscellaneous";
 
 const data = {
   user: {
@@ -54,7 +55,10 @@ const data = {
   ],
 };
 
-export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
+export function AppSidebar({
+  vendor,
+  ...props
+}: React.ComponentProps<typeof Sidebar> & { vendor: Vendor }) {
   const pathname = usePathname();
   const isAdminRoute =
     pathname?.startsWith("/admin") || pathname?.startsWith("/main/admin");
@@ -93,7 +97,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         <NavMain items={navItems} />
       </SidebarContent>
       <SidebarFooter>
-        <NavUser user={data.user} />
+        <NavUser user={vendor} />
       </SidebarFooter>
     </Sidebar>
   );

@@ -1,0 +1,24 @@
+"use server";
+
+import { serverFetch } from "@/lib/serverFetch";
+import { Vendor } from "@/types/miscellaneous";
+import { StatsOverview, StatsSummary, StatsDaily } from "@/types/stats";
+
+export const getStatsOverview = async () => {
+  const res = await fetch(`${process.env.API_BASE_URL}/stats/overview`);
+  return (await res.json()) as Promise<StatsOverview>;
+};
+
+export const getDailyStats = async () => {
+  const res = await fetch(`${process.env.API_BASE_URL}/stats/daily`);
+  return (await res.json()) as Promise<StatsDaily>;
+};
+
+export const getStatsSummary = async () => {
+  const res = await fetch(`${process.env.API_BASE_URL}/stats/summary`);
+  return (await res.json()) as Promise<StatsSummary>;
+};
+
+export async function getVendorDetails(): Promise<Vendor> {
+  return serverFetch<Vendor>(`/vendor/me`);
+}
