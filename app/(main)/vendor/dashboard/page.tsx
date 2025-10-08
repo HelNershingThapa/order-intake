@@ -1,58 +1,54 @@
-import { redirect } from "next/navigation";
 import AppBarChart from "@/components/AppBarChart";
 import CardList from "@/components/CardList";
 import AppPieChart from "@/components/AppPieChart";
 import TodoList from "@/components/TodoList";
 import AppAreaChart from "@/components/AppAreaChart";
-import { cookies } from "next/headers";
-
-interface VendorData {
-  id: string;
-  name: string;
-  contact_name: string;
-  contact_phone: string;
-  pickup_address_text: string;
-  pickup_lat: number;
-  pickup_lon: number;
-  pickup_window_start: string;
-  pickup_window_end: string;
-  is_active: boolean;
-}
+import {
+  getDailyStats,
+  getStatsOverview,
+  getStatsSummary,
+} from "@/app/actions";
+import { SectionCards } from "./components/section-cards";
+import { DailyStatsAreaChart } from "./components/daily-stats-area-chart";
 
 export default async function VendorDashboardPage() {
-  const apiKey = (await cookies()).get("api_key")?.value;
-  if (!apiKey) redirect("/vendor");
-
-  const baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL!;
-  const res = await fetch(`${baseUrl.replace(/\/$/, "")}/vendor/me`, {
-    method: "GET",
-    headers: { "X-API-Key": apiKey, Accept: "application/json" },
-    cache: "no-store",
-  });
-
-  if (!res.ok) redirect("/vendor/login");
-  const vendor = await res.json();
+  const [statsOverview, dailyStats, statsSummary] = await Promise.all([
+    getStatsOverview(),
+    getDailyStats(),
+    getStatsSummary(),
+  ]);
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-3 2xl:grid-cols-4 gap-4">
-      <div className="bg- bg-primary-foreground p-4 rounded-lg lg:col-span-2 ">
-        <AppBarChart />
+    <>
+      <div className="@container/main flex flex-1 flex-col gap-2">
+        <div className="flex flex-col gap-4 py-4 md:gap-6 md:py-6">
+          <SectionCards
+            statsOverview={statsOverview}
+            statsSummary={statsSummary}
+          />
+          <DailyStatsAreaChart dailyStats={dailyStats} />
+        </div>
       </div>
-      <div className="bg- bg-primary-foreground p-4 rounded-lg">
-        <CardList title="Latest Transactions" />
-      </div>
-      <div className="bg- bg-primary-foreground p-4 rounded-lg">
-        <AppPieChart></AppPieChart>
-      </div>
-      <div className="bg- bg-primary-foreground p-4 rounded-lg">
-        <TodoList />
-      </div>
-      <div className="bg- bg-primary-foreground p-4 rounded-lg lg:col-span-2">
-        <AppAreaChart />
-      </div>
-      <div className="bg- bg-primary-foreground p-4 rounded-lg">
-        <CardList title="Popular Content" />
-      </div>
-    </div>
+      {/* <div className="grid grid-cols-1 lg:grid-cols-3 2xl:grid-cols-4 gap-4">
+        <div className="bg- bg-primary-foreground p-4 rounded-lg lg:col-span-2 ">
+          <AppBarChart />
+        </div>
+        <div className="bg- bg-primary-foreground p-4 rounded-lg">
+          <CardList title="Latest Transactions" />
+        </div>
+        <div className="bg- bg-primary-foreground p-4 rounded-lg">
+          <AppPieChart />
+        </div>
+        <div className="bg- bg-primary-foreground p-4 rounded-lg">
+          <TodoList />
+        </div>
+        <div className="bg- bg-primary-foreground p-4 rounded-lg lg:col-span-2">
+          <AppAreaChart />
+        </div>
+        <div className="bg- bg-primary-foreground p-4 rounded-lg">
+          <CardList title="Popular Content" />
+        </div>
+      </div> */}
+    </>
   );
 }
