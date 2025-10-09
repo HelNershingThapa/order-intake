@@ -26,6 +26,8 @@ export type Order = OrderSummary & {
     w: number;
     h: number;
   };
+  vendor_id: string;
+  vendor_name: string;
 };
 
 export type OrderDetails = OrderSummary & Order;

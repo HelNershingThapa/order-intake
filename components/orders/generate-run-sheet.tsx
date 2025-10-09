@@ -115,6 +115,8 @@ export function GenerateRunSheet<TData>({
       height: o?.dimensions?.h ?? 0,
       customerName: o?.recipient_name || "",
       contactNumber: o?.recipient_phone || "",
+      latitude: o?.lat || 0,
+      longitude: o?.lng || 0,
       address: buildAddress(o) || "",
     }));
     // eslint-disable-next-line react-hooks/exhaustive-deps

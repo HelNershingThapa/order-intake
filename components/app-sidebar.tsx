@@ -6,6 +6,7 @@ import {
   IconListDetails,
   IconFileUpload,
   IconSettingsBolt,
+  IconTablePlus,
 } from "@tabler/icons-react";
 
 import { NavMain } from "@/components/nav-main";
@@ -26,11 +27,6 @@ import { usePathname } from "next/navigation";
 import { Vendor } from "@/types/miscellaneous";
 
 const data = {
-  user: {
-    name: "suraj",
-    email: "suraj@example.com",
-    avatar: "/avatars/shadcn.jpg",
-  },
   navMain: [
     {
       title: "Dashboard",
@@ -46,6 +42,11 @@ const data = {
       title: "Bulk Upload",
       url: "/vendor/upload",
       icon: IconFileUpload,
+    },
+    {
+      title: "Create Vendor",
+      url: "/admin/create-vendor",
+      icon: IconTablePlus,
     },
     {
       title: "Settings",
@@ -64,12 +65,15 @@ export function AppSidebar({
     pathname?.startsWith("/admin") || pathname?.startsWith("/main/admin");
   const basePrefix = isAdminRoute ? "/admin" : "/vendor";
   const filtered = isAdminRoute
-    ? data.navMain.filter((item) => ["Orders", "Settings"].includes(item.title))
+    ? data.navMain.filter((item) =>
+        ["Orders", "Settings", "Create Vendor"].includes(item.title),
+      )
     : data.navMain.filter((item) => item.title !== "Settings");
   const navItems = filtered.map((item) => ({
     ...item,
     url: item.url.replace(/^\/(admin|vendor)/, basePrefix),
   }));
+
   return (
     <Sidebar collapsible="offcanvas" {...props}>
       <SidebarHeader>
@@ -84,8 +88,9 @@ export function AppSidebar({
                   <Image
                     src={"/logo.svg"}
                     alt="Baato Maps cover"
+                    priority
                     fill
-                    objectFit="contain"
+                    style={{ objectFit: "contain" }}
                   />
                 </div>
               </Link>

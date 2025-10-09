@@ -42,7 +42,7 @@ export function DataTable<TValue>({
   const pathname = usePathname();
   const { replace } = useRouter();
   const [columnVisibility, setColumnVisibility] =
-    React.useState<VisibilityState>({ select: isAdmin });
+    React.useState<VisibilityState>({ select: isAdmin, vendor_name: isAdmin });
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
     [],
   );

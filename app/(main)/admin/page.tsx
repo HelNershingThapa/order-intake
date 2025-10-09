@@ -1,5 +1,3 @@
-"use client";
-
 import Link from "next/link";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -13,7 +11,6 @@ export default function AdminDashboard() {
           <p className="text-gray-600 text-center">
             Manage vendors and their API keys from here.
           </p>
-
           <div className="flex flex-col gap-4">
             <Link href="/admin/create-vendor">
               <Button className="w-full">Create New Vendor</Button>

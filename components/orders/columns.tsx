@@ -5,12 +5,12 @@ import { ColumnDef } from "@tanstack/react-table";
 import { orderStatuses, geocodeStatuses } from "./config";
 import { DataTableColumnHeader } from "./data-table-column-header";
 import { DataTableRowActions } from "./data-table-row-actions";
-import type { OrderSummary } from "@/types/order";
+import type { Order } from "@/types/order";
 import { format } from "date-fns";
 import { Checkbox } from "@/components/ui/checkbox";
 import Link from "next/link";
 
-export const columns: ColumnDef<OrderSummary>[] = [
+export const columns: ColumnDef<Order>[] = [
   {
     id: "select",
     header: ({ table }) => (
@@ -61,6 +61,22 @@ export const columns: ColumnDef<OrderSummary>[] = [
     cell: ({ row }) => (
       <div className="max-w-[200px] truncate font-medium">
         {row.getValue("recipient_name")}
+      </div>
+    ),
+  },
+  {
+    accessorKey: "vendor_name",
+    header: ({ column }) => (
+      <DataTableColumnHeader column={column} title="Vendor" />
+    ),
+    cell: ({ row }) => (
+      <div className="max-w-[200px] truncate font-medium">
+        <Link
+          href={`/admin/vendors/${row.original.vendor_id}`}
+          className="font-medium hover:underline"
+        >
+          {row.getValue("vendor_name")}
+        </Link>
       </div>
     ),
   },
