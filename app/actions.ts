@@ -1,8 +1,9 @@
 "use server";
 
+import { VendorFormData } from "@/components/admin/VendorFormClient";
 import { serverFetch } from "@/lib/serverFetch";
-import { Vendor } from "@/types/miscellaneous";
-import { StatsOverview, StatsSummary, StatsDaily } from "@/types/stats";
+import type { Vendor } from "@/types/miscellaneous";
+import type { StatsOverview, StatsSummary, StatsDaily } from "@/types/stats";
 
 export const getStatsOverview = async () => {
   const res = await fetch(`${process.env.API_BASE_URL}/stats/overview`);
@@ -21,4 +22,17 @@ export const getStatsSummary = async () => {
 
 export async function getVendorDetails(): Promise<Vendor> {
   return serverFetch<Vendor>(`/vendor/me`);
+}
+
+export async function createVendor(
+  data: VendorFormData,
+): Promise<VendorFormData> {
+  return serverFetch<VendorFormData>(
+    "/orders",
+    {
+      method: "POST",
+      body: JSON.stringify(data),
+    },
+    true,
+  );
 }

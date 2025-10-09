@@ -9,8 +9,6 @@ export default function CreateVendorPage() {
         <CardDescription>
           Provide vendor details and select the pickup location on the map.
         </CardDescription>
-
-        {/* Client island that uses the server action */}
         <CreateVendorFormClient />
       </div>
     </div>

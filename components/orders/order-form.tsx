@@ -117,7 +117,6 @@ export default function OrderForm({ initialData, mode }: OrderFormProps) {
           {mode === "create" ? "Add Order" : `Edit Order #${initialData?.id}`}
         </CardTitle>
       </CardHeader>
-
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
           <CardContent className="space-y-6">
@@ -150,8 +149,6 @@ export default function OrderForm({ initialData, mode }: OrderFormProps) {
                 )}
               />
             </div>
-
-            {/* Address */}
             <FormField
               control={form.control}
               name="delivery_address_text"
@@ -165,7 +162,6 @@ export default function OrderForm({ initialData, mode }: OrderFormProps) {
                 </FormItem>
               )}
             />
-
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <FormField
                 control={form.control}
@@ -207,7 +203,6 @@ export default function OrderForm({ initialData, mode }: OrderFormProps) {
                 )}
               />
             </div>
-
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <FormField
                 control={form.control}

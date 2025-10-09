@@ -33,7 +33,7 @@ export type Order = OrderSummary & {
 export type OrderDetails = OrderSummary & Order;
 
 export type OrderListResponse = {
-  items: OrderSummary[];
+  items: Order[];
   page: number;
   page_size: number;
   total: number;

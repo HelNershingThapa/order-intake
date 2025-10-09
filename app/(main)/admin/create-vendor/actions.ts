@@ -1,4 +1,5 @@
 "use server";
+
 import { revalidatePath } from "next/cache";
 import { serverFetch } from "@/lib/serverFetch";
 
@@ -10,7 +11,7 @@ export type CreateVendorState = {
 
 export async function createVendorAction(
   _prev: CreateVendorState,
-  formData: FormData
+  formData: FormData,
 ): Promise<CreateVendorState> {
   // Read fields from formData
   const name = formData.get("name")?.toString().trim() || "";
@@ -63,7 +64,7 @@ export async function createVendorAction(
           pickup_window_start,
           pickup_window_end,
         }),
-      }
+      },
     );
 
     revalidatePath("/admin"); // up to you
