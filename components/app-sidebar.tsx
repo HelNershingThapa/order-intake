@@ -46,8 +46,8 @@ const data: { navMain: NavItem[] } = {
       iconKey: "upload",
     },
     {
-      title: "Create Vendor",
-      url: "/admin/create-vendor",
+      title: "Vendors",
+      url: "/vendors",
       role: ["admin"],
       iconKey: "createVendor",
     },
@@ -62,14 +62,13 @@ const data: { navMain: NavItem[] } = {
 
 export async function AppSidebar() {
   const currentUser = await getCurrentUser();
-  const basePrefix = currentUser.user.role === "admin" ? "/admin" : "/vendor";
   const navItems: { title: string; url: string; iconKey?: IconKey }[] =
     data.navMain
       .filter((item) => item.role.includes(currentUser.user.role))
       .map((item) => ({
         title: item.title,
         iconKey: item.iconKey,
-        url: item.url.replace(/^\/(admin|vendor)/, basePrefix),
+        url: item.url,
       }));
 
   return (
@@ -97,7 +96,7 @@ export async function AppSidebar() {
         </SidebarMenu>
       </SidebarHeader>
       <SidebarContent>
-        <NavMain items={navItems} />
+        <NavMain items={navItems} role={currentUser.user.role} />
       </SidebarContent>
       <SidebarFooter>
         <NavUser user={currentUser} />

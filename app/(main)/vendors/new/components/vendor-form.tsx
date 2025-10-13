@@ -18,8 +18,9 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Button } from "@/components/ui/button";
 import { useMutation } from "@tanstack/react-query";
-import { createVendor } from "@/app/actions";
 import { Loader2 } from "lucide-react";
+import { createVendor } from "../../actions";
+import { useRouter } from "next/navigation";
 
 const vendorSchema = z.object({
   name: z.string().min(3).max(100),
@@ -32,6 +33,7 @@ const vendorSchema = z.object({
 export type VendorFormData = z.infer<typeof vendorSchema>;
 
 export default function CreateVendorFormClient() {
+  const router = useRouter();
   const form = useForm<VendorFormData>({
     resolver: zodResolver(vendorSchema),
   });
@@ -43,6 +45,7 @@ export default function CreateVendorFormClient() {
         description: `Vendor ID: ${data.vendor_id} created}`,
         duration: 5000,
       });
+      router.push("/vendors");
     },
     onError: (error) => {
       toast.error("Failed to create vendor", {

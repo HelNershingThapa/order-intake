@@ -2,15 +2,21 @@ export type Role = "superadmin" | "admin" | "vendor";
 
 export type Vendor = {
   id: string;
-  name: string;
   contact_name: string;
-  contact_phone: string;
+  contact_phone: string | null;
   pickup_address_text: string;
-  pickup_lat: number;
-  pickup_lon: number;
-  pickup_window_start: string;
-  pickup_window_end: string;
+  pickup_lat: number | null;
+  pickup_lon: number | null;
+  pickup_window_start: string | null;
+  pickup_window_end: string | null;
   is_active: boolean;
+  stats: {
+    total_orders: number;
+    ready_count: number;
+    geocode_pending: number;
+    last_order_at: string | null;
+    by_status: Record<string, number>;
+  };
 };
 
 export type Admin = {
