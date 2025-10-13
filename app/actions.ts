@@ -1,6 +1,6 @@
 "use server";
 
-import { VendorFormData } from "@/components/admin/VendorFormClient";
+import { VendorFormData } from "@/components/admin/vendor-form";
 import { serverFetch } from "@/lib/serverFetch";
 import type { CurrentUser } from "@/types/miscellaneous";
 import type { StatsOverview, StatsSummary, StatsDaily } from "@/types/stats";
@@ -24,11 +24,17 @@ export async function getCurrentUser(): Promise<CurrentUser> {
   return serverFetch<CurrentUser>(`/auth/me`);
 }
 
+type VendorCreationResponse = {
+  message: string;
+  vendor_id: string;
+  user_id: string;
+};
+
 export async function createVendor(
   data: VendorFormData,
-): Promise<VendorFormData> {
-  return serverFetch<VendorFormData>(
-    "/orders",
+): Promise<VendorCreationResponse> {
+  return serverFetch<VendorCreationResponse>(
+    "/admin/create-vendor",
     {
       method: "POST",
       body: JSON.stringify(data),

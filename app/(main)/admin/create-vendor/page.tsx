@@ -1,4 +1,4 @@
-import CreateVendorFormClient from "@/components/admin/VendorFormClient";
+import CreateVendorFormClient from "@/components/admin/vendor-form";
 import { CardDescription } from "@/components/ui/card";
 
 export default function CreateVendorPage() {
