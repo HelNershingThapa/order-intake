@@ -7,10 +7,10 @@ import {
   MapPin,
   BarChart3,
   Shield,
-  ArrowRight,
 } from "lucide-react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
+import { IconLogin } from "@tabler/icons-react";
 
 const Index = () => {
   return (
@@ -33,23 +33,12 @@ const Index = () => {
               administrators managing delivery workflows.
             </p>
 
-            <div className="flex flex-col sm:flex-row gap-4 justify-center items-center animate-scale-in">
-              <Link href="/admin/login">
-                <Button className="w-full sm:w-auto">
-                  <Building2 className="mr-2 h-5 w-5" />
-                  Admin Portal
-                  <ArrowRight className="ml-2 h-5 w-5" />
-                </Button>
-              </Link>
-
-              <Link href="/vendor/login">
-                <Button className="w-full sm:w-auto">
-                  <ShoppingCart className="mr-2 h-5 w-5" />
-                  Vendor Portal
-                  <ArrowRight className="ml-2 h-5 w-5" />
-                </Button>
-              </Link>
-            </div>
+            <Link href="/login">
+              <Button size="lg" className="w-full sm:w-auto">
+                Login
+                <IconLogin className="mr-2 h-5 w-5" />
+              </Button>
+            </Link>
           </div>
         </div>
       </section>
@@ -126,18 +115,11 @@ const Index = () => {
           <p className="text-muted-foreground mb-6">
             Professional order management portal for logistics operations
           </p>
-          <div className="flex justify-center gap-6">
-            <Link href="/admin/login">
-              <Button variant="ghost" size="sm">
-                Admin Access
-              </Button>
-            </Link>
-            <Link href="/vendor/login">
-              <Button variant="ghost" size="sm">
-                Vendor Access
-              </Button>
-            </Link>
-          </div>
+          <Link href="/login">
+            <Button variant="ghost" size="sm">
+              Login
+            </Button>
+          </Link>
         </div>
       </footer>
     </div>

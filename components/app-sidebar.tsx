@@ -1,13 +1,4 @@
-"use client";
-
 import * as React from "react";
-import {
-  IconDashboard,
-  IconListDetails,
-  IconFileUpload,
-  IconSettingsBolt,
-  IconTablePlus,
-} from "@tabler/icons-react";
 
 import { NavMain } from "@/components/nav-main";
 import { NavUser } from "@/components/nav-user";
@@ -23,59 +14,66 @@ import {
 import Link from "next/link";
 import Image from "next/image";
 
-import { usePathname } from "next/navigation";
-import { Vendor } from "@/types/miscellaneous";
+import { getCurrentUser } from "@/app/actions";
+import type { Role } from "@/types/miscellaneous";
 
-const data = {
+type IconKey = "dashboard" | "orders" | "upload" | "createVendor" | "settings";
+type NavItem = {
+  title: string;
+  url: string;
+  role: Role[];
+  iconKey: IconKey;
+};
+
+const data: { navMain: NavItem[] } = {
   navMain: [
     {
       title: "Dashboard",
       url: "/vendor/dashboard",
-      icon: IconDashboard,
+      role: ["admin", "vendor"],
+      iconKey: "dashboard",
     },
     {
       title: "Orders",
       url: "/vendor/orders",
-      icon: IconListDetails,
+      role: ["vendor"],
+      iconKey: "orders",
     },
     {
       title: "Bulk Upload",
       url: "/vendor/upload",
-      icon: IconFileUpload,
+      role: ["vendor"],
+      iconKey: "upload",
     },
     {
       title: "Create Vendor",
       url: "/admin/create-vendor",
-      icon: IconTablePlus,
+      role: ["admin"],
+      iconKey: "createVendor",
     },
     {
       title: "Settings",
       url: "/admin/settings",
-      icon: IconSettingsBolt,
+      role: ["admin"],
+      iconKey: "settings",
     },
   ],
 };
 
-export function AppSidebar({
-  vendor,
-  ...props
-}: React.ComponentProps<typeof Sidebar> & { vendor: Vendor }) {
-  const pathname = usePathname();
-  const isAdminRoute =
-    pathname?.startsWith("/admin") || pathname?.startsWith("/main/admin");
-  const basePrefix = isAdminRoute ? "/admin" : "/vendor";
-  const filtered = isAdminRoute
-    ? data.navMain.filter((item) =>
-        ["Orders", "Settings", "Create Vendor"].includes(item.title),
-      )
-    : data.navMain.filter((item) => item.title !== "Settings");
-  const navItems = filtered.map((item) => ({
-    ...item,
-    url: item.url.replace(/^\/(admin|vendor)/, basePrefix),
-  }));
+export async function AppSidebar() {
+  const currentUser = await getCurrentUser();
+  const basePrefix = currentUser.user.role === "admin" ? "/admin" : "/vendor";
+  const navItems: { title: string; url: string; iconKey?: IconKey }[] =
+    data.navMain
+      .filter((item) => item.role.includes(currentUser.user.role))
+      .map((item) => ({
+        title: item.title,
+        iconKey: item.iconKey,
+        url: item.url.replace(/^\/(admin|vendor)/, basePrefix),
+      }));
 
   return (
-    <Sidebar collapsible="offcanvas" {...props}>
+    <Sidebar collapsible="offcanvas" variant="inset">
       <SidebarHeader>
         <SidebarMenu>
           <SidebarMenuItem>
@@ -102,7 +100,7 @@ export function AppSidebar({
         <NavMain items={navItems} />
       </SidebarContent>
       <SidebarFooter>
-        <NavUser user={vendor} />
+        <NavUser user={currentUser} />
       </SidebarFooter>
     </Sidebar>
   );

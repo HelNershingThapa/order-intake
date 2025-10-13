@@ -1,7 +1,14 @@
 "use client";
 
 import Link from "next/link";
-import { IconCirclePlusFilled, type Icon } from "@tabler/icons-react";
+import {
+  IconCirclePlusFilled,
+  IconDashboard,
+  IconListDetails,
+  IconFileUpload,
+  IconSettingsBolt,
+  IconTablePlus,
+} from "@tabler/icons-react";
 
 import {
   SidebarGroup,
@@ -11,13 +18,24 @@ import {
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
 
+// Map serializable keys to actual icon components on the client side
+const ICONS = {
+  dashboard: IconDashboard,
+  orders: IconListDetails,
+  upload: IconFileUpload,
+  createVendor: IconTablePlus,
+  settings: IconSettingsBolt,
+} as const;
+type IconKey = keyof typeof ICONS;
+
 export function NavMain({
   items,
 }: {
   items: {
     title: string;
     url: string;
-    icon?: Icon;
+    // Use a serializable icon key instead of passing component constructors
+    iconKey?: IconKey;
   }[];
 }) {
   return (
@@ -38,16 +56,19 @@ export function NavMain({
           </SidebarMenuItem>
         </SidebarMenu>
         <SidebarMenu>
-          {items.map((item) => (
-            <SidebarMenuItem key={item.title}>
-              <SidebarMenuButton asChild>
-                <Link href={item.url}>
-                  {item.icon && <item.icon className="mr-2" />}
-                  <span>{item.title}</span>
-                </Link>
-              </SidebarMenuButton>
-            </SidebarMenuItem>
-          ))}
+          {items.map((item) => {
+            const IconComp = item.iconKey ? ICONS[item.iconKey] : undefined;
+            return (
+              <SidebarMenuItem key={item.title}>
+                <SidebarMenuButton asChild>
+                  <Link href={item.url}>
+                    {IconComp ? <IconComp className="mr-2" /> : null}
+                    <span>{item.title}</span>
+                  </Link>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+            );
+          })}
         </SidebarMenu>
       </SidebarGroupContent>
     </SidebarGroup>

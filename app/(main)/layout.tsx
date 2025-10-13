@@ -2,7 +2,6 @@ import { cookies } from "next/headers";
 import { SiteHeader } from "@/components/site-header";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/app-sidebar";
-import { getVendorDetails } from "@/app/actions";
 
 export default async function RootLayout({
   children,
@@ -11,8 +10,6 @@ export default async function RootLayout({
 }) {
   const cookieStore = await cookies();
   const defaultOpen = cookieStore.get("sidebar_state")?.value === "true";
-
-  const vendor = await getVendorDetails();
 
   return (
     <SidebarProvider
@@ -24,7 +21,7 @@ export default async function RootLayout({
         } as React.CSSProperties
       }
     >
-      <AppSidebar variant="inset" vendor={vendor} />
+      <AppSidebar />
       <SidebarInset>
         <SiteHeader />
         <div className="flex flex-1 flex-col">

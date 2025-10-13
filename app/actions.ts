@@ -2,7 +2,7 @@
 
 import { VendorFormData } from "@/components/admin/VendorFormClient";
 import { serverFetch } from "@/lib/serverFetch";
-import type { Vendor } from "@/types/miscellaneous";
+import type { CurrentUser } from "@/types/miscellaneous";
 import type { StatsOverview, StatsSummary, StatsDaily } from "@/types/stats";
 
 export const getStatsOverview = async () => {
@@ -20,8 +20,8 @@ export const getStatsSummary = async () => {
   return (await res.json()) as Promise<StatsSummary>;
 };
 
-export async function getVendorDetails(): Promise<Vendor> {
-  return serverFetch<Vendor>(`/vendor/me`);
+export async function getCurrentUser(): Promise<CurrentUser> {
+  return serverFetch<CurrentUser>(`/auth/me`);
 }
 
 export async function createVendor(

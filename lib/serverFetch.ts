@@ -1,6 +1,7 @@
 "use server";
 
 import { cookies } from "next/headers";
+import { decrypt } from "./session";
 
 const API_BASE = process.env.API_BASE_URL!;
 
@@ -9,8 +10,8 @@ export async function serverFetch<T = any>(
   init?: RequestInit,
   isAdmin = false,
 ): Promise<T> {
-  const adminKey = process.env.ADMIN_API_KEY ?? "";
-  const apiKey = !isAdmin ? (await cookies()).get("api_key")?.value ?? "" : "";
+  const session = (await cookies()).get("session")?.value;
+  const payload = await decrypt(session);
   const url = `${API_BASE.replace(/\/$/, "")}${
     path.startsWith("/") ? path : `/${path}`
   }`;
@@ -20,13 +21,7 @@ export async function serverFetch<T = any>(
     headers: {
       Accept: "application/json",
       "Content-Type": "application/json",
-      ...(isAdmin
-        ? adminKey
-          ? { "X-Admin-Key": adminKey }
-          : {}
-        : apiKey
-        ? { "X-API-Key": apiKey }
-        : {}),
+      Authorization: `Bearer ${payload?.access_token}`,
       ...(init?.headers ?? {}),
     },
     cache: "no-store",
