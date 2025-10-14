@@ -6,6 +6,7 @@ import {
   IconFileUpload,
   IconSettingsBolt,
   IconTablePlus,
+  IconUser,
 } from "@tabler/icons-react";
 
 import {
@@ -24,6 +25,7 @@ const ICONS = {
   upload: IconFileUpload,
   createVendor: IconTablePlus,
   settings: IconSettingsBolt,
+  profile: IconUser,
 } as const;
 type IconKey = keyof typeof ICONS;
 

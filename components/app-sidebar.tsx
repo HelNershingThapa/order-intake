@@ -17,7 +17,13 @@ import Image from "next/image";
 import { getCurrentUser } from "@/app/actions";
 import type { Role } from "@/types/miscellaneous";
 
-type IconKey = "dashboard" | "orders" | "upload" | "createVendor" | "settings";
+type IconKey =
+  | "dashboard"
+  | "orders"
+  | "upload"
+  | "createVendor"
+  | "settings"
+  | "profile";
 type NavItem = {
   title: string;
   url: string;
@@ -56,6 +62,12 @@ const data: { navMain: NavItem[] } = {
       url: "/admin/settings",
       role: ["admin"],
       iconKey: "settings",
+    },
+    {
+      title: "Profile",
+      url: "/profile",
+      role: ["vendor"],
+      iconKey: "profile",
     },
   ],
 };

@@ -9,7 +9,7 @@ export const search = async (query: string) => {
   return (await res.json()) as Promise<BaatoSearchResponse>;
 };
 
-export const places = async (placeId: string) => {
+export const places = async (placeId: string | number) => {
   const res = await fetch(
     `${process.env.BAATO_BASE_URL}/places?key=${process.env.BAATO_ACCESS_TOKEN}&placeId=${placeId}`,
   );
