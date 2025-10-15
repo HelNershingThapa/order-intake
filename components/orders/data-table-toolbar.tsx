@@ -12,13 +12,16 @@ import { DataTableViewOptions } from "./data-table-view-options";
 import { orderStatuses } from "./config";
 import { DataTableFacetedFilter } from "./data-table-faceted-filter";
 import { GenerateRunSheet } from "./generate-run-sheet";
+import { ConfirmOrders } from "./confirm-orders";
 
 interface DataTableToolbarProps<TData> {
   table: Table<TData>;
+  isAdmin?: boolean;
 }
 
 export function DataTableToolbar<TData>({
   table,
+  isAdmin = false,
 }: DataTableToolbarProps<TData>) {
   const searchParams = useSearchParams();
   const isFiltered = table.getState().columnFilters.length > 0;
@@ -66,7 +69,8 @@ export function DataTableToolbar<TData>({
         )}
       </div>
       <div className="flex items-center gap-2">
-        {table.options.enableRowSelection && <GenerateRunSheet table={table} />}
+        {!isAdmin && <ConfirmOrders table={table} />}
+        {isAdmin && <GenerateRunSheet table={table} />}
         <DataTableViewOptions table={table} />
         <Button size="sm" asChild>
           <Link href="/vendor/orders/new">Add Order</Link>

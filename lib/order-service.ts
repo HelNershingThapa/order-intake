@@ -21,7 +21,11 @@ export async function getOrders(
   if (status !== "all") params.set("status", status);
   if (geocode_status !== "all") params.set("geocode_status", geocode_status);
 
-  return serverFetch<OrderListResponse>(`/orders?${params.toString()}`);
+  return serverFetch<OrderListResponse>(`/orders?${params.toString()}`, {
+    next: {
+      tags: ["orders"],
+    },
+  });
 }
 
 export async function getOrder(orderId: string): Promise<Order> {

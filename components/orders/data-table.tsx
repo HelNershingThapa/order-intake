@@ -42,7 +42,7 @@ export function DataTable<TValue>({
   const pathname = usePathname();
   const { replace } = useRouter();
   const [columnVisibility, setColumnVisibility] =
-    React.useState<VisibilityState>({ select: isAdmin, vendor_name: isAdmin });
+    React.useState<VisibilityState>({ vendor_name: isAdmin });
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
     [],
   );
@@ -58,7 +58,6 @@ export function DataTable<TValue>({
       columnFilters,
       rowSelection,
     },
-    enableRowSelection: isAdmin,
     manualFiltering: true,
     manualPagination: true,
     onRowSelectionChange: setRowSelection,
@@ -86,7 +85,7 @@ export function DataTable<TValue>({
 
   return (
     <div className="space-y-4">
-      <DataTableToolbar table={table} />
+      <DataTableToolbar table={table} isAdmin={isAdmin} />
       <div className="overflow-hidden rounded-md border">
         <Table>
           <TableHeader>

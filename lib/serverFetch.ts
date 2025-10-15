@@ -26,6 +26,7 @@ export async function serverFetch<T = any>(
     },
     cache: "no-store",
     body: init?.body as any,
+    next: init?.next,
   });
 
   if (!res.ok) {
