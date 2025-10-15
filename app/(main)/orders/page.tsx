@@ -2,6 +2,8 @@ import { getOrders } from "@/lib/order-service";
 import { columns } from "@/components/orders/columns";
 import { DataTable } from "@/components/orders/data-table";
 import type { OrderFilters } from "@/types/order";
+import { cookies } from "next/headers";
+import { decrypt } from "@/lib/session";
 
 type SearchParams = {
   search?: string;
@@ -33,6 +35,8 @@ export default async function OrdersPage(props: {
   const searchParams = await props.searchParams;
   const filters = parseFilters(searchParams);
   const ordersResponse = await getOrders(filters, true);
+  const session = (await cookies()).get("session")?.value;
+  const user = await decrypt(session);
 
   return (
     <div className="space-y-8">
@@ -44,7 +48,11 @@ export default async function OrdersPage(props: {
           </p>
         </div>
       </div>
-      <DataTable data={ordersResponse} columns={columns} isAdmin />
+      <DataTable
+        data={ordersResponse}
+        columns={columns}
+        isAdmin={user?.role === "admin"}
+      />
     </div>
   );
 }

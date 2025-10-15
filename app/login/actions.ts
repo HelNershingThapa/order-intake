@@ -53,7 +53,7 @@ export const login = async (state: FormState, formData: FormData) => {
 
   const res = (await response.json()) as LoginResponse;
   await createSession(res);
-  redirect("/admin/orders");
+  redirect("/orders");
 };
 
 export async function logout() {

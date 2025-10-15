@@ -1,6 +1,6 @@
 import { Skeleton } from "@/components/ui/skeleton";
 
-export default function Loading() {
+export default function OrdersLoading() {
   return (
     <div className="space-y-8">
       <div className="flex items-center justify-between">

@@ -9,7 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { DataTableViewOptions } from "./data-table-view-options";
 
-import { orderStatuses, geocodeStatuses } from "./config";
+import { orderStatuses } from "./config";
 import { DataTableFacetedFilter } from "./data-table-faceted-filter";
 import { GenerateRunSheet } from "./generate-run-sheet";
 
@@ -52,13 +52,6 @@ export function DataTableToolbar<TData>({
             column={table.getColumn("status")}
             title="Status"
             options={orderStatuses}
-          />
-        )}
-        {table.getColumn("geocode_status") && (
-          <DataTableFacetedFilter
-            column={table.getColumn("geocode_status")}
-            title="Geocode Status"
-            options={geocodeStatuses}
           />
         )}
         {isFiltered && (

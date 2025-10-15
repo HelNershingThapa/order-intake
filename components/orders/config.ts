@@ -1,43 +1,59 @@
+import type { OrderStatus } from "@/types/order";
 import {
   CheckCircle,
-  MapPin,
   FileEdit,
+  Package,
+  Truck,
+  X,
+  PackageCheck,
+  Clock,
   AlertTriangle,
-  Timer,
 } from "lucide-react";
 
 export const orderStatuses = [
   {
-    value: "draft",
-    label: "Draft",
+    value: "order_placed",
+    label: "Order Placed",
     icon: FileEdit,
   },
   {
-    value: "needs_geocode",
-    label: "Needs Geocode",
-    icon: MapPin,
-  },
-  {
-    value: "ready",
-    label: "Ready",
-    icon: CheckCircle,
-  },
-];
-
-export const geocodeStatuses = [
-  {
-    value: "pending",
-    label: "Pending",
-    icon: Timer,
-  },
-  {
-    value: "ok",
-    label: "OK",
+    value: "order_confirmed",
+    label: "Order Confirmed",
     icon: CheckCircle,
   },
   {
-    value: "failed",
-    label: "Failed",
+    value: "pickup_assigned",
+    label: "Pickup Assigned",
+    icon: Package,
+  },
+  {
+    value: "pickup_cancelled",
+    label: "Pickup Cancelled",
+    icon: X,
+  },
+  {
+    value: "pickup_collected",
+    label: "Pickup Collected",
+    icon: PackageCheck,
+  },
+  {
+    value: "ready_for_delivery",
+    label: "Ready for Delivery",
+    icon: Clock,
+  },
+  {
+    value: "delivery_assigned",
+    label: "Delivery Assigned",
+    icon: Truck,
+  },
+  {
+    value: "delivery_successfull",
+    label: "Delivery Successful",
+    icon: CheckCircle,
+  },
+  {
+    value: "delivery_failed",
+    label: "Delivery Failed",
     icon: AlertTriangle,
   },
-];
+] satisfies { value: OrderStatus; label: string; icon: typeof FileEdit }[];

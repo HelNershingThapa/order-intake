@@ -36,7 +36,7 @@ export function LoginForm({ ...props }) {
                   id="email"
                   type="email"
                   name="email"
-                  placeholder="m@example.com"
+                  placeholder="rajeshhamal@gmail.com"
                   defaultValue="gmail@rajeshhamal.com"
                 />
                 {state?.errors?.email && (

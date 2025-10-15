@@ -41,8 +41,8 @@ const data: { navMain: NavItem[] } = {
     },
     {
       title: "Orders",
-      url: "/vendor/orders",
-      role: ["vendor"],
+      url: "/orders",
+      role: ["admin", "vendor"],
       iconKey: "orders",
     },
     {

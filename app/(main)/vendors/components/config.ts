@@ -1,10 +1,4 @@
-import {
-  CheckCircle,
-  MapPin,
-  FileEdit,
-  AlertTriangle,
-  Timer,
-} from "lucide-react";
+import { CheckCircle, MapPin, FileEdit } from "lucide-react";
 
 export const orderStatuses = [
   {
@@ -21,23 +15,5 @@ export const orderStatuses = [
     value: "ready",
     label: "Ready",
     icon: CheckCircle,
-  },
-];
-
-export const geocodeStatuses = [
-  {
-    value: "pending",
-    label: "Pending",
-    icon: Timer,
-  },
-  {
-    value: "ok",
-    label: "OK",
-    icon: CheckCircle,
-  },
-  {
-    value: "failed",
-    label: "Failed",
-    icon: AlertTriangle,
   },
 ];

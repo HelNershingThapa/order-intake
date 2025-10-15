@@ -65,13 +65,12 @@ export default function VendorProfileForm({
   const mutation = useMutation({
     mutationFn: (data: VendorFormData) => updateVendor(data),
     onSuccess: (data) => {
-      toast.success("Vendor created successfully!", {
-        description: `Vendor ID: ${data.vendor.id}`,
+      toast.success("Profile details updated!", {
         duration: 5000,
       });
     },
     onError: (error) => {
-      toast.error("Failed to create vendor", {
+      toast.error("Failed to update profile details", {
         description: <div className="whitespace-pre-line">{error.message}</div>,
         duration: 8000,
       });
@@ -139,7 +138,7 @@ export default function VendorProfileForm({
                 name="pickup_window_start"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Pickup Window Start (Local Time)</FormLabel>
+                    <FormLabel>Pickup Window Start</FormLabel>
                     <FormControl>
                       <Input
                         placeholder="Pickup Window Start"
@@ -156,7 +155,7 @@ export default function VendorProfileForm({
                 name="pickup_window_end"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Pickup Window End (Local Time)</FormLabel>
+                    <FormLabel>Pickup Window End</FormLabel>
                     <FormControl>
                       <Input
                         placeholder="Pickup Window End"

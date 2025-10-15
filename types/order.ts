@@ -1,4 +1,14 @@
-export type OrderStatus = "draft" | "needs_geocode" | "ready";
+export type OrderStatus =
+  | "order_placed"
+  | "order_confirmed"
+  | "pickup_assigned"
+  | "pickup_cancelled"
+  | "pickup_collected"
+  | "ready_for_delivery"
+  | "delivery_assigned"
+  | "delivery_successfull"
+  | "delivery_failed";
+
 export type GeocodeStatus = "pending" | "ok" | "failed";
 
 export type OrderSummary = {

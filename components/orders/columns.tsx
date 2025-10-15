@@ -2,7 +2,7 @@
 
 import { ColumnDef } from "@tanstack/react-table";
 
-import { orderStatuses, geocodeStatuses } from "./config";
+import { orderStatuses } from "./config";
 import { DataTableColumnHeader } from "./data-table-column-header";
 import { DataTableRowActions } from "./data-table-row-actions";
 import type { Order } from "@/types/order";
@@ -111,33 +111,6 @@ export const columns: ColumnDef<Order>[] = [
             <status.icon className="mr-2 h-4 w-4 text-muted-foreground" />
           )}
           <span>{status.label}</span>
-        </div>
-      );
-    },
-    filterFn: (row, id, value) => {
-      return value.includes(row.getValue(id));
-    },
-  },
-  {
-    accessorKey: "geocode_status",
-    header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Geocode Status" />
-    ),
-    cell: ({ row }) => {
-      const geocodeStatus = geocodeStatuses.find(
-        (status) => status.value === row.getValue("geocode_status"),
-      );
-
-      if (!geocodeStatus) {
-        return null;
-      }
-
-      return (
-        <div className="flex items-center">
-          {geocodeStatus.icon && (
-            <geocodeStatus.icon className="mr-2 h-4 w-4 text-muted-foreground" />
-          )}
-          <span>{geocodeStatus.label}</span>
         </div>
       );
     },
