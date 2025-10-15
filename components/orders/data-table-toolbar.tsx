@@ -1,13 +1,12 @@
 "use client";
 
 import { Table } from "@tanstack/react-table";
-import { X } from "lucide-react";
+import { Plus, X } from "lucide-react";
 import Link from "next/link";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { DataTableViewOptions } from "./data-table-view-options";
 
 import { orderStatuses } from "./config";
 import { DataTableFacetedFilter } from "./data-table-faceted-filter";
@@ -71,9 +70,11 @@ export function DataTableToolbar<TData>({
       <div className="flex items-center gap-2">
         {!isAdmin && <ConfirmOrders table={table} />}
         {isAdmin && <GenerateRunSheet table={table} />}
-        <DataTableViewOptions table={table} />
         <Button size="sm" asChild>
-          <Link href="/vendor/orders/new">Add Order</Link>
+          <Link href="/vendor/orders/new">
+            <Plus />
+            Add Order
+          </Link>
         </Button>
       </div>
     </div>

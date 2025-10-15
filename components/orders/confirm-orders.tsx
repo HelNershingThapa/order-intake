@@ -27,7 +27,13 @@ export function ConfirmOrders<TData>({ table }: DataTableToolbarProps<TData>) {
   };
 
   return (
-    <Button onClick={handleConfirm} size="sm" disabled={mutation.isPending}>
+    <Button
+      onClick={handleConfirm}
+      size="sm"
+      disabled={
+        mutation.isPending || table.getSelectedRowModel().rows.length === 0
+      }
+    >
       {mutation.isPending && <Loader2 className="animate-spin size-4" />}Confirm
       Orders
     </Button>
