@@ -1,22 +1,18 @@
-import AppBarChart from "@/components/AppBarChart";
-import CardList from "@/components/CardList";
-import AppPieChart from "@/components/AppPieChart";
-import TodoList from "@/components/TodoList";
-import AppAreaChart from "@/components/AppAreaChart";
-import {
-  getDailyStats,
-  getStatsOverview,
-  getStatsSummary,
-} from "@/app/actions";
-import { SectionCards } from "./components/section-cards";
-import { DailyStatsAreaChart } from "./components/daily-stats-area-chart";
+import AppBarChart from "@/components/AppBarChart"
+import CardList from "@/components/CardList"
+import AppPieChart from "@/components/AppPieChart"
+import TodoList from "@/components/TodoList"
+import AppAreaChart from "@/components/AppAreaChart"
+import { getDailyStats, getStatsOverview, getStatsSummary } from "@/app/actions"
+import { SectionCards } from "./components/section-cards"
+import { DailyStatsAreaChart } from "./components/daily-stats-area-chart"
 
 export default async function VendorDashboardPage() {
   const [statsOverview, dailyStats, statsSummary] = await Promise.all([
     getStatsOverview(),
     getDailyStats(),
     getStatsSummary(),
-  ]);
+  ])
 
   return (
     <>
@@ -50,5 +46,5 @@ export default async function VendorDashboardPage() {
         </div>
       </div> */}
     </>
-  );
+  )
 }

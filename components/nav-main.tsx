@@ -1,4 +1,6 @@
-import Link from "next/link";
+"use client"
+
+import Link from "next/link"
 import {
   IconCirclePlusFilled,
   IconDashboard,
@@ -7,7 +9,7 @@ import {
   IconSettingsBolt,
   IconTablePlus,
   IconUser,
-} from "@tabler/icons-react";
+} from "@tabler/icons-react"
 
 import {
   SidebarGroup,
@@ -15,8 +17,9 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
-} from "@/components/ui/sidebar";
-import type { Role } from "@/types/miscellaneous";
+} from "@/components/ui/sidebar"
+import type { Role } from "@/types/miscellaneous"
+import { usePathname } from "next/navigation"
 
 // Map serializable keys to actual icon components on the client side
 const ICONS = {
@@ -26,36 +29,37 @@ const ICONS = {
   createVendor: IconTablePlus,
   settings: IconSettingsBolt,
   profile: IconUser,
-} as const;
-type IconKey = keyof typeof ICONS;
+} as const
+type IconKey = keyof typeof ICONS
 
 export function NavMain({
   items,
   role,
 }: {
   items: {
-    title: string;
-    url: string;
+    title: string
+    url: string
     // Use a serializable icon key instead of passing component constructors
-    iconKey?: IconKey;
-  }[];
-  role: Role;
+    iconKey?: IconKey
+  }[]
+  role: Role
 }) {
+  const pathname = usePathname()
   let primaryAction = {
     label: "Add Admin",
     href: "/admins/new",
-  };
+  }
   if (role === "admin") {
     primaryAction = {
       label: "Add Vendor",
       href: "/vendors/new",
-    };
+    }
   }
   if (role === "vendor") {
     primaryAction = {
       label: "Add Order",
-      href: "/vendor/orders/new",
-    };
+      href: "/orders/new",
+    }
   }
   return (
     <SidebarGroup>
@@ -76,20 +80,21 @@ export function NavMain({
         </SidebarMenu>
         <SidebarMenu>
           {items.map((item) => {
-            const IconComp = item.iconKey ? ICONS[item.iconKey] : undefined;
+            const IconComp = item.iconKey ? ICONS[item.iconKey] : undefined
+            const isActive = pathname === item.url
             return (
               <SidebarMenuItem key={item.title}>
-                <SidebarMenuButton asChild>
+                <SidebarMenuButton asChild isActive={isActive}>
                   <Link href={item.url}>
                     {IconComp ? <IconComp /> : null}
                     <span>{item.title}</span>
                   </Link>
                 </SidebarMenuButton>
               </SidebarMenuItem>
-            );
+            )
           })}
         </SidebarMenu>
       </SidebarGroupContent>
     </SidebarGroup>
-  );
+  )
 }

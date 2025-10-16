@@ -1,6 +1,6 @@
 "use client";
 
-import { ColumnDef } from "@tanstack/react-table";
+import type { ColumnDef } from "@tanstack/react-table";
 
 import { orderStatuses } from "./config";
 import { DataTableColumnHeader } from "./data-table-column-header";
@@ -108,7 +108,7 @@ export const columns: ColumnDef<Order>[] = [
       return (
         <div className="flex w-[120px] items-center">
           {status.icon && (
-            <status.icon className="mr-2 h-4 w-4 text-muted-foreground" />
+            <status.icon className="mr-2 h-4 w-4 shrink-0 text-muted-foreground" />
           )}
           <span>{status.label}</span>
         </div>
