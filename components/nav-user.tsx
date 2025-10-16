@@ -126,7 +126,7 @@ export function NavUser({ user: current }: { user: CurrentUser }) {
               </div>
             </DropdownMenuLabel>
             <DropdownMenuSeparator />
-            <DropdownMenuGroup>
+            {/* <DropdownMenuGroup>
               <DropdownMenuItem>
                 <IconUserCircle />
                 Account
@@ -140,7 +140,7 @@ export function NavUser({ user: current }: { user: CurrentUser }) {
                 Notifications
               </DropdownMenuItem>
             </DropdownMenuGroup>
-            <DropdownMenuSeparator />
+            <DropdownMenuSeparator /> */}
             <DropdownMenuItem onSelect={logout}>
               <IconLogout />
               Log out

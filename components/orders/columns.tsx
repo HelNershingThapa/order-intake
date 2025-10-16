@@ -43,7 +43,7 @@ export const columns: ColumnDef<Order>[] = [
     cell: ({ row }) => (
       <div className="max-w-[200px] truncate">
         <Link
-          href={`/vendor/orders/${row.getValue("order_id")}`}
+          href={`/orders/${row.getValue("order_id")}`}
           className="font-medium hover:underline"
         >
           {row.getValue("order_id")}
@@ -72,7 +72,7 @@ export const columns: ColumnDef<Order>[] = [
     cell: ({ row }) => (
       <div className="max-w-[200px] truncate font-medium">
         <Link
-          href={`/admin/vendors/${row.original.vendor_id}`}
+          href={`/vendors/${row.original.vendor_id}`}
           className="font-medium hover:underline"
         >
           {row.getValue("vendor_name")}

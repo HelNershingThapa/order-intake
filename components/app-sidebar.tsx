@@ -24,6 +24,7 @@ type IconKey =
   | "createVendor"
   | "settings"
   | "profile";
+
 type NavItem = {
   title: string;
   url: string;
@@ -35,7 +36,7 @@ const data: { navMain: NavItem[] } = {
   navMain: [
     {
       title: "Dashboard",
-      url: "/vendor/dashboard",
+      url: "/dashboard",
       role: ["admin", "vendor"],
       iconKey: "dashboard",
     },
@@ -47,7 +48,7 @@ const data: { navMain: NavItem[] } = {
     },
     {
       title: "Bulk Upload",
-      url: "/vendor/upload",
+      url: "/upload",
       role: ["vendor"],
       iconKey: "upload",
     },
@@ -59,7 +60,7 @@ const data: { navMain: NavItem[] } = {
     },
     {
       title: "Settings",
-      url: "/admin/settings",
+      url: "/settings",
       role: ["admin"],
       iconKey: "settings",
     },

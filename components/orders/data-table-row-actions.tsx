@@ -41,13 +41,13 @@ export function DataTableRowActions<TData>({
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end" className="w-[160px]">
           <DropdownMenuItem asChild>
-            <Link href={`/vendor/orders/${order.order_id}`}>
+            <Link href={`/orders/${order.order_id}`}>
               <Eye className="mr-2 h-4 w-4" />
               View Details
             </Link>
           </DropdownMenuItem>
           <DropdownMenuItem asChild>
-            <Link href={`/vendor/orders/${order.order_id}`}>
+            <Link href={`/orders/${order.order_id}`}>
               <Edit className="mr-2 h-4 w-4" />
               Edit Order
             </Link>
@@ -55,7 +55,7 @@ export function DataTableRowActions<TData>({
 
           {order.status === "needs_geocode" && (
             <DropdownMenuItem asChild>
-              <Link href={`/vendor/orders/${order.order_id}/geocode`}>
+              <Link href={`/orders/${order.order_id}/geocode`}>
                 <MapPin className="mr-2 h-4 w-4" />
                 Set Location
               </Link>

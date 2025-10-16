@@ -70,12 +70,14 @@ export function DataTableToolbar<TData>({
       <div className="flex items-center gap-2">
         {!isAdmin && <ConfirmOrders table={table} />}
         {isAdmin && <GenerateRunSheet table={table} />}
-        <Button size="sm" asChild>
-          <Link href="/vendor/orders/new">
-            <Plus />
-            Add Order
-          </Link>
-        </Button>
+        {!isAdmin && (
+          <Button size="sm" asChild>
+            <Link href="/orders/new">
+              <Plus />
+              Add Order
+            </Link>
+          </Button>
+        )}
       </div>
     </div>
   );

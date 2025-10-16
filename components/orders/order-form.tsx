@@ -97,7 +97,7 @@ export default function OrderForm({ initialData, mode }: OrderFormProps) {
         if (mode === "create") {
           const result = await createOrder(data);
           toast.success(`Order created (#${result.order_id})`);
-          router.push("/vendor/orders");
+          router.push("/orders");
         } else if (initialData) {
           await updateOrder(initialData.id, data);
           toast.success(`Order updated (#${initialData.id})`);

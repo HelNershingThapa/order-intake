@@ -21,8 +21,8 @@ import {
   CommandLoading,
 } from "@/components/ui/command";
 import "maplibre-gl/dist/maplibre-gl.css";
-import { places, search } from "@/app/(main)/vendor/actions";
 import type { BaatoSearchResponse } from "@/types/baato";
+import { places, search } from "@/lib/baato";
 
 export const PickupLocationMap = () => {
   const form = useFormContext();
