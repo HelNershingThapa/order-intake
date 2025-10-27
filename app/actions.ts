@@ -1,24 +1,45 @@
-"use server";
+"use server"
 
-import { serverFetch } from "@/lib/serverFetch";
-import type { CurrentUser } from "@/types/miscellaneous";
-import type { StatsOverview, StatsSummary, StatsDaily } from "@/types/stats";
+import { serverFetch } from "@/lib/serverFetch"
+import type { CurrentUser } from "@/types/miscellaneous"
+import type { StatsOverview, StatsDaily } from "@/types/stats"
 
-export const getStatsOverview = async () => {
-  const res = await fetch(`${process.env.API_BASE_URL}/stats/overview`);
-  return (await res.json()) as Promise<StatsOverview>;
-};
+export const getStatsOverview = async (range: {
+  fromDate?: string
+  toDate?: string
+}) => {
+  const params = new URLSearchParams()
+  if (range.fromDate) {
+    params.append("from_", range.fromDate)
+  }
+  if (range.toDate) {
+    params.append("to", range.toDate)
+  }
+  const res = await serverFetch(`/stats/overview?${params.toString()}`, {
+    next: {
+      tags: ["stats-overview", range.fromDate, range.toDate].filter(
+        (t): t is string => typeof t === "string"
+      ),
+    },
+  })
+  return res as Promise<StatsOverview>
+}
 
-export const getDailyStats = async () => {
-  const res = await fetch(`${process.env.API_BASE_URL}/stats/daily`);
-  return (await res.json()) as Promise<StatsDaily>;
-};
-
-export const getStatsSummary = async () => {
-  const res = await fetch(`${process.env.API_BASE_URL}/stats/summary`);
-  return (await res.json()) as Promise<StatsSummary>;
-};
+export const getDailyStats = async (range: {
+  fromDate?: string
+  toDate?: string
+}) => {
+  const params = new URLSearchParams()
+  if (range.fromDate) {
+    params.append("from", range.fromDate)
+  }
+  if (range.toDate) {
+    params.append("to", range.toDate)
+  }
+  const res = await serverFetch(`/stats/daily?${params.toString()}`)
+  return res as Promise<StatsDaily>
+}
 
 export async function getCurrentUser(): Promise<CurrentUser> {
-  return serverFetch<CurrentUser>(`/auth/me`);
+  return serverFetch<CurrentUser>(`/auth/me`)
 }

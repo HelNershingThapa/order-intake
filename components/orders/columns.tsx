@@ -1,14 +1,14 @@
-"use client";
+"use client"
 
-import type { ColumnDef } from "@tanstack/react-table";
+import type { ColumnDef } from "@tanstack/react-table"
 
-import { orderStatuses } from "./config";
-import { DataTableColumnHeader } from "./data-table-column-header";
-import { DataTableRowActions } from "./data-table-row-actions";
-import type { Order } from "@/types/order";
-import { format } from "date-fns";
-import { Checkbox } from "@/components/ui/checkbox";
-import Link from "next/link";
+import { orderStatuses } from "./config"
+import { DataTableColumnHeader } from "./data-table-column-header"
+import { DataTableRowActions } from "./data-table-row-actions"
+import type { Order } from "@/types/order"
+import { format } from "date-fns"
+import { Checkbox } from "@/components/ui/checkbox"
+import Link from "next/link"
 
 export const columns: ColumnDef<Order>[] = [
   {
@@ -98,24 +98,24 @@ export const columns: ColumnDef<Order>[] = [
     ),
     cell: ({ row }) => {
       const status = orderStatuses.find(
-        (status) => status.value === row.getValue("status"),
-      );
+        (status) => status.value === row.getValue("status")
+      )
 
       if (!status) {
-        return null;
+        return null
       }
 
       return (
-        <div className="flex w-[120px] items-center">
+        <div className="flex items-center">
           {status.icon && (
             <status.icon className="mr-2 h-4 w-4 shrink-0 text-muted-foreground" />
           )}
           <span>{status.label}</span>
         </div>
-      );
+      )
     },
     filterFn: (row, id, value) => {
-      return value.includes(row.getValue(id));
+      return value.includes(row.getValue(id))
     },
   },
   {
@@ -124,11 +124,11 @@ export const columns: ColumnDef<Order>[] = [
       <DataTableColumnHeader column={column} title="Created At" />
     ),
     cell: ({ row }) =>
-      format(new Date(row.getValue("created_at")), "LLL Mo, HH:mm"),
+      format(new Date(row.getValue("created_at")), "LLL do, HH:mm"),
     enableSorting: true,
   },
   {
     id: "actions",
     cell: ({ row }) => <DataTableRowActions row={row} />,
   },
-];
+]

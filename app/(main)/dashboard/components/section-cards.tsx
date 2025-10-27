@@ -1,6 +1,6 @@
-import { IconTrendingDown, IconTrendingUp } from "@tabler/icons-react";
+import { IconTrendingDown, IconTrendingUp } from "@tabler/icons-react"
 
-import { Badge } from "@/components/ui/badge";
+import { Badge } from "@/components/ui/badge"
 import {
   Card,
   CardAction,
@@ -8,29 +8,29 @@ import {
   CardFooter,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card";
-import { StatsOverview, StatsSummary } from "@/types/stats";
+} from "@/components/ui/card"
+import type { StatsOverview } from "@/types/stats"
 
 type SectionCardsProps = {
-  statsOverview: StatsOverview;
-  statsSummary: StatsSummary;
-};
+  statsOverview: StatsOverview
+}
 
-export function SectionCards({
-  statsOverview,
-  statsSummary,
-}: SectionCardsProps) {
-  const totalOrders = statsSummary.total_orders ?? 0;
-  const readyOrders = statsSummary.ready ?? 0;
-  const needsGeocode = statsSummary.needs_geocode ?? 0;
-  const totalWeight = statsSummary.total_weight ?? 0;
+export function SectionCards({ statsOverview }: SectionCardsProps) {
+  const totalOrders = statsOverview.totals.orders ?? 0
+  const confirmedOrderCount =
+    statsOverview.totals.by_status.order_confirmed ?? 0
+  const totalWeight = statsOverview.totals.total_weight_kg ?? 0
+
+  // Calculate orders needing geocoding (pending geocode status)
+  // This would need to be added to the stats if tracking geocode status
+  const needsGeocode = 0 // Placeholder - would need backend support
 
   const readyPct =
-    totalOrders > 0 ? Math.round((readyOrders / totalOrders) * 100) : 0;
-  const geocodedPct =
-    Math.round((statsOverview.totals?.geocoded_pct ?? 0) * 10) / 10;
-  const geocodedTodayPct =
-    Math.round((statsOverview.today?.geocoded_pct ?? 0) * 10) / 10;
+    totalOrders > 0 ? Math.round((confirmedOrderCount / totalOrders) * 100) : 0
+
+  // Calculate geocoding percentage (placeholder - would need backend support)
+  const geocodedPct = 0
+  const geocodedTodayPct = 0
 
   return (
     <div className="*:data-[slot=card]:from-primary/5 *:data-[slot=card]:to-card dark:*:data-[slot=card]:bg-card grid grid-cols-1 gap-4 *:data-[slot=card]:bg-gradient-to-t *:data-[slot=card]:shadow-xs @xl/main:grid-cols-2 @5xl/main:grid-cols-4">
@@ -39,7 +39,7 @@ export function SectionCards({
         <CardHeader>
           <CardDescription>Total Orders</CardDescription>
           <CardTitle className="text-2xl font-semibold tabular-nums @[250px]/card:text-3xl">
-            {totalOrders.toLocaleString()}
+            {totalOrders}
           </CardTitle>
           <CardAction>
             <Badge variant="outline">
@@ -67,27 +67,27 @@ export function SectionCards({
       {/* Ready Orders */}
       <Card className="@container/card">
         <CardHeader>
-          <CardDescription>Ready Orders</CardDescription>
+          <CardDescription>Confirmed Orders</CardDescription>
           <CardTitle className="text-2xl font-semibold tabular-nums @[250px]/card:text-3xl">
-            {readyOrders.toLocaleString()}
+            {confirmedOrderCount.toLocaleString()}
           </CardTitle>
           <CardAction>
             <Badge variant="outline">
-              {(statsOverview.today?.ready ?? 0) > 0 ? (
+              {(statsOverview.today?.by_status.ready_for_delivery ?? 0) > 0 ? (
                 <IconTrendingUp />
               ) : (
                 <IconTrendingDown />
               )}
-              Today {statsOverview.today.ready}
+              Today {statsOverview.today.by_status.ready_for_delivery ?? 0}
             </Badge>
           </CardAction>
         </CardHeader>
         <CardFooter className="flex-col items-start gap-1.5 text-sm">
           <div className="line-clamp-1 flex gap-2 font-medium">
-            {statsOverview.today.ready > 0
+            {(statsOverview.today.by_status.ready_for_delivery ?? 0) > 0
               ? "Processing ongoing"
               : "No ready orders today"}
-            {statsOverview.today.ready > 0 ? (
+            {(statsOverview.today.by_status.ready_for_delivery ?? 0) > 0 ? (
               <IconTrendingUp className="size-4" />
             ) : (
               <IconTrendingDown className="size-4" />
@@ -161,5 +161,5 @@ export function SectionCards({
         </CardFooter>
       </Card>
     </div>
-  );
+  )
 }

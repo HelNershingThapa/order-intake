@@ -1,39 +1,31 @@
+import type { OrderStatus } from "./order"
+
 type ISODateString =
-  `${number}${number}${number}${number}-${number}${number}-${number}${number}`;
+  `${number}${number}${number}${number}-${number}${number}-${number}${number}`
 
 interface StatsRange {
-  from: ISODateString;
-  to: ISODateString;
+  from: ISODateString
+  to: ISODateString
 }
 
 interface StatsTotals {
-  orders: number;
-  ready: number;
-  needs_address: number;
-  geocoded_pct: number;
-  total_weight_kg: number;
+  orders: number
+  total_weight_kg: number
+  by_status: Record<OrderStatus, number>
 }
 
 export interface StatsOverview {
-  range: StatsRange;
-  totals: StatsTotals;
-  today: StatsTotals;
+  range: StatsRange
+  totals: StatsTotals
+  today: StatsTotals
 }
 
 interface StatsDailyItem {
-  date: ISODateString;
-  created: number;
-  ready: number;
+  date: ISODateString
+  created: number
+  ready: number
 }
 
 export interface StatsDaily {
-  items: StatsDailyItem[];
-}
-
-export interface StatsSummary {
-  total_orders: number;
-  ready: number;
-  needs_geocode: number;
-  error: number;
-  total_weight: number;
+  items: StatsDailyItem[]
 }
