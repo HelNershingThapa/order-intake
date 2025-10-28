@@ -1,40 +1,25 @@
 import { getOrders } from "@/lib/order-service"
 import { columns } from "@/components/orders/columns"
 import { DataTable } from "@/components/orders/data-table"
-import type { OrderFilters } from "@/types/order"
 import { cookies } from "next/headers"
 import { decrypt } from "@/lib/session"
+import { loadSearchParams } from "./searchParams"
+import { OrderStatus } from "@/types/order"
 
 type SearchParams = {
   search?: string
-  status?: string
+  statuses?: OrderStatus[]
   geocode_status?: string
   page?: string
   page_size?: string
-}
-
-function parseFilters(searchParams: any): OrderFilters {
-  return {
-    search: searchParams.search || "",
-    status: ["draft", "needs_geocode", "ready"].includes(searchParams.status)
-      ? searchParams.status
-      : "all",
-    geocode_status: ["pending", "ok", "failed"].includes(
-      searchParams.geocode_status
-    )
-      ? searchParams.geocode_status
-      : "all",
-    page: Math.max(1, parseInt(searchParams.page) || 1),
-    page_size: Math.max(1, parseInt(searchParams.page_size) || 20),
-  }
+  vendor_id?: string
 }
 
 export default async function OrdersPage(props: {
-  searchParams?: Promise<SearchParams>
+  searchParams: Promise<SearchParams>
 }) {
-  const searchParams = await props.searchParams
-  const filters = parseFilters(searchParams)
-  const ordersResponse = await getOrders(filters, true)
+  const params = await loadSearchParams(props.searchParams)
+  const ordersResponse = await getOrders(params, true)
   const session = (await cookies()).get("session")?.value
   const user = await decrypt(session)
 

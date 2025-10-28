@@ -24,9 +24,9 @@ export default async function VendorDashboardPage({
     })(),
     toDate: to ? format(new Date(to), "yyyy-MM-dd") : dateRanges["7D"].to,
   }
-  const [statsOverview] = await Promise.all([
+  const [statsOverview, dailyStats] = await Promise.all([
     getStatsOverview(range),
-    // getDailyStats(),
+    getDailyStats(range),
   ])
 
   return (
@@ -37,7 +37,7 @@ export default async function VendorDashboardPage({
           statsOverview={statsOverview}
           // statsSummary={statsSummary}
         />
-        {/* <DailyStatsAreaChart dailyStats={dailyStats} /> */}
+        <DailyStatsAreaChart dailyStats={dailyStats} />
       </div>
     </div>
   )

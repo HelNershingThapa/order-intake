@@ -1,51 +1,68 @@
-"use client";
+"use client"
 
-import { Table } from "@tanstack/react-table";
-import { Plus, X } from "lucide-react";
-import Link from "next/link";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { Table } from "@tanstack/react-table"
+import { CalendarIcon, Plus, X } from "lucide-react"
+import Link from "next/link"
+import { useQueryStates } from "nuqs"
+import { format } from "date-fns"
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover"
+import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
 
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-
-import { orderStatuses } from "./config";
-import { DataTableFacetedFilter } from "./data-table-faceted-filter";
-import { GenerateRunSheet } from "./generate-run-sheet";
-import { ConfirmOrders } from "./confirm-orders";
+import { orderStatuses } from "./config"
+import { DataTableFacetedFilter } from "./data-table-faceted-filter"
+import { GenerateRunSheet } from "./generate-run-sheet"
+import { ConfirmOrders } from "./confirm-orders"
+import { Calendar } from "@/components/ui/calendar"
+import { ordersSearchParams } from "@/app/(main)/orders/searchParams"
+import type { DateRange } from "react-day-picker"
 
 interface DataTableToolbarProps<TData> {
-  table: Table<TData>;
-  isAdmin?: boolean;
+  table: Table<TData>
+  isAdmin?: boolean
 }
 
 export function DataTableToolbar<TData>({
   table,
   isAdmin = false,
 }: DataTableToolbarProps<TData>) {
-  const searchParams = useSearchParams();
-  const isFiltered = table.getState().columnFilters.length > 0;
-
-  const pathname = usePathname();
-  const { replace } = useRouter();
+  const [{ search, from_, to, statuses }, setParams] = useQueryStates(
+    ordersSearchParams,
+    {
+      shallow: false,
+    }
+  )
+  const isFiltered =
+    table.getState().columnFilters.length > 0 ||
+    !!search ||
+    !!from_ ||
+    !!to ||
+    (statuses && statuses.length > 0)
 
   function handleSearch(term: string) {
-    const params = new URLSearchParams(searchParams);
-    if (term) {
-      params.set("search", term);
-    } else {
-      params.delete("search");
-    }
-    replace(`${pathname}?${params.toString()}`);
+    setParams({ search: term || null, page: 1 })
+  }
+
+  function handleDateRangeSelect(range: DateRange | undefined) {
+    setParams({
+      from_: range?.from ?? null,
+      to: range?.to ?? null,
+      page: 1,
+    })
   }
 
   return (
-    <div className="flex items-center justify-between">
-      <div className="flex flex-1 items-center space-x-2">
+    <div className="flex items-center justify-between flex-wrap">
+      <div className="flex flex-1 items-center space-x-2 flex-wrap">
         <Input
           placeholder="Search orders..."
-          defaultValue={searchParams.get("search")?.toString()}
+          value={search || ""}
           onChange={(e) => {
-            handleSearch(e.target.value);
+            handleSearch(e.target.value)
           }}
           className="h-8 w-[150px] lg:w-[250px]"
         />
@@ -59,7 +76,16 @@ export function DataTableToolbar<TData>({
         {isFiltered && (
           <Button
             variant="ghost"
-            onClick={() => table.resetColumnFilters()}
+            onClick={() => {
+              table.resetColumnFilters()
+              setParams({
+                search: null,
+                statuses: null,
+                from_: null,
+                to: null,
+                page: 1,
+              })
+            }}
             className="h-8 px-2 lg:px-3"
           >
             Reset
@@ -78,7 +104,41 @@ export function DataTableToolbar<TData>({
             </Link>
           </Button>
         )}
+        <Popover>
+          <PopoverTrigger asChild>
+            <Button
+              variant={from_ || to ? "default" : "outline"}
+              size="sm"
+              id="date"
+              className="justify-between font-normal"
+            >
+              <CalendarIcon className="size-4 shrink-0" />
+              {from_ && to && (
+                <span className="ml-2">
+                  {format(new Date(from_), "LLL dd")} -{" "}
+                  {format(new Date(to), "LLL dd")}
+                </span>
+              )}
+            </Button>
+          </PopoverTrigger>
+          <PopoverContent className="w-auto overflow-hidden p-0" align="start">
+            <Calendar
+              mode="range"
+              defaultMonth={from_ || new Date()}
+              numberOfMonths={2}
+              selected={{
+                from: from_ ? new Date(from_) : undefined,
+                to: to ? new Date(to) : undefined,
+              }}
+              className="rounded-lg border shadow-sm"
+              onSelect={handleDateRangeSelect}
+              hidden={{
+                after: new Date(),
+              }}
+            />
+          </PopoverContent>
+        </Popover>
       </div>
     </div>
-  );
+  )
 }

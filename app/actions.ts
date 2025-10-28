@@ -31,12 +31,18 @@ export const getDailyStats = async (range: {
 }) => {
   const params = new URLSearchParams()
   if (range.fromDate) {
-    params.append("from", range.fromDate)
+    params.append("from_", range.fromDate)
   }
   if (range.toDate) {
     params.append("to", range.toDate)
   }
-  const res = await serverFetch(`/stats/daily?${params.toString()}`)
+  const res = await serverFetch(`/stats/daily?${params.toString()}`, {
+    next: {
+      tags: ["daily-stats", range.fromDate, range.toDate].filter(
+        (t): t is string => typeof t === "string"
+      ),
+    },
+  })
   return res as Promise<StatsDaily>
 }
 

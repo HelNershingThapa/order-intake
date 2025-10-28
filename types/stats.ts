@@ -22,8 +22,9 @@ export interface StatsOverview {
 
 interface StatsDailyItem {
   date: ISODateString
-  created: number
-  ready: number
+  total_orders: number
+  total_weight_kg: number
+  by_status: Record<OrderStatus, number>
 }
 
 export interface StatsDaily {

@@ -1,6 +1,6 @@
-"use client";
+"use client"
 
-import * as React from "react";
+import * as React from "react"
 import {
   ColumnDef,
   ColumnFiltersState,
@@ -12,7 +12,7 @@ import {
   getFacetedUniqueValues,
   getSortedRowModel,
   useReactTable,
-} from "@tanstack/react-table";
+} from "@tanstack/react-table"
 
 import {
   Table,
@@ -21,17 +21,18 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@/components/ui/table";
+} from "@/components/ui/table"
 
-import { DataTablePagination } from "./data-table-pagination";
-import { DataTableToolbar } from "./data-table-toolbar";
-import { OrderListResponse, OrderSummary } from "@/types/order";
-import { usePathname, useRouter } from "next/navigation";
+import { DataTablePagination } from "./data-table-pagination"
+import { DataTableToolbar } from "./data-table-toolbar"
+import { OrderListResponse, OrderSummary } from "@/types/order"
+import { useQueryStates } from "nuqs"
+import { ordersSearchParams } from "@/app/(main)/orders/searchParams"
 
 interface DataTableProps<TValue> {
-  columns: ColumnDef<OrderSummary, TValue>[];
-  data: OrderListResponse;
-  isAdmin?: boolean;
+  columns: ColumnDef<OrderSummary, TValue>[]
+  data: OrderListResponse
+  isAdmin?: boolean
 }
 
 export function DataTable<TValue>({
@@ -39,15 +40,26 @@ export function DataTable<TValue>({
   data,
   isAdmin = false,
 }: DataTableProps<TValue>) {
-  const pathname = usePathname();
-  const { replace } = useRouter();
+  const [{ page, page_size, statuses }, setParams] = useQueryStates(
+    ordersSearchParams,
+    {
+      shallow: false,
+    }
+  )
+
   const [columnVisibility, setColumnVisibility] =
-    React.useState<VisibilityState>({ vendor_name: isAdmin });
-  const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
-    [],
-  );
-  const [sorting, setSorting] = React.useState<SortingState>([]);
-  const [rowSelection, setRowSelection] = React.useState({});
+    React.useState<VisibilityState>({ vendor_name: isAdmin })
+  const [sorting, setSorting] = React.useState<SortingState>([])
+  const [rowSelection, setRowSelection] = React.useState({})
+
+  // Derive column filters from URL params for UI consistency
+  const columnFilters = React.useMemo<ColumnFiltersState>(() => {
+    const filters: ColumnFiltersState = []
+    if (statuses && statuses.length > 0) {
+      filters.push({ id: "status", value: statuses })
+    }
+    return filters
+  }, [statuses])
 
   const table = useReactTable({
     data: data.items,
@@ -57,6 +69,10 @@ export function DataTable<TValue>({
       columnVisibility,
       columnFilters,
       rowSelection,
+      pagination: {
+        pageIndex: page ? page - 1 : 0,
+        pageSize: page_size,
+      },
     },
     manualFiltering: true,
     manualPagination: true,
@@ -67,21 +83,20 @@ export function DataTable<TValue>({
       const next =
         typeof updater === "function"
           ? updater(table.getState().pagination)
-          : updater;
-      const params = new URLSearchParams(window.location.search);
-      params.set("page", String(next.pageIndex + 1));
-      params.set("pageSize", String(next.pageSize));
-      replace(`${pathname}?${params.toString()}`);
+          : updater
+      setParams({
+        page: Number(next.pageIndex + 1),
+        page_size: Number(next.pageSize),
+      })
     },
     rowCount: data.total,
-    onColumnFiltersChange: setColumnFilters,
     onColumnVisibilityChange: setColumnVisibility,
     getCoreRowModel: getCoreRowModel(),
     getSortedRowModel: getSortedRowModel(),
     getFacetedRowModel: getFacetedRowModel(),
     getFacetedUniqueValues: getFacetedUniqueValues(),
     getRowId: (order) => order.order_id,
-  });
+  })
 
   return (
     <div className="space-y-4">
@@ -98,10 +113,10 @@ export function DataTable<TValue>({
                         ? null
                         : flexRender(
                             header.column.columnDef.header,
-                            header.getContext(),
+                            header.getContext()
                           )}
                     </TableHead>
-                  );
+                  )
                 })}
               </TableRow>
             ))}
@@ -117,7 +132,7 @@ export function DataTable<TValue>({
                     <TableCell key={cell.id}>
                       {flexRender(
                         cell.column.columnDef.cell,
-                        cell.getContext(),
+                        cell.getContext()
                       )}
                     </TableCell>
                   ))}
@@ -138,5 +153,5 @@ export function DataTable<TValue>({
       </div>
       <DataTablePagination table={table} />
     </div>
-  );
+  )
 }
