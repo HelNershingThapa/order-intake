@@ -1,4 +1,5 @@
 import { getCurrentUser } from "@/app/actions";
+
 import VendorProfileForm from "./components/vendor-profile-form";
 
 export default async function Page() {

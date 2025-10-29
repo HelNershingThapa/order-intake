@@ -1,4 +1,5 @@
 import { CardDescription } from "@/components/ui/card";
+
 import CreateVendorFormClient from "./components/vendor-form";
 
 export default function NewVendorPage() {

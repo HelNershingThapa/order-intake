@@ -3,8 +3,9 @@
 import * as React from "react"
 import { Column } from "@tanstack/react-table"
 import { Check, PlusCircle } from "lucide-react"
+import { useQueryStates } from "nuqs"
 
-import { cn } from "@/lib/utils"
+import { ordersSearchParams } from "@/app/(main)/orders/searchParams"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import {
@@ -22,8 +23,7 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover"
 import { Separator } from "@/components/ui/separator"
-import { useQueryStates } from "nuqs"
-import { ordersSearchParams } from "@/app/(main)/orders/searchParams"
+import { cn } from "@/lib/utils"
 
 interface DataTableFacetedFilterProps<TData, TValue> {
   column?: Column<TData, TValue>

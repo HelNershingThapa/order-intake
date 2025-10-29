@@ -2,9 +2,8 @@
 
 import { useActionState } from "react";
 import { Loader2 } from "lucide-react";
-import { cn } from "@/lib/utils";
+
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import {
   Card,
   CardContent,
@@ -12,8 +11,11 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { login } from "../actions";
 import { Field, FieldError, FieldLabel } from "@/components/ui/field";
+import { Input } from "@/components/ui/input";
+import { cn } from "@/lib/utils";
+
+import { login } from "../actions";
 
 export function LoginForm({ ...props }) {
   const [state, action, pending] = useActionState(login, undefined);

@@ -1,10 +1,10 @@
 import {
-  parseAsInteger,
-  parseAsString,
   createLoader,
-  parseAsArrayOf,
   createSerializer,
+  parseAsArrayOf,
+  parseAsInteger,
   parseAsIsoDate,
+  parseAsString,
 } from "nuqs/server"
 
 // Describe your search params, and reuse this in useQueryStates / createSerializer:

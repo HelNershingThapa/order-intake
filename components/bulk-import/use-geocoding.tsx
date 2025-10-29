@@ -1,14 +1,16 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
-import { search, places } from "@/lib/baato";
+
+import { places,search } from "@/lib/baato";
+import { type CsvRow } from "@/utils/csv-parser";
+
 import {
+  type CanonicalKey,
+  type GeocodedRow,
   optionalKeys,
   requiredKeys,
-  type GeocodedRow,
-  type CanonicalKey,
 } from "./steps";
-import { type CsvRow } from "@/utils/csv-parser";
 
 interface UseGeocodingArgs {
   data: CsvRow[];

@@ -1,16 +1,16 @@
-import { Card, CardContent } from "@/components/ui/card";
-
+import Link from "next/link";
+import { IconLogin } from "@tabler/icons-react";
 import {
+  BarChart3,
   Building2,
+  MapPin,
+  Shield,
   ShoppingCart,
   Truck,
-  MapPin,
-  BarChart3,
-  Shield,
 } from "lucide-react";
-import Link from "next/link";
+
 import { Button } from "@/components/ui/button";
-import { IconLogin } from "@tabler/icons-react";
+import { Card, CardContent } from "@/components/ui/card";
 
 const Index = () => {
   return (

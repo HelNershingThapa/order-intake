@@ -1,14 +1,15 @@
 "use client"
 
+import Link from "next/link"
 import type { ColumnDef } from "@tanstack/react-table"
+import { format } from "date-fns"
+
+import { Checkbox } from "@/components/ui/checkbox"
+import type { Order } from "@/types/order"
 
 import { orderStatuses } from "./config"
 import { DataTableColumnHeader } from "./data-table-column-header"
 import { DataTableRowActions } from "./data-table-row-actions"
-import type { Order } from "@/types/order"
-import { format } from "date-fns"
-import { Checkbox } from "@/components/ui/checkbox"
-import Link from "next/link"
 
 export const columns: ColumnDef<Order>[] = [
   {

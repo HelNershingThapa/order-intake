@@ -1,4 +1,4 @@
-import { CheckCircle, MapPin, FileEdit } from "lucide-react";
+import { CheckCircle, FileEdit,MapPin } from "lucide-react";
 
 export const orderStatuses = [
   {

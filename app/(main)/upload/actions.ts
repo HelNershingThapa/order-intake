@@ -1,7 +1,7 @@
 "use server";
 
-import type { BulkUploadResponse, RawOrder } from "@/types/order";
 import { serverFetch } from "@/lib/serverFetch";
+import type { BulkUploadResponse, RawOrder } from "@/types/order";
 
 export async function uploadOrders(
   orders: RawOrder[],

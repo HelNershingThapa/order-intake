@@ -1,9 +1,10 @@
 "use client";
 import { useCallback, useState } from "react";
 import { useDropzone } from "react-dropzone";
+
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-import { parseCSV, type CsvRow } from "@/utils/csv-parser";
+import { type CsvRow,parseCSV } from "@/utils/csv-parser";
 
 interface UploadFileStepProps {
   onParsed: (data: {

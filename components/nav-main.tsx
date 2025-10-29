@@ -1,11 +1,12 @@
 "use client"
 
 import Link from "next/link"
+import { usePathname } from "next/navigation"
 import {
   IconCirclePlusFilled,
   IconDashboard,
-  IconListDetails,
   IconFileUpload,
+  IconListDetails,
   IconSettingsBolt,
   IconTablePlus,
   IconUser,
@@ -19,7 +20,6 @@ import {
   SidebarMenuItem,
 } from "@/components/ui/sidebar"
 import type { Role } from "@/types/miscellaneous"
-import { usePathname } from "next/navigation"
 
 // Map serializable keys to actual icon components on the client side
 const ICONS = {

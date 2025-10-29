@@ -1,9 +1,10 @@
 import { useMutation } from "@tanstack/react-query";
 import type { Table } from "@tanstack/react-table";
 import { Loader2 } from "lucide-react";
+import { toast } from "sonner";
+
 import { confirmOrders } from "@/app/(main)/orders/actions";
 import { Button } from "@/components/ui/button";
-import { toast } from "sonner";
 
 interface DataTableToolbarProps<TData> {
   table: Table<TData>;

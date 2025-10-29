@@ -1,8 +1,9 @@
-import "server-only";
-
-import { SignJWT, decodeJwt, jwtVerify } from "jose";
 import { cookies } from "next/headers";
+import { decodeJwt, jwtVerify,SignJWT } from "jose";
+
 import type { LoginResponse } from "@/types/miscellaneous";
+
+import "server-only";
 
 const secretKey = process.env.SESSION_SECRET;
 const encodedKey = new TextEncoder().encode(secretKey);

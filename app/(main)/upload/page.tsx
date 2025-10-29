@@ -1,25 +1,27 @@
 "use client";
 
-import { useEffect, useState, useRef } from "react";
-import { Separator } from "@/components/ui/separator";
+import { useEffect, useRef,useState } from "react";
+import { useMutation } from "@tanstack/react-query";
 import { Check } from "lucide-react";
-import { cn } from "@/lib/utils";
-import { CoordinatePickerDialog } from "@/components/map/coordinate-picker-dialog";
+import { toast } from "sonner";
+
+import { GeocodeErrorsStep } from "@/components/bulk-import/geocode-errors-step";
+import { MapColumnsStep } from "@/components/bulk-import/map-columns-step";
+import { ReviewStep } from "@/components/bulk-import/review-step";
 import {
-  steps,
-  createEmptyMapping,
-  requiredKeys,
   type CanonicalKey,
+  createEmptyMapping,
   type GeocodedRow,
+  requiredKeys,
+  steps,
 } from "@/components/bulk-import/steps";
 import { UploadFileStep } from "@/components/bulk-import/upload-file-step";
-import { MapColumnsStep } from "@/components/bulk-import/map-columns-step";
-import { GeocodeErrorsStep } from "@/components/bulk-import/geocode-errors-step";
-import { ReviewStep } from "@/components/bulk-import/review-step";
 import { useGeocoding } from "@/components/bulk-import/use-geocoding";
+import { CoordinatePickerDialog } from "@/components/map/coordinate-picker-dialog";
+import { Separator } from "@/components/ui/separator";
+import { cn } from "@/lib/utils";
 import { type CsvRow } from "@/utils/csv-parser";
-import { toast } from "sonner";
-import { useMutation } from "@tanstack/react-query";
+
 import { uploadOrders } from "./actions";
 
 export default function Page() {

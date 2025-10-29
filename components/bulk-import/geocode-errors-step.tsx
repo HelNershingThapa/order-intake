@@ -1,4 +1,8 @@
 "use client";
+import { Check } from "lucide-react";
+
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import {
   Table,
   TableBody,
@@ -7,9 +11,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
-import { Check } from "lucide-react";
+
 import { type GeocodedRow } from "./steps";
 
 interface GeocodeErrorsStepProps {

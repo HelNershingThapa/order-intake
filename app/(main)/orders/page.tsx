@@ -1,10 +1,12 @@
-import { getOrders } from "@/lib/order-service"
+import { cookies } from "next/headers"
+
 import { columns } from "@/components/orders/columns"
 import { DataTable } from "@/components/orders/data-table"
-import { cookies } from "next/headers"
+import { getOrders } from "@/lib/order-service"
 import { decrypt } from "@/lib/session"
-import { loadSearchParams } from "./searchParams"
 import { OrderStatus } from "@/types/order"
+
+import { loadSearchParams } from "./searchParams"
 
 type SearchParams = {
   search?: string

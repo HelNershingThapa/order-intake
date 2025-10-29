@@ -2,7 +2,7 @@
 
 import { serverFetch } from "@/lib/serverFetch"
 import type { CurrentUser } from "@/types/miscellaneous"
-import type { StatsOverview, StatsDaily } from "@/types/stats"
+import type { StatsDaily, StatsOverview } from "@/types/stats"
 
 export const getStatsOverview = async (range: {
   fromDate?: string

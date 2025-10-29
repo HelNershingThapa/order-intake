@@ -1,9 +1,11 @@
+import { format } from "date-fns"
+
 import { getDailyStats, getStatsOverview } from "@/app/actions"
-import { SectionCards } from "./components/section-cards"
+
+import { dateRanges } from "./components/config"
 import { DailyStatsAreaChart } from "./components/daily-stats-area-chart"
 import { DateRangeSelector } from "./components/date-range-selector"
-import { format } from "date-fns"
-import { dateRanges } from "./components/config"
+import { SectionCards } from "./components/section-cards"
 
 export default async function VendorDashboardPage({
   searchParams,

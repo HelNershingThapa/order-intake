@@ -1,5 +1,8 @@
 import * as React from "react";
+import Image from "next/image";
+import Link from "next/link";
 
+import { getCurrentUser } from "@/app/actions";
 import { NavMain } from "@/components/nav-main";
 import { NavUser } from "@/components/nav-user";
 import {
@@ -11,10 +14,6 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
-import Link from "next/link";
-import Image from "next/image";
-
-import { getCurrentUser } from "@/app/actions";
 import type { Role } from "@/types/miscellaneous";
 
 type IconKey =

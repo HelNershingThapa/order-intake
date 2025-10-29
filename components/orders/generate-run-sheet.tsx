@@ -1,17 +1,19 @@
 "use client"
 
-import Link from "next/link"
-import {
-  Sheet,
-  SheetContent,
-  SheetDescription,
-  SheetFooter,
-  SheetHeader,
-  SheetTitle,
-} from "@/components/ui/sheet"
-import { Table } from "@tanstack/react-table"
-import { Button } from "@/components/ui/button"
 import { useEffect, useMemo, useState } from "react"
+import { useForm } from "react-hook-form"
+import Link from "next/link"
+import { useRouter } from "next/navigation"
+import { zodResolver } from "@hookform/resolvers/zod"
+import { useMutation, useQuery } from "@tanstack/react-query"
+import { Table } from "@tanstack/react-table"
+import { format, startOfToday } from "date-fns"
+import { CalendarIcon } from "lucide-react"
+import { toast } from "sonner"
+import { z } from "zod"
+
+import { Button } from "@/components/ui/button"
+import { Calendar } from "@/components/ui/calendar"
 import {
   Form,
   FormControl,
@@ -22,17 +24,11 @@ import {
   FormMessage,
 } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
-import { useMutation, useQuery } from "@tanstack/react-query"
-import { zodResolver } from "@hookform/resolvers/zod"
-import { useForm } from "react-hook-form"
-import { z } from "zod"
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover"
-import { format, startOfToday } from "date-fns"
-import { Calendar } from "@/components/ui/calendar"
 import {
   Select,
   SelectContent,
@@ -40,11 +36,17 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
-import { cn } from "@/lib/utils"
-import { CalendarIcon } from "lucide-react"
-import { toast } from "sonner"
-import { Order } from "@/types/order"
+import {
+  Sheet,
+  SheetContent,
+  SheetDescription,
+  SheetFooter,
+  SheetHeader,
+  SheetTitle,
+} from "@/components/ui/sheet"
 import { generateRun, getRuns } from "@/lib/generate-run"
+import { cn } from "@/lib/utils"
+import { Order } from "@/types/order"
 
 const STORAGE_KEY = "route360-api-key"
 
@@ -63,6 +65,7 @@ const formSchema = z.object({
 export function GenerateRunSheet<TData>({
   table,
 }: DataTableToolbarProps<TData>) {
+  const router = useRouter()
   const [isOpen, setIsOpen] = useState(false)
   const [apiKey, setApiKey] = useState("")
 
@@ -174,7 +177,12 @@ export function GenerateRunSheet<TData>({
 
   const handleGenerateRun = () => {
     if (!apiKey) {
-      toast.error("Please configure your Route360 API key in Settings first")
+      toast.error("Please configure your Route360 API key in Settings first", {
+        action: {
+          label: "Go to Settings",
+          onClick: () => router.push("/settings"),
+        },
+      })
       return
     }
     setIsOpen(true)
@@ -346,7 +354,7 @@ export function GenerateRunSheet<TData>({
                   </p>
                 )}
               </div>
-              <SheetFooter>
+              <SheetFooter className="px-0">
                 <div className="flex items-center gap-2">
                   <Button
                     type="submit"

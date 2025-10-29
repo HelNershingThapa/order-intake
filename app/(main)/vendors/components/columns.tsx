@@ -2,8 +2,8 @@
 
 import { ColumnDef } from "@tanstack/react-table";
 
-import type { Vendor } from "@/types/miscellaneous";
 import { DataTableColumnHeader } from "@/components/orders/data-table-column-header";
+import type { Vendor } from "@/types/miscellaneous";
 
 export const columns: ColumnDef<Vendor>[] = [
   {

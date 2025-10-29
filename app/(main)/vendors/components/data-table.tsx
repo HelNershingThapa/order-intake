@@ -1,19 +1,21 @@
 "use client";
 
 import * as React from "react";
+import { usePathname, useRouter } from "next/navigation";
 import {
   ColumnDef,
   ColumnFiltersState,
-  SortingState,
-  VisibilityState,
   flexRender,
   getCoreRowModel,
   getFacetedRowModel,
   getFacetedUniqueValues,
   getSortedRowModel,
+  SortingState,
   useReactTable,
+  VisibilityState,
 } from "@tanstack/react-table";
 
+import { DataTablePagination } from "@/components/orders/data-table-pagination";
 import {
   Table,
   TableBody,
@@ -22,11 +24,9 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import type { Vendor } from "@/types/miscellaneous";
 
 import { DataTableToolbar } from "./data-table-toolbar";
-import { usePathname, useRouter } from "next/navigation";
-import type { Vendor } from "@/types/miscellaneous";
-import { DataTablePagination } from "@/components/orders/data-table-pagination";
 
 interface DataTableProps<TValue> {
   columns: ColumnDef<Vendor, TValue>[];

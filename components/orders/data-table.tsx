@@ -4,16 +4,18 @@ import * as React from "react"
 import {
   ColumnDef,
   ColumnFiltersState,
-  SortingState,
-  VisibilityState,
   flexRender,
   getCoreRowModel,
   getFacetedRowModel,
   getFacetedUniqueValues,
   getSortedRowModel,
+  SortingState,
   useReactTable,
+  VisibilityState,
 } from "@tanstack/react-table"
+import { useQueryStates } from "nuqs"
 
+import { ordersSearchParams } from "@/app/(main)/orders/searchParams"
 import {
   Table,
   TableBody,
@@ -22,12 +24,10 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table"
+import { OrderListResponse, OrderSummary } from "@/types/order"
 
 import { DataTablePagination } from "./data-table-pagination"
 import { DataTableToolbar } from "./data-table-toolbar"
-import { OrderListResponse, OrderSummary } from "@/types/order"
-import { useQueryStates } from "nuqs"
-import { ordersSearchParams } from "@/app/(main)/orders/searchParams"
 
 interface DataTableProps<TValue> {
   columns: ColumnDef<OrderSummary, TValue>[]

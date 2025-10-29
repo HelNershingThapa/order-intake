@@ -1,14 +1,15 @@
-import type { OrderStatus } from "@/types/order";
 import {
+  AlertTriangle,
   CheckCircle,
+  Clock,
   FileEdit,
   Package,
+  PackageCheck,
   Truck,
   X,
-  PackageCheck,
-  Clock,
-  AlertTriangle,
 } from "lucide-react";
+
+import type { OrderStatus } from "@/types/order";
 
 export const orderStatuses = [
   {

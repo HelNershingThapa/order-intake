@@ -1,18 +1,20 @@
 "use client";
 
 import { useMemo, useRef, useState } from "react";
+import { Layer, Map, type MapMouseEvent,Source } from "react-map-gl/maplibre";
+import type { GeoJSONSource } from "maplibre-gl";
+
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
 import { cn } from "@/lib/utils";
-import { type GeocodedRow } from "./steps";
-import { Map, Source, Layer, type MapMouseEvent } from "react-map-gl/maplibre";
+
 import {
-  clusterLayer,
   clusterCountLayer,
+  clusterLayer,
   unclusteredPointLayer,
 } from "./layers";
-import type { GeoJSONSource } from "maplibre-gl";
+import { type GeocodedRow } from "./steps";
 interface ReviewStepProps {
   rows: GeocodedRow[]; // includes all; we will filter to successful
   onBack?: () => void;

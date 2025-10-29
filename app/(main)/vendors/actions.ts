@@ -1,5 +1,6 @@
 import { serverFetch } from "@/lib/serverFetch";
 import type { Vendor } from "@/types/miscellaneous";
+
 import type { VendorFormData } from "./new/components/vendor-form";
 
 export const getVendors = async () => {

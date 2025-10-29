@@ -1,17 +1,18 @@
 "use client";
 
-import Image from "next/image";
+import { useState } from "react";
 import { useFormContext } from "react-hook-form";
 import Map, {
   MapLayerMouseEvent,
   Marker,
-  useMap,
   type MarkerDragEvent,
+  useMap,
 } from "react-map-gl/maplibre";
-import { toast } from "sonner";
-import { useState } from "react";
-import { Loader2 } from "lucide-react";
+import Image from "next/image";
 import { useQuery } from "@tanstack/react-query";
+import { Loader2 } from "lucide-react";
+import { toast } from "sonner";
+
 import {
   Command,
   CommandEmpty,
@@ -20,9 +21,10 @@ import {
   CommandList,
   CommandLoading,
 } from "@/components/ui/command";
-import "maplibre-gl/dist/maplibre-gl.css";
 import { places, search } from "@/lib/baato";
 import { BaatoSearchResponse } from "@/types/baato";
+
+import "maplibre-gl/dist/maplibre-gl.css";
 
 export const OrderLocationMap = () => {
   const form = useFormContext();

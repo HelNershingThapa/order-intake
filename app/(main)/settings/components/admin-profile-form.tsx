@@ -1,12 +1,15 @@
 "use client"
 
+import { useFieldArray,useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
-import { useForm, useFieldArray } from "react-hook-form"
+import { useMutation } from "@tanstack/react-query"
 import { Loader2, Plus, Trash2 } from "lucide-react"
 import { toast } from "sonner"
-import { useMutation } from "@tanstack/react-query"
 
+import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Checkbox } from "@/components/ui/checkbox"
 import {
   Form,
   FormControl,
@@ -17,12 +20,11 @@ import {
   FormMessage,
 } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
-import { Checkbox } from "@/components/ui/checkbox"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { convertUTCToLocalTime, convertLocalTimeToUTC } from "@/utils/timezone"
 import { Admin } from "@/types/miscellaneous"
-import { type AdminProfileData, adminProfileSchema } from "./schema"
+import { convertLocalTimeToUTC,convertUTCToLocalTime } from "@/utils/timezone"
+
 import { updateAdminProfile } from "../actions"
+import { type AdminProfileData, adminProfileSchema } from "./schema"
 
 export function AdminProfileForm({
   admin,
@@ -155,25 +157,26 @@ export function AdminProfileForm({
                 })
               }
             >
-              <Plus className="h-4 w-4" />
+              <Plus className="size-4" />
               Add Window
             </Button>
           </div>
 
           {fields.map((field, index) => (
             <Card key={field.id}>
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">
-                  Window {index + 1}
+              <CardHeader className="flex flex-row items-center justify-between">
+                <CardTitle>
+                  <Badge variant="secondary">Window {index + 1}</Badge>
                 </CardTitle>
                 {fields.length > 1 && (
                   <Button
                     type="button"
                     variant="ghost"
-                    size="sm"
+                    size="icon"
+                    className="size-8"
                     onClick={() => remove(index)}
                   >
-                    <Trash2 className="h-4 w-4 text-destructive" />
+                    <Trash2 className="size-4 text-destructive" />
                   </Button>
                 )}
               </CardHeader>

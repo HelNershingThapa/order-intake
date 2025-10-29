@@ -1,4 +1,5 @@
 import { serverFetch } from "@/lib/serverFetch"
+
 import { AdminProfileData } from "./components/schema"
 
 export const updateAdminProfile = async (data: AdminProfileData) => {

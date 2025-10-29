@@ -1,10 +1,14 @@
 "use client";
 
 import React from "react";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useMutation } from "@tanstack/react-query";
 import { toast } from "sonner";
-import { Card, CardContent } from "@/components/ui/card";
-import { convertLocalTimeToUTC, convertUTCToLocalTime } from "@/utils/timezone";
+import { z } from "zod";
 
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
 import {
   Form,
   FormControl,
@@ -14,14 +18,11 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { z } from "zod";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { Button } from "@/components/ui/button";
-import { useMutation } from "@tanstack/react-query";
-import { PickupLocationMap } from "./pickup-location-map";
 import type { CurrentUser } from "@/types/miscellaneous";
+import { convertLocalTimeToUTC, convertUTCToLocalTime } from "@/utils/timezone";
+
 import { updateVendor } from "../actions";
+import { PickupLocationMap } from "./pickup-location-map";
 
 const vendorSchema = z.object({
   contact_name: z.string().min(2).max(100),

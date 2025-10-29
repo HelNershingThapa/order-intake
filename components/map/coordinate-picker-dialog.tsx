@@ -1,6 +1,8 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
+import { Map, Marker } from "react-map-gl/maplibre";
+
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -10,7 +12,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { Map, Marker } from "react-map-gl/maplibre";
+
 import "maplibre-gl/dist/maplibre-gl.css";
 
 interface CoordinatePickerDialogProps {
