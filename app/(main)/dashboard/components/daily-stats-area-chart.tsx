@@ -1,12 +1,10 @@
 "use client"
 
 import * as React from "react"
-import { Area, AreaChart, CartesianGrid, XAxis, YAxis } from "recharts"
+import { Bar, BarChart, CartesianGrid, XAxis, YAxis } from "recharts"
 
-import { useIsMobile } from "@/hooks/use-mobile"
 import {
   Card,
-  CardAction,
   CardContent,
   CardDescription,
   CardHeader,
@@ -22,15 +20,13 @@ import {
 } from "@/components/ui/chart"
 import type { StatsDaily } from "@/types/stats"
 
-export const description = "Daily orders area chart"
-
 const chartConfig = {
-  created: {
-    label: "Created",
-    color: "var(--chart-2)",
+  total_orders: {
+    label: "Placed",
+    color: "var(--chart-4)",
   },
-  ready: {
-    label: "Ready",
+  confirmed: {
+    label: "Confirmed",
     color: "var(--chart-2)",
   },
 } satisfies ChartConfig
@@ -40,7 +36,6 @@ type Props = {
 }
 
 export function DailyStatsAreaChart({ dailyStats }: Props) {
-  const isMobile = useIsMobile()
   const items = dailyStats?.items ?? []
 
   return (
@@ -59,33 +54,14 @@ export function DailyStatsAreaChart({ dailyStats }: Props) {
           config={chartConfig}
           className="aspect-auto h-[250px] w-full"
         >
-          <AreaChart data={items}>
-            <defs>
-              <linearGradient id="fillCreated" x1="0" y1="0" x2="0" y2="1">
-                <stop
-                  offset="5%"
-                  stopColor="var(--color-created)"
-                  stopOpacity={1}
-                />
-                <stop
-                  offset="95%"
-                  stopColor="var(--color-created)"
-                  stopOpacity={0.1}
-                />
-              </linearGradient>
-              <linearGradient id="fillReady" x1="0" y1="0" x2="0" y2="1">
-                <stop
-                  offset="5%"
-                  stopColor="var(--color-ready)"
-                  stopOpacity={0.8}
-                />
-                <stop
-                  offset="95%"
-                  stopColor="var(--color-ready)"
-                  stopOpacity={0.1}
-                />
-              </linearGradient>
-            </defs>
+          <BarChart
+            accessibilityLayer
+            data={items}
+            margin={{
+              left: 12,
+              right: 12,
+            }}
+          >
             <CartesianGrid vertical={false} />
             <XAxis
               dataKey="date"
@@ -102,35 +78,32 @@ export function DailyStatsAreaChart({ dailyStats }: Props) {
               }}
             />
             <ChartTooltip
-              cursor={false}
-              defaultIndex={isMobile ? -1 : 10}
               content={
                 <ChartTooltipContent
-                  labelFormatter={(value) =>
-                    new Date(value).toLocaleDateString("en-US", {
+                  className="w-[150px]"
+                  labelFormatter={(value) => {
+                    return new Date(value).toLocaleDateString("en-US", {
                       month: "short",
                       day: "numeric",
+                      year: "numeric",
                     })
-                  }
-                  indicator="dot"
+                  }}
                 />
               }
             />
             <YAxis />
-            <Area
-              dataKey="by_status.order_placed"
-              type="natural"
-              fill="url(#fillCreated)"
-              stroke="var(--color-created)"
+            <Bar
+              dataKey="total_orders"
+              fill={`var(--color-total_orders)`}
+              name="total_orders"
             />
-            <Area
+            <Bar
               dataKey="by_status.order_confirmed"
-              type="natural"
-              fill="url(#fillReady)"
-              stroke="var(--color-ready)"
+              fill="var(--color-confirmed)"
+              name="confirmed"
             />
-            <ChartLegend content={<ChartLegendContent />} />
-          </AreaChart>
+            <ChartLegend content={<ChartLegendContent nameKey="name" />} />
+          </BarChart>
         </ChartContainer>
       </CardContent>
     </Card>
