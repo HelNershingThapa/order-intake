@@ -1,3 +1,6 @@
+"use client"
+
+import Link from "next/link"
 import {
   Sheet,
   SheetContent,
@@ -5,10 +8,10 @@ import {
   SheetFooter,
   SheetHeader,
   SheetTitle,
-} from "@/components/ui/sheet";
-import { Table } from "@tanstack/react-table";
-import { Button } from "@/components/ui/button";
-import { useMemo, useState } from "react";
+} from "@/components/ui/sheet"
+import { Table } from "@tanstack/react-table"
+import { Button } from "@/components/ui/button"
+import { useEffect, useMemo, useState } from "react"
 import {
   Form,
   FormControl,
@@ -17,42 +20,36 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
-import { useMutation, useQuery } from "@tanstack/react-query";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm } from "react-hook-form";
-import { z } from "zod";
+} from "@/components/ui/form"
+import { Input } from "@/components/ui/input"
+import { useMutation, useQuery } from "@tanstack/react-query"
+import { zodResolver } from "@hookform/resolvers/zod"
+import { useForm } from "react-hook-form"
+import { z } from "zod"
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
-} from "@/components/ui/popover";
-import { format, startOfToday } from "date-fns";
-import { Calendar } from "@/components/ui/calendar";
+} from "@/components/ui/popover"
+import { format, startOfToday } from "date-fns"
+import { Calendar } from "@/components/ui/calendar"
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select";
-import { cn } from "@/lib/utils";
-import { CalendarIcon } from "lucide-react";
-import { toast } from "sonner";
-import { Order } from "@/types/order";
-import { generateRun, getRuns } from "@/lib/generate-run";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
+} from "@/components/ui/select"
+import { cn } from "@/lib/utils"
+import { CalendarIcon } from "lucide-react"
+import { toast } from "sonner"
+import { Order } from "@/types/order"
+import { generateRun, getRuns } from "@/lib/generate-run"
+
+const STORAGE_KEY = "route360-api-key"
 
 interface DataTableToolbarProps<TData> {
-  table: Table<TData>;
+  table: Table<TData>
 }
 
 const formSchema = z.object({
@@ -61,26 +58,35 @@ const formSchema = z.object({
   runEndTime: z.iso.time({ error: "End time is required." }),
   readyToPickupTime: z.iso.time({ error: "Pickup time is required." }),
   runName: z.string().min(1, { message: "Name is required." }),
-});
+})
 
 export function GenerateRunSheet<TData>({
   table,
 }: DataTableToolbarProps<TData>) {
-  const [isOpen, setIsOpen] = useState(false);
-  const [apiKeyDialogOpen, setApiKeyDialogOpen] = useState(false);
-  const [apiKey, setApiKey] = useState("");
-  const [apiKeyInput, setApiKeyInput] = useState("");
+  const [isOpen, setIsOpen] = useState(false)
+  const [apiKey, setApiKey] = useState("")
+
+  // Load API key from localStorage on mount
+  useEffect(() => {
+    if (globalThis.window !== undefined) {
+      const savedKey = globalThis.localStorage.getItem(STORAGE_KEY)
+      if (savedKey) {
+        setApiKey(savedKey)
+      }
+    }
+  }, [])
+
   // Selected rows from the table
   const selectedOrders = useMemo(
     () => table.getSelectedRowModel().rows.map((row) => row.original as Order),
-    [table.getSelectedRowModel().rows.length],
-  );
+    [table.getSelectedRowModel().rows.length]
+  )
   const { data: runs } = useQuery({
     queryKey: ["runs", apiKey],
     queryFn: () => getRuns(apiKey),
     enabled: !!apiKey,
     refetchOnWindowFocus: true,
-  });
+  })
 
   // 1. Define your form.
   const form = useForm<z.infer<typeof formSchema>>({
@@ -90,7 +96,7 @@ export function GenerateRunSheet<TData>({
       runEndTime: "",
       readyToPickupTime: "",
     },
-  });
+  })
 
   // Build a friendly address string from possible fields
   const buildAddress = (o: any) => {
@@ -100,9 +106,9 @@ export function GenerateRunSheet<TData>({
       o?.landmark,
       o?.municipality,
       o?.ward ? `Ward ${o.ward}` : undefined,
-    ].filter(Boolean);
-    return parts.join(", ");
-  };
+    ].filter(Boolean)
+    return parts.join(", ")
+  }
 
   const derivedRunBookings = useMemo(() => {
     return selectedOrders.map((o: any, idx: number) => ({
@@ -118,40 +124,40 @@ export function GenerateRunSheet<TData>({
       latitude: o?.lat || 0,
       longitude: o?.lng || 0,
       address: buildAddress(o) || "",
-    }));
+    }))
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [selectedOrders.length]);
+  }, [selectedOrders.length])
 
   const mutation = useMutation({
     mutationFn: (data: any) => generateRun(data),
     onSuccess: () => {
-      toast.success("Run generated successfully!");
-      form.reset();
-      table.resetRowSelection();
-      setIsOpen(false);
+      toast.success("Run generated successfully!")
+      form.reset()
+      table.resetRowSelection()
+      setIsOpen(false)
     },
     onError: () => {
-      toast.error("Failed to generate run. Please try again.");
+      toast.error("Failed to generate run. Please try again.")
     },
-  });
+  })
 
   function onSubmit(values: z.infer<typeof formSchema>) {
     // Helper to combine selected date with a HH:mm time string into UTC ISO without milliseconds
     const toUtcIso = (date: Date, time: string) => {
-      const [hStr = "0", mStr = "0", sStr = "0"] = time.split(":");
-      const y = date.getFullYear();
-      const m = date.getMonth();
-      const d = date.getDate();
-      const hh = Number(hStr);
-      const mm = Number(mStr);
-      const ss = Number(sStr) || 0;
+      const [hStr = "0", mStr = "0", sStr = "0"] = time.split(":")
+      const y = date.getFullYear()
+      const m = date.getMonth()
+      const d = date.getDate()
+      const hh = Number(hStr)
+      const mm = Number(mStr)
+      const ss = Number(sStr) || 0
       return new Date(Date.UTC(y, m, d, hh, mm, ss))
         .toISOString()
-        .replace(/\.\d{3}Z$/, "Z");
-    };
+        .replace(/\.\d{3}Z$/, "Z")
+    }
 
     const { date, runStartTime, runEndTime, readyToPickupTime, ...rest } =
-      values;
+      values
 
     const payload = {
       ...rest,
@@ -160,78 +166,36 @@ export function GenerateRunSheet<TData>({
       readyToPickupTime: toUtcIso(date, readyToPickupTime),
       runBookings: derivedRunBookings,
       apiKey,
-    }; // payload matches CreateRunRequest
-    mutation.mutate(payload);
+    } // payload matches CreateRunRequest
+    mutation.mutate(payload)
   }
 
-  const hasSelection = selectedOrders.length > 0;
+  const hasSelection = selectedOrders.length > 0
+
+  const handleGenerateRun = () => {
+    if (!apiKey) {
+      toast.error("Please configure your Route360 API key in Settings first")
+      return
+    }
+    setIsOpen(true)
+  }
+
+  const getButtonTitle = () => {
+    if (hasSelection && apiKey) return undefined
+    if (!hasSelection) return "Select one or more orders"
+    return "Configure API key in Settings"
+  }
 
   return (
     <>
       <Button
         size="sm"
         disabled={!hasSelection}
-        title={!hasSelection ? "Select one or more orders" : undefined}
-        onClick={() => setApiKeyDialogOpen(true)}
+        title={getButtonTitle()}
+        onClick={handleGenerateRun}
       >
         Generate Run
       </Button>
-      <Dialog open={apiKeyDialogOpen} onOpenChange={setApiKeyDialogOpen}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Enter Route360 Auth Token</DialogTitle>
-            <DialogDescription>
-              This key will be used to fetch configured runs and generate the
-              run. You can find your token in your Route360 portal under
-              Settings → API Config.{" "}
-              <a
-                href="https://vrs.baato.io/dashboard/settings/api-config"
-                target="_blank"
-                rel="noreferrer noopener"
-                className="font-medium underline"
-              >
-                Open API Config
-              </a>
-            </DialogDescription>
-          </DialogHeader>
-          <div className="space-y-2 py-2">
-            <Input
-              type="password"
-              placeholder="••••••••"
-              value={apiKeyInput}
-              onChange={(e) => setApiKeyInput(e.target.value)}
-            />
-          </div>
-          <DialogFooter>
-            <div className="flex w-full items-center justify-end gap-2">
-              <Button
-                type="button"
-                variant="outline"
-                onClick={() => {
-                  setApiKeyInput("");
-                  setApiKeyDialogOpen(false);
-                }}
-              >
-                Cancel
-              </Button>
-              <Button
-                type="button"
-                onClick={() => {
-                  if (!apiKeyInput?.trim()) {
-                    toast.error("API key is required");
-                    return;
-                  }
-                  setApiKey(apiKeyInput.trim());
-                  setApiKeyDialogOpen(false);
-                  setIsOpen(true);
-                }}
-              >
-                Continue
-              </Button>
-            </div>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
       <Sheet open={isOpen} onOpenChange={setIsOpen}>
         <SheetContent className="sm:max-w-[540px]">
           <SheetHeader>
@@ -240,6 +204,15 @@ export function GenerateRunSheet<TData>({
               Create a delivery run for {selectedOrders.length} selected order
               {selectedOrders.length === 1 ? "" : "s"}. Review details and
               submit to generate the run in Baato VRS.
+              {!apiKey && (
+                <span className="block mt-2 text-yellow-600 dark:text-yellow-500">
+                  ⚠️ API key not configured. Please{" "}
+                  <Link href="/settings" className="font-medium underline">
+                    configure your Route360 API key
+                  </Link>{" "}
+                  in Settings.
+                </span>
+              )}
             </SheetDescription>
           </SheetHeader>
           <Form {...form}>
@@ -293,7 +266,7 @@ export function GenerateRunSheet<TData>({
                               variant={"outline"}
                               className={cn(
                                 "w-[240px] pl-3 text-left font-normal",
-                                !field.value && "text-muted-foreground",
+                                !field.value && "text-muted-foreground"
                               )}
                             >
                               {field.value ? (
@@ -396,5 +369,5 @@ export function GenerateRunSheet<TData>({
         </SheetContent>
       </Sheet>
     </>
-  );
+  )
 }
