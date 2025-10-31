@@ -110,16 +110,18 @@ export const SearchAddress = () => {
       // Fetch place details using the OSM ID
       const placeDetails = await places(searchResult.placeId)
       if (placeDetails) {
+        const { address, centroid } = placeDetails.data[0]
         map?.flyTo({
           center: {
-            lat: placeDetails.data[0].centroid.lat,
-            lng: placeDetails.data[0].centroid.lon,
+            lat: centroid.lat,
+            lng: centroid.lon,
           },
           zoom: 17,
           duration: 1000,
         })
-        form.setValue("pickup_lat", placeDetails.data[0].centroid.lat)
-        form.setValue("pickup_lon", placeDetails.data[0].centroid.lon)
+        form.setValue("pickup_lat", centroid.lat)
+        form.setValue("pickup_lon", centroid.lon)
+        form.setValue("suggested_address", address)
       }
     } catch (error) {
       console.error("Error fetching place details:", error)

@@ -3,7 +3,7 @@
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useMutation } from "@tanstack/react-query"
-import { BookUser } from "lucide-react"
+import { BookUser, MapPin } from "lucide-react"
 import { toast } from "sonner"
 import { z } from "zod"
 
@@ -50,6 +50,7 @@ const vendorSchema = z.object({
   pickup_window_id: z.string().min(1, "Pickup window is required"),
   pickup_lat: z.number(),
   pickup_lon: z.number(),
+  suggested_address: z.string().optional(),
 })
 
 export type VendorFormData = z.infer<typeof vendorSchema>
@@ -78,8 +79,22 @@ export default function VendorProfileForm({
       pickup_lon: vendor?.pickup_lon || undefined,
       pickup_address_text: vendor?.pickup_address_text || "",
       pickup_window_id: pickupWindow?.id || "",
+      suggested_address: "",
     },
   })
+
+  const suggestedAddress = form.watch("suggested_address")
+
+  const handleAcceptSuggestion = () => {
+    if (suggestedAddress) {
+      form.setValue("pickup_address_text", suggestedAddress)
+      form.setValue("suggested_address", "")
+    }
+  }
+
+  const handleRejectSuggestion = () => {
+    form.setValue("suggested_address", "")
+  }
 
   const mutation = useMutation({
     mutationFn: (data: VendorFormData) => updateVendor(data),
@@ -97,7 +112,9 @@ export default function VendorProfileForm({
   })
 
   function onSubmit(values: VendorFormData) {
-    mutation.mutate(values)
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const { suggested_address, ...dataToSubmit } = values
+    mutation.mutate(dataToSubmit)
   }
 
   return (
@@ -112,7 +129,7 @@ export default function VendorProfileForm({
           </AlertDescription>
         </Alert>
       )}
-      <Card className="w-full max-w-lg shadow-lg">
+      <Card className="w-full md:w-lg shadow-lg">
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)}>
             <CardContent className="space-y-4">
@@ -153,8 +170,45 @@ export default function VendorProfileForm({
                     <FormLabel>Pickup Address</FormLabel>
                     <PickupLocationMap />
                     <FormControl>
-                      <Input placeholder="Pickup Address" {...field} />
+                      <div className="relative">
+                        <Input
+                          className="ps-7"
+                          placeholder="Pickup Address"
+                          {...field}
+                        />
+                        <span className="text-muted-foreground absolute top-1/2 left-2.5 -translate-y-1/2 font-medium">
+                          <MapPin className="size-4" />
+                        </span>
+                      </div>
                     </FormControl>
+                    {suggestedAddress && (
+                      <div className="mt-2 p-3 bg-blue-50 dark:bg-blue-950/20 border border-blue-200 dark:border-blue-900 rounded-md">
+                        <p className="text-sm font-medium text-blue-900 dark:text-blue-100 mb-1">
+                          Suggested Address:
+                        </p>
+                        <p className="text-sm text-blue-700 dark:text-blue-300 mb-2">
+                          {suggestedAddress}
+                        </p>
+                        <div className="flex gap-2">
+                          <Button
+                            type="button"
+                            size="sm"
+                            variant="default"
+                            onClick={handleAcceptSuggestion}
+                          >
+                            Accept
+                          </Button>
+                          <Button
+                            type="button"
+                            size="sm"
+                            variant="outline"
+                            onClick={handleRejectSuggestion}
+                          >
+                            Reject
+                          </Button>
+                        </div>
+                      </div>
+                    )}
                     <FormMessage />
                   </FormItem>
                 )}
