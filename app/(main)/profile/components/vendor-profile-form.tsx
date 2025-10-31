@@ -7,6 +7,7 @@ import { BookUser } from "lucide-react"
 import { toast } from "sonner"
 import { z } from "zod"
 
+import { PhoneInput } from "@/components/phone-input"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
@@ -30,6 +31,7 @@ import {
 } from "@/components/ui/select"
 import type { CurrentUser } from "@/types/miscellaneous"
 import { convertUTCToLocalTime } from "@/utils/timezone"
+import { validatePhoneNumber } from "@/utils/validate-phone"
 
 import { TimeWindow } from "../../settings/components/schema"
 import { updateVendor } from "../actions"
@@ -38,11 +40,12 @@ import { PickupLocationMap } from "./pickup-location-map"
 const vendorSchema = z.object({
   contact_name: z.string().min(2).max(100),
   contact_phone: z
-    .string()
-    .regex(
-      /^\+?\d{9,15}$/,
-      "Contact phone must be a valid number (9–15 digits, optional +)"
-    ),
+    .string({
+      error: "Contact phone number is required",
+    })
+    .refine(validatePhoneNumber, {
+      message: "Please enter a valid Nepali phone number",
+    }),
   pickup_address_text: z.string().min(5).max(300),
   pickup_window_id: z.string().min(1, "Pickup window is required"),
   pickup_lat: z.number(),
@@ -133,10 +136,9 @@ export default function VendorProfileForm({
                   <FormItem>
                     <FormLabel>Contact Phone</FormLabel>
                     <FormControl>
-                      <Input
-                        placeholder="Contact Phone"
+                      <PhoneInput
+                        placeholder="Enter contact number. E.g., 9801234569"
                         {...field}
-                        type="tel"
                       />
                     </FormControl>
                     <FormMessage />
@@ -195,7 +197,7 @@ export default function VendorProfileForm({
                   </FormItem>
                 )}
               />
-              <Button type="submit">Submit</Button>
+              <Button type="submit">Save</Button>
             </CardContent>
           </form>
         </Form>

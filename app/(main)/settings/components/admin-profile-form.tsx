@@ -1,11 +1,12 @@
 "use client"
 
-import { useFieldArray,useForm } from "react-hook-form"
+import { useFieldArray, useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useMutation } from "@tanstack/react-query"
 import { Loader2, Plus, Trash2 } from "lucide-react"
 import { toast } from "sonner"
 
+import { PhoneInput } from "@/components/phone-input"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
@@ -21,7 +22,7 @@ import {
 } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
 import { Admin } from "@/types/miscellaneous"
-import { convertLocalTimeToUTC,convertUTCToLocalTime } from "@/utils/timezone"
+import { convertLocalTimeToUTC, convertUTCToLocalTime } from "@/utils/timezone"
 
 import { updateAdminProfile } from "../actions"
 import { type AdminProfileData, adminProfileSchema } from "./schema"
@@ -115,7 +116,10 @@ export function AdminProfileForm({
                 <FormItem>
                   <FormLabel>Contact Phone</FormLabel>
                   <FormControl>
-                    <Input placeholder="e.g., +977 9801234569" {...field} />
+                    <PhoneInput
+                      placeholder="Enter contact number. E.g., 9801234569"
+                      {...field}
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
