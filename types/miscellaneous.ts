@@ -9,6 +9,7 @@ export type Vendor = {
   pickup_lon: number | null
   pickup_window_start: string | null
   pickup_window_end: string | null
+  profile_complete: boolean
   is_active: boolean
   stats: {
     total_orders: number

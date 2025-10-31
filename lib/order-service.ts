@@ -1,12 +1,11 @@
 import { format } from "date-fns"
 
-import type { Order,OrderFilters, OrderListResponse } from "@/types/order"
+import type { Order, OrderFilters, OrderListResponse } from "@/types/order"
 
 import { serverFetch } from "./serverFetch"
 
 export async function getOrders(
-  filters: OrderFilters = {},
-  isAdmin: boolean = false
+  filters: OrderFilters = {}
 ): Promise<OrderListResponse> {
   const { search, statuses, geocode_status, page = 1, page_size = 10 } = filters
 

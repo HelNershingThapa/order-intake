@@ -21,7 +21,7 @@ export default async function OrdersPage(props: {
   searchParams: Promise<SearchParams>
 }) {
   const params = await loadSearchParams(props.searchParams)
-  const ordersResponse = await getOrders(params, true)
+  const ordersResponse = await getOrders(params)
   const session = (await cookies()).get("session")?.value
   const user = await decrypt(session)
 

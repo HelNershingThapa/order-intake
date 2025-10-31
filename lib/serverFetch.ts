@@ -8,8 +8,7 @@ const API_BASE = process.env.API_BASE_URL!
 
 export async function serverFetch<T = any>(
   path: string,
-  init?: RequestInit,
-  isAdmin = false
+  init?: RequestInit
 ): Promise<T> {
   const session = (await cookies()).get("session")?.value
   const payload = await decrypt(session)
@@ -26,7 +25,7 @@ export async function serverFetch<T = any>(
       ...(init?.headers ?? {}),
     },
     cache: "no-store",
-    body: init?.body as any,
+    body: init?.body,
     next: init?.next,
   })
 

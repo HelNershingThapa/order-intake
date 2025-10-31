@@ -1,17 +1,18 @@
-"use client";
+"use client"
 
-import { useState } from "react";
-import { useFormContext } from "react-hook-form";
+import { useState } from "react"
+import { useFormContext } from "react-hook-form"
 import Map, {
   MapLayerMouseEvent,
   Marker,
   type MarkerDragEvent,
+  NavigationControl,
   useMap,
-} from "react-map-gl/maplibre";
-import Image from "next/image";
-import { useQuery } from "@tanstack/react-query";
-import { Loader2 } from "lucide-react";
-import { toast } from "sonner";
+} from "react-map-gl/maplibre"
+import Image from "next/image"
+import { useQuery } from "@tanstack/react-query"
+import { Loader2 } from "lucide-react"
+import { toast } from "sonner"
 
 import {
   Command,
@@ -20,28 +21,28 @@ import {
   CommandItem,
   CommandList,
   CommandLoading,
-} from "@/components/ui/command";
-import { places, search } from "@/lib/baato";
-import type { BaatoSearchResponse } from "@/types/baato";
+} from "@/components/ui/command"
+import { places, search } from "@/lib/baato"
+import type { BaatoSearchResponse } from "@/types/baato"
 
-import "maplibre-gl/dist/maplibre-gl.css";
+import "maplibre-gl/dist/maplibre-gl.css"
 
 export const PickupLocationMap = () => {
-  const form = useFormContext();
+  const form = useFormContext()
   const point =
     form.watch("pickup_lat") && form.watch("pickup_lon")
       ? { lat: form.watch("pickup_lat")!, lng: form.watch("pickup_lon")! }
-      : null;
+      : null
 
   const handleDragEnd = (e: MarkerDragEvent) => {
-    form.setValue("pickup_lat", e.lngLat.lat, { shouldValidate: true });
-    form.setValue("pickup_lon", e.lngLat.lng, { shouldValidate: true });
-  };
+    form.setValue("pickup_lat", e.lngLat.lat, { shouldValidate: true })
+    form.setValue("pickup_lon", e.lngLat.lng, { shouldValidate: true })
+  }
 
   const handleMapClick = (e: MapLayerMouseEvent) => {
-    form.setValue("pickup_lat", e.lngLat.lat);
-    form.setValue("pickup_lon", e.lngLat.lng);
-  };
+    form.setValue("pickup_lat", e.lngLat.lat)
+    form.setValue("pickup_lon", e.lngLat.lng)
+  }
 
   return (
     <div className="h-[320px] w-full rounded-md overflow-hidden border relative">
@@ -56,6 +57,7 @@ export const PickupLocationMap = () => {
         onClick={handleMapClick}
         attributionControl={false}
       >
+        <NavigationControl showCompass={false} />
         {point && (
           <Marker
             latitude={point.lat}
@@ -70,32 +72,43 @@ export const PickupLocationMap = () => {
         <div className="absolute top-2 left-2 z-10">
           <SearchAddress />
         </div>
+        {!point && (
+          <div className="absolute bottom-4 left-1/2 -translate-x-1/2 z-10">
+            <div className="bg-background/95 supports-[backdrop-filter]:bg-background/80 border rounded-md px-4 py-2 shadow-md">
+              <p className="text-xs text-muted-foreground">
+                Click on the map to place a marker
+              </p>
+            </div>
+          </div>
+        )}
       </Map>
     </div>
-  );
-};
+  )
+}
 
 export const SearchAddress = () => {
-  const { current: map } = useMap();
-  const [query, setQuery] = useState("");
-  const [hidden, setHidden] = useState(true);
-  const [isPlaceLoading, setIsPlaceLoading] = useState(false);
+  const form = useFormContext()
 
-  const { data, isLoading } = useQuery({
+  const { current: map } = useMap()
+  const [query, setQuery] = useState("")
+  const [hidden, setHidden] = useState(true)
+  const [isPlaceLoading, setIsPlaceLoading] = useState(false)
+
+  const { data: searchResults, isLoading } = useQuery({
     queryKey: ["search-address", query],
-    queryFn: async ({ signal }) => await search(query),
+    queryFn: () => search(query),
     enabled: !!query,
     select: (data) => data.data,
-  });
+  })
 
   const handleSearchResultSelect = async (
-    searchResult: BaatoSearchResponse["data"][number],
+    searchResult: BaatoSearchResponse["data"][number]
   ) => {
-    setHidden(true);
+    setHidden(true)
     try {
-      setIsPlaceLoading(true);
+      setIsPlaceLoading(true)
       // Fetch place details using the OSM ID
-      const placeDetails = await places(searchResult.osmId);
+      const placeDetails = await places(searchResult.placeId)
       if (placeDetails) {
         map?.flyTo({
           center: {
@@ -104,15 +117,17 @@ export const SearchAddress = () => {
           },
           zoom: 17,
           duration: 1000,
-        });
+        })
+        form.setValue("pickup_lat", placeDetails.data[0].centroid.lat)
+        form.setValue("pickup_lon", placeDetails.data[0].centroid.lon)
       }
     } catch (error) {
-      console.error("Error fetching place details:", error);
-      toast.error("Error fetching place details. Please try again later.");
+      console.error("Error fetching place details:", error)
+      toast.error("Error fetching place details. Please try again later.")
     } finally {
-      setIsPlaceLoading(false);
+      setIsPlaceLoading(false)
     }
-  };
+  }
 
   return (
     <Command shouldFilter={false}>
@@ -121,8 +136,8 @@ export const SearchAddress = () => {
         value={query}
         isLoading={isPlaceLoading}
         onValueChange={(value) => {
-          setQuery(value);
-          setHidden(false);
+          setQuery(value)
+          setHidden(false)
         }}
       />
       <CommandList hidden={hidden}>
@@ -134,10 +149,10 @@ export const SearchAddress = () => {
             </div>
           </CommandLoading>
         )}
-        {query && data?.length === 0 && !isLoading && (
+        {query && searchResults?.length === 0 && !isLoading && (
           <CommandEmpty>No results found.</CommandEmpty>
         )}
-        {data?.map((result) => (
+        {searchResults?.map((result) => (
           <CommandItem
             key={result.placeId}
             onSelect={() => handleSearchResultSelect(result)}
@@ -147,5 +162,5 @@ export const SearchAddress = () => {
         ))}
       </CommandList>
     </Command>
-  );
-};
+  )
+}

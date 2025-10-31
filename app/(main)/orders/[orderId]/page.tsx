@@ -1,14 +1,14 @@
-import OrderForm from "@/components/orders/order-form";
-import { CardDescription } from "@/components/ui/card";
-import { getOrder } from "@/lib/order-service";
+import OrderForm from "@/components/orders/order-form"
+import { CardDescription } from "@/components/ui/card"
+import { getOrder } from "@/lib/order-service"
 
 export default async function EditOrderPage({
   params,
 }: {
-  params: Promise<{ orderId: string }>;
+  params: Promise<{ orderId: string }>
 }) {
-  const { orderId } = await params;
-  const order = await getOrder(orderId);
+  const { orderId } = await params
+  const order = await getOrder(orderId)
 
   return (
     <div className="mx-auto max-w-4xl p-6">
@@ -18,5 +18,5 @@ export default async function EditOrderPage({
       </div>
       <OrderForm mode="edit" initialData={{ ...order, id: orderId }} />
     </div>
-  );
+  )
 }

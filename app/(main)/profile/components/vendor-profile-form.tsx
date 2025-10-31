@@ -1,14 +1,15 @@
-"use client";
+"use client"
 
-import React from "react";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { useMutation } from "@tanstack/react-query";
-import { toast } from "sonner";
-import { z } from "zod";
+import { useForm } from "react-hook-form"
+import { zodResolver } from "@hookform/resolvers/zod"
+import { useMutation } from "@tanstack/react-query"
+import { BookUser } from "lucide-react"
+import { toast } from "sonner"
+import { z } from "zod"
 
-import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
+import { Button } from "@/components/ui/button"
+import { Card, CardContent } from "@/components/ui/card"
 import {
   Form,
   FormControl,
@@ -16,13 +17,23 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
-import type { CurrentUser } from "@/types/miscellaneous";
-import { convertLocalTimeToUTC, convertUTCToLocalTime } from "@/utils/timezone";
+} from "@/components/ui/form"
+import { Input } from "@/components/ui/input"
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectLabel,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
+import type { CurrentUser } from "@/types/miscellaneous"
+import { convertUTCToLocalTime } from "@/utils/timezone"
 
-import { updateVendor } from "../actions";
-import { PickupLocationMap } from "./pickup-location-map";
+import { TimeWindow } from "../../settings/components/schema"
+import { updateVendor } from "../actions"
+import { PickupLocationMap } from "./pickup-location-map"
 
 const vendorSchema = z.object({
   contact_name: z.string().min(2).max(100),
@@ -30,22 +41,31 @@ const vendorSchema = z.object({
     .string()
     .regex(
       /^\+?\d{9,15}$/,
-      "Contact phone must be a valid number (9–15 digits, optional +)",
+      "Contact phone must be a valid number (9–15 digits, optional +)"
     ),
   pickup_address_text: z.string().min(5).max(300),
-  pickup_window_start: z.string().min(1, "Required"),
-  pickup_window_end: z.string().min(1, "Required"),
+  pickup_window_id: z.string().min(1, "Pickup window is required"),
   pickup_lat: z.number(),
   pickup_lon: z.number(),
-});
+})
 
-export type VendorFormData = z.infer<typeof vendorSchema>;
+export type VendorFormData = z.infer<typeof vendorSchema>
 
 export default function VendorProfileForm({
   vendor,
+  pickupWindows,
 }: {
-  vendor: CurrentUser["vendor"];
+  vendor: CurrentUser["vendor"]
+  pickupWindows: TimeWindow[]
 }) {
+  // deduce pickup_window_id from vendor's pickup_window_start and pickup_window_end
+  const pickupWindow = pickupWindows.find((window) => {
+    return (
+      window.start === vendor?.pickup_window_start &&
+      window.end === vendor?.pickup_window_end
+    )
+  })
+
   const form = useForm<VendorFormData>({
     resolver: zodResolver(vendorSchema),
     defaultValues: {
@@ -54,97 +74,69 @@ export default function VendorProfileForm({
       pickup_lat: vendor?.pickup_lat || undefined,
       pickup_lon: vendor?.pickup_lon || undefined,
       pickup_address_text: vendor?.pickup_address_text || "",
-      pickup_window_start: vendor?.pickup_window_start
-        ? convertUTCToLocalTime(vendor.pickup_window_start)
-        : "",
-      pickup_window_end: vendor?.pickup_window_end
-        ? convertUTCToLocalTime(vendor.pickup_window_end)
-        : "",
+      pickup_window_id: pickupWindow?.id || "",
     },
-  });
+  })
 
   const mutation = useMutation({
     mutationFn: (data: VendorFormData) => updateVendor(data),
-    onSuccess: (data) => {
+    onSuccess: () => {
       toast.success("Profile details updated!", {
         duration: 5000,
-      });
+      })
     },
     onError: (error) => {
       toast.error("Failed to update profile details", {
         description: <div className="whitespace-pre-line">{error.message}</div>,
         duration: 8000,
-      });
+      })
     },
-  });
+  })
 
   function onSubmit(values: VendorFormData) {
-    // Convert local times to UTC before submitting
-    const dataToSubmit = {
-      ...values,
-      pickup_window_start: convertLocalTimeToUTC(values.pickup_window_start),
-      pickup_window_end: convertLocalTimeToUTC(values.pickup_window_end),
-    };
-
-    mutation.mutate(dataToSubmit);
+    mutation.mutate(values)
   }
 
   return (
-    <Card className="w-full max-w-lg shadow-lg">
-      <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)}>
-          <CardContent className="space-y-4">
-            <FormField
-              control={form.control}
-              name="contact_name"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Name</FormLabel>
-                  <FormControl>
-                    <Input placeholder="Contact Name" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="contact_phone"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Contact Phone</FormLabel>
-                  <FormControl>
-                    <Input placeholder="Contact Phone" {...field} type="tel" />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="pickup_address_text"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Pickup Address</FormLabel>
-                  <FormControl>
-                    <Input placeholder="Pickup Address" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+    <div>
+      {!vendor?.profile_complete && (
+        <Alert variant="warning" className="mb-4 max-w-lg">
+          <BookUser />
+          <AlertTitle>Complete Your Profile</AlertTitle>
+          <AlertDescription>
+            Please complete your profile details below to start creating and
+            managing orders.
+          </AlertDescription>
+        </Alert>
+      )}
+      <Card className="w-full max-w-lg shadow-lg">
+        <Form {...form}>
+          <form onSubmit={form.handleSubmit(onSubmit)}>
+            <CardContent className="space-y-4">
               <FormField
                 control={form.control}
-                name="pickup_window_start"
+                name="contact_name"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Pickup Window Start</FormLabel>
+                    <FormLabel>Name</FormLabel>
+                    <FormControl>
+                      <Input placeholder="Contact Name" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="contact_phone"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Contact Phone</FormLabel>
                     <FormControl>
                       <Input
-                        placeholder="Pickup Window Start"
-                        type="time"
+                        placeholder="Contact Phone"
                         {...field}
+                        type="tel"
                       />
                     </FormControl>
                     <FormMessage />
@@ -153,39 +145,13 @@ export default function VendorProfileForm({
               />
               <FormField
                 control={form.control}
-                name="pickup_window_end"
+                name="pickup_address_text"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Pickup Window End</FormLabel>
+                    <FormLabel>Pickup Address</FormLabel>
+                    <PickupLocationMap />
                     <FormControl>
-                      <Input
-                        placeholder="Pickup Window End"
-                        type="time"
-                        {...field}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </div>
-            <PickupLocationMap />
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <FormField
-                control={form.control}
-                name="pickup_lat"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Latitude</FormLabel>
-                    <FormControl>
-                      <Input
-                        type="number"
-                        step="0.000001"
-                        placeholder="27.7172"
-                        {...field}
-                        value={field.value || ""}
-                        onChange={(e) => field.onChange(e.target.value)}
-                      />
+                      <Input placeholder="Pickup Address" {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -193,29 +159,47 @@ export default function VendorProfileForm({
               />
               <FormField
                 control={form.control}
-                name="pickup_lon"
+                name="pickup_window_id"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Longitude</FormLabel>
+                    <FormLabel>Pickup Window</FormLabel>
                     <FormControl>
-                      <Input
-                        type="number"
-                        step="0.000001"
-                        placeholder="85.3240"
-                        {...field}
-                        value={field.value || ""}
-                        onChange={(e) => field.onChange(e.target.value)}
-                      />
+                      <Select
+                        value={field.value}
+                        onValueChange={field.onChange}
+                      >
+                        <SelectTrigger className="w-full data-[size=default]:h-max">
+                          <SelectValue placeholder="Select a pickup window" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectGroup>
+                            <SelectLabel>Pickup Windows</SelectLabel>
+                            {pickupWindows.map((window) => (
+                              <SelectItem key={window.id} value={window.id}>
+                                <div className="flex flex-col items-start">
+                                  <span className="font-semibold">
+                                    {window.name}
+                                  </span>
+                                  <p className="text-sm text-muted-foreground">
+                                    {convertUTCToLocalTime(window.start)} -{" "}
+                                    {convertUTCToLocalTime(window.end)}
+                                  </p>
+                                </div>
+                              </SelectItem>
+                            ))}
+                          </SelectGroup>
+                        </SelectContent>
+                      </Select>
                     </FormControl>
                     <FormMessage />
                   </FormItem>
                 )}
               />
-            </div>
-            <Button type="submit">Submit</Button>
-          </CardContent>
-        </form>
-      </Form>
-    </Card>
-  );
+              <Button type="submit">Submit</Button>
+            </CardContent>
+          </form>
+        </Form>
+      </Card>
+    </div>
+  )
 }

@@ -8,6 +8,8 @@ const timeWindowSchema = z.object({
   is_active: z.boolean().optional(),
 })
 
+export type TimeWindow = z.infer<typeof timeWindowSchema> & { id: string }
+
 export const adminProfileSchema = z.object({
   contact_name: z.string().min(1, "Contact name is required"),
   contact_phone: z.string().min(1, "Contact phone is required"),

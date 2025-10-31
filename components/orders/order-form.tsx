@@ -1,25 +1,25 @@
-"use client";
+"use client"
 
-import { useTransition } from "react";
-import { Resolver, useForm } from "react-hook-form";
-import { useRouter } from "next/navigation";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { Loader2 } from "lucide-react";
-import { toast } from "sonner";
+import { useTransition } from "react"
+import { Resolver, useForm } from "react-hook-form"
+import { useRouter } from "next/navigation"
+import { zodResolver } from "@hookform/resolvers/zod"
+import { Loader2 } from "lucide-react"
+import { toast } from "sonner"
 
-import { OrderLocationMap } from "@/components/orders/order-location-map";
+import { OrderLocationMap } from "@/components/orders/order-location-map"
 import {
   type OrderFormData,
   orderSchema,
-} from "@/components/orders/order-schema";
-import { Button } from "@/components/ui/button";
+} from "@/components/orders/order-schema"
+import { Button } from "@/components/ui/button"
 import {
   Card,
   CardContent,
   CardFooter,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card";
+} from "@/components/ui/card"
 import {
   Form,
   FormControl,
@@ -27,17 +27,17 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Separator } from "@/components/ui/separator";
-import { createOrder, updateOrder } from "@/lib/order-service";
-import { Order } from "@/types/order";
+} from "@/components/ui/form"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+import { Separator } from "@/components/ui/separator"
+import { createOrder, updateOrder } from "@/lib/order-service"
+import { Order } from "@/types/order"
 
 type OrderFormProps = {
-  initialData?: Order & { id: string };
-  mode: "create" | "edit";
-};
+  initialData?: Order & { id: string }
+  mode: "create" | "edit"
+}
 
 // Extract default values to prevent hydration mismatches
 const getDefaultValues = (initialData?: Order): OrderFormData => {
@@ -64,7 +64,7 @@ const getDefaultValues = (initialData?: Order): OrderFormData => {
             w: undefined,
             h: undefined,
           },
-    };
+    }
   }
 
   return {
@@ -79,36 +79,36 @@ const getDefaultValues = (initialData?: Order): OrderFormData => {
     lng: undefined,
     weight_kg: 0,
     dimensions: { l: undefined, w: undefined, h: undefined },
-  };
-};
+  }
+}
 
 export default function OrderForm({ initialData, mode }: OrderFormProps) {
-  const router = useRouter();
-  const [isPending, startTransition] = useTransition();
+  const router = useRouter()
+  const [isPending, startTransition] = useTransition()
 
   const form = useForm<OrderFormData>({
     resolver: zodResolver(orderSchema) as Resolver<OrderFormData>,
     defaultValues: getDefaultValues(initialData),
-  });
+  })
 
   const onSubmit = (data: OrderFormData) => {
     startTransition(async () => {
       try {
         if (mode === "create") {
-          const result = await createOrder(data);
-          toast.success(`Order created (#${result.order_id})`);
-          router.push("/orders");
+          const result = await createOrder(data)
+          toast.success(`Order created (#${result.order_id})`)
+          router.push("/orders")
         } else if (initialData) {
-          await updateOrder(initialData.id, data);
-          toast.success(`Order updated (#${initialData.id})`);
+          await updateOrder(initialData.id, data)
+          toast.success(`Order updated (#${initialData.id})`)
         }
       } catch (error: any) {
         toast.error(`Failed to ${mode} order`, {
           description: error.message || "An error occurred",
-        });
+        })
       }
-    });
-  };
+    })
+  }
 
   return (
     <Card>
@@ -366,5 +366,5 @@ export default function OrderForm({ initialData, mode }: OrderFormProps) {
         </form>
       </Form>
     </Card>
-  );
+  )
 }
