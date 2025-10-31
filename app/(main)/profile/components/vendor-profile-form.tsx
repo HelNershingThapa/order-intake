@@ -3,7 +3,7 @@
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useMutation } from "@tanstack/react-query"
-import { BookUser, MapPin } from "lucide-react"
+import { BookUser, Loader2, MapPin } from "lucide-react"
 import { toast } from "sonner"
 import { z } from "zod"
 
@@ -231,10 +231,19 @@ export default function VendorProfileForm({
                           <SelectGroup>
                             <SelectLabel>Pickup Windows</SelectLabel>
                             {pickupWindows.map((window) => (
-                              <SelectItem key={window.id} value={window.id}>
+                              <SelectItem
+                                key={window.id}
+                                value={window.id}
+                                disabled={!window.is_active}
+                              >
                                 <div className="flex flex-col items-start">
                                   <span className="font-semibold">
                                     {window.name}
+                                    {!window.is_active && (
+                                      <span className="ml-2 text-xs font-normal text-muted-foreground">
+                                        (Inactive)
+                                      </span>
+                                    )}
                                   </span>
                                   <p className="text-sm text-muted-foreground">
                                     {convertUTCToLocalTime(window.start)} -{" "}
@@ -251,7 +260,9 @@ export default function VendorProfileForm({
                   </FormItem>
                 )}
               />
-              <Button type="submit">Save</Button>
+              <Button type="submit" disabled={mutation.isPending}>
+                {mutation.isPending && <Loader2 className="animate-spin" />}Save
+              </Button>
             </CardContent>
           </form>
         </Form>
