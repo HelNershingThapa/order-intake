@@ -16,6 +16,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover"
+import type { Vendor } from "@/types/miscellaneous"
 
 import { orderStatuses } from "./config"
 import { ConfirmOrders } from "./confirm-orders"
@@ -25,24 +26,30 @@ import { GenerateRunSheet } from "./generate-run-sheet"
 interface DataTableToolbarProps<TData> {
   table: Table<TData>
   isAdmin?: boolean
+  vendors: Vendor[]
 }
 
 export function DataTableToolbar<TData>({
   table,
   isAdmin = false,
+  vendors,
 }: DataTableToolbarProps<TData>) {
-  const [{ search, from_, to, statuses }, setParams] = useQueryStates(
-    ordersSearchParams,
-    {
+  const vendorOptions = vendors.map((vendor) => ({
+    label: vendor.contact_name,
+    value: vendor.id,
+  }))
+  const [{ search, from_, to, statuses, vendor_id }, setParams] =
+    useQueryStates(ordersSearchParams, {
       shallow: false,
-    }
-  )
+    })
+  console.log("vendors", vendors)
   const isFiltered =
     table.getState().columnFilters.length > 0 ||
     !!search ||
     !!from_ ||
     !!to ||
-    (statuses && statuses.length > 0)
+    (statuses && statuses.length > 0) ||
+    (vendor_id && vendor_id.length > 0)
 
   function handleSearch(term: string) {
     setParams({ search: term || null, page: 1 })
@@ -58,7 +65,7 @@ export function DataTableToolbar<TData>({
 
   return (
     <div className="flex items-center justify-between flex-wrap">
-      <div className="flex flex-1 items-center space-x-2 flex-wrap">
+      <div className="flex flex-1 items-center gap-2 flex-wrap">
         <Input
           placeholder="Search orders..."
           value={search || ""}
@@ -72,6 +79,15 @@ export function DataTableToolbar<TData>({
             column={table.getColumn("status")}
             title="Status"
             options={orderStatuses}
+            filterKey="statuses"
+          />
+        )}
+        {table.getColumn("vendor_name") && (
+          <DataTableFacetedFilter
+            column={table.getColumn("vendor_name")}
+            title="Vendor"
+            options={vendorOptions}
+            filterKey="vendor_id"
           />
         )}
         {isFiltered && (
@@ -82,6 +98,7 @@ export function DataTableToolbar<TData>({
               setParams({
                 search: null,
                 statuses: null,
+                vendor_id: null,
                 from_: null,
                 to: null,
                 page: 1,

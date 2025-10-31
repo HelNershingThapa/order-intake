@@ -6,6 +6,7 @@ import { getOrders } from "@/lib/order-service"
 import { decrypt } from "@/lib/session"
 import { OrderStatus } from "@/types/order"
 
+import { getVendors } from "../vendors/actions"
 import { loadSearchParams } from "./searchParams"
 
 type SearchParams = {
@@ -14,16 +15,20 @@ type SearchParams = {
   geocode_status?: string
   page?: string
   page_size?: string
-  vendor_id?: string
+  vendor_id?: string[]
 }
 
 export default async function OrdersPage(props: {
   searchParams: Promise<SearchParams>
 }) {
   const params = await loadSearchParams(props.searchParams)
-  const ordersResponse = await getOrders(params)
   const session = (await cookies()).get("session")?.value
   const user = await decrypt(session)
+
+  const [ordersResponse, vendors] = await Promise.all([
+    getOrders(params),
+    getVendors(),
+  ])
 
   return (
     <div className="space-y-8">
@@ -39,6 +44,7 @@ export default async function OrdersPage(props: {
         data={ordersResponse}
         columns={columns}
         isAdmin={user?.role === "admin"}
+        vendors={vendors}
       />
     </div>
   )

@@ -13,7 +13,7 @@ export const ordersSearchParams = {
   page: parseAsInteger.withDefault(1),
   page_size: parseAsInteger.withDefault(20),
   statuses: parseAsArrayOf(parseAsString).withDefault([]),
-  vendor_id: parseAsString.withDefault(""),
+  vendor_id: parseAsArrayOf(parseAsString).withDefault([]),
   from_: parseAsIsoDate,
   to: parseAsIsoDate,
 }

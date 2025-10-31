@@ -57,6 +57,7 @@ export type OrderFilters = {
   page_size?: number
   from_?: Date
   to?: Date
+  vendor_id?: string[]
 }
 
 // Bulk upload response shape returned by backend

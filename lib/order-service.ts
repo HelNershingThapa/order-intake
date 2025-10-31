@@ -27,6 +27,11 @@ export async function getOrders(
   if (filters.to) {
     params.set("to", format(filters.to, "yyyy-MM-dd"))
   }
+  if (filters.vendor_id && filters.vendor_id.length > 0) {
+    filters.vendor_id.forEach((vendorId) => {
+      params.append("vendor_id", vendorId)
+    })
+  }
   return serverFetch<OrderListResponse>(`/orders?${params.toString()}`, {
     next: {
       tags: ["orders", params.toString()],

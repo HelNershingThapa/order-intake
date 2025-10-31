@@ -24,6 +24,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table"
+import type { Vendor } from "@/types/miscellaneous"
 import { OrderListResponse, OrderSummary } from "@/types/order"
 
 import { DataTablePagination } from "./data-table-pagination"
@@ -33,12 +34,14 @@ interface DataTableProps<TValue> {
   columns: ColumnDef<OrderSummary, TValue>[]
   data: OrderListResponse
   isAdmin?: boolean
+  vendors: Vendor[]
 }
 
 export function DataTable<TValue>({
   columns,
   data,
   isAdmin = false,
+  vendors,
 }: DataTableProps<TValue>) {
   const [{ page, page_size, statuses }, setParams] = useQueryStates(
     ordersSearchParams,
@@ -100,7 +103,7 @@ export function DataTable<TValue>({
 
   return (
     <div className="space-y-4">
-      <DataTableToolbar table={table} isAdmin={isAdmin} />
+      <DataTableToolbar table={table} isAdmin={isAdmin} vendors={vendors} />
       <div className="overflow-hidden rounded-md border">
         <Table>
           <TableHeader>

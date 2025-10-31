@@ -33,17 +33,19 @@ interface DataTableFacetedFilterProps<TData, TValue> {
     value: string
     icon?: React.ComponentType<{ className?: string }>
   }[]
+  filterKey: "statuses" | "vendor_id"
 }
 
 export function DataTableFacetedFilter<TData, TValue>({
   column,
   title,
   options,
+  filterKey,
 }: DataTableFacetedFilterProps<TData, TValue>) {
-  const [{ statuses }, setParams] = useQueryStates(ordersSearchParams, {
+  const [params, setParams] = useQueryStates(ordersSearchParams, {
     shallow: false,
   })
-  const selectedValues = new Set(statuses || [])
+  const selectedValues = new Set(params[filterKey] || [])
 
   return (
     <Popover>
@@ -110,7 +112,7 @@ export function DataTableFacetedFilter<TData, TValue>({
                       )
                       // Update URL and trigger revalidation
                       setParams({
-                        statuses: filterValues.length ? filterValues : null,
+                        [filterKey]: filterValues.length ? filterValues : null,
                         page: 1,
                       })
                     }}
@@ -140,7 +142,7 @@ export function DataTableFacetedFilter<TData, TValue>({
                   <CommandItem
                     onSelect={() => {
                       column?.setFilterValue(undefined)
-                      setParams({ statuses: null, page: 1 })
+                      setParams({ [filterKey]: null, page: 1 })
                     }}
                     className="justify-center text-center"
                   >
