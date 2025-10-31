@@ -42,7 +42,6 @@ export function DataTableToolbar<TData>({
     useQueryStates(ordersSearchParams, {
       shallow: false,
     })
-  console.log("vendors", vendors)
   const isFiltered =
     table.getState().columnFilters.length > 0 ||
     !!search ||

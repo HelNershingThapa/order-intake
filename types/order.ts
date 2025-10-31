@@ -49,17 +49,6 @@ export type OrderListResponse = {
   total: number
 }
 
-export type OrderFilters = {
-  search?: string
-  statuses?: OrderStatus[]
-  geocode_status?: "all" | GeocodeStatus
-  page?: number
-  page_size?: number
-  from_?: Date
-  to?: Date
-  vendor_id?: string[]
-}
-
 // Bulk upload response shape returned by backend
 export type BulkUploadResponse = {
   created: OrderSummary[]

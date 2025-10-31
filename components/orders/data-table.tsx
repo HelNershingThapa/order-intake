@@ -25,13 +25,13 @@ import {
   TableRow,
 } from "@/components/ui/table"
 import type { Vendor } from "@/types/miscellaneous"
-import { OrderListResponse, OrderSummary } from "@/types/order"
+import type { Order, OrderListResponse } from "@/types/order"
 
 import { DataTablePagination } from "./data-table-pagination"
 import { DataTableToolbar } from "./data-table-toolbar"
 
 interface DataTableProps<TValue> {
-  columns: ColumnDef<OrderSummary, TValue>[]
+  columns: ColumnDef<Order, TValue>[]
   data: OrderListResponse
   isAdmin?: boolean
   vendors: Vendor[]

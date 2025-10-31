@@ -1,37 +1,40 @@
 import { format } from "date-fns"
 
-import type { Order, OrderFilters, OrderListResponse } from "@/types/order"
+import type { OrdersSearchParams } from "@/app/(main)/orders/searchParams"
+import type { OrderFormData } from "@/components/orders/order-schema"
+import type { Order, OrderListResponse } from "@/types/order"
 
 import { serverFetch } from "./serverFetch"
 
 export async function getOrders(
-  filters: OrderFilters = {}
+  filters: Partial<OrdersSearchParams> = {}
 ): Promise<OrderListResponse> {
-  const { search, statuses, geocode_status, page = 1, page_size = 10 } = filters
-
   const params = new URLSearchParams()
-  params.set("page", page.toString())
-  params.set("page_size", page_size.toString())
 
-  if (search?.trim()) params.set("search", search.trim())
-  if (statuses && statuses.length > 0) {
-    statuses.forEach((status) => {
+  params.set("page", (filters.page ?? 1).toString())
+  params.set("page_size", (filters.page_size ?? 10).toString())
+
+  // Add optional string params
+  if (filters.search) params.set("search", filters.search)
+  if (filters.geocode_status) {
+    params.set("geocode_status", filters.geocode_status)
+  }
+
+  // Add array params
+  if (filters.statuses) {
+    for (const status of filters.statuses) {
       params.append("statuses", status)
-    })
+    }
   }
-  if (geocode_status && geocode_status !== "all")
-    params.set("geocode_status", geocode_status)
-  if (filters.from_) {
-    params.set("from_", format(filters.from_, "yyyy-MM-dd"))
-  }
-  if (filters.to) {
-    params.set("to", format(filters.to, "yyyy-MM-dd"))
-  }
-  if (filters.vendor_id && filters.vendor_id.length > 0) {
-    filters.vendor_id.forEach((vendorId) => {
+  if (filters.vendor_id) {
+    for (const vendorId of filters.vendor_id) {
       params.append("vendor_id", vendorId)
-    })
+    }
   }
+
+  if (filters.from_) params.set("from_", format(filters.from_, "yyyy-MM-dd"))
+  if (filters.to) params.set("to", format(filters.to, "yyyy-MM-dd"))
+
   return serverFetch<OrderListResponse>(`/orders?${params.toString()}`, {
     next: {
       tags: ["orders", params.toString()],
@@ -43,14 +46,17 @@ export async function getOrder(orderId: string): Promise<Order> {
   return serverFetch<Order>(`/orders/${orderId}`)
 }
 
-export async function createOrder(data: any): Promise<Order> {
+export async function createOrder(data: OrderFormData): Promise<Order> {
   return serverFetch<Order>("/orders", {
     method: "POST",
     body: JSON.stringify(data),
   })
 }
 
-export async function updateOrder(orderId: string, data: any): Promise<Order> {
+export async function updateOrder(
+  orderId: string,
+  data: OrderFormData
+): Promise<Order> {
   return serverFetch<Order>(`/orders/${orderId}`, {
     method: "PATCH",
     body: JSON.stringify(data),
