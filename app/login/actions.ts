@@ -53,7 +53,11 @@ export const login = async (state: FormState, formData: FormData) => {
 
   const res = (await response.json()) as LoginResponse
   await createSession(res)
-  redirect("/orders")
+  if (res.role === "superadmin") {
+    redirect("/admins/new")
+  } else {
+    redirect("/orders")
+  }
 }
 
 export async function logout() {
