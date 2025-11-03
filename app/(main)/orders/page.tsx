@@ -5,6 +5,7 @@ import { DataTable } from "@/components/orders/data-table"
 import { getOrders } from "@/lib/order-service"
 import { decrypt } from "@/lib/session"
 
+import { getPickupWindows } from "../settings/actions"
 import { getVendors } from "../vendors/actions"
 import { loadSearchParams } from "./searchParams"
 
@@ -15,9 +16,13 @@ export default async function OrdersPage(props: {
   const session = (await cookies()).get("session")?.value
   const user = await decrypt(session)
 
-  const [ordersResponse, vendors] = await Promise.all([
+  const isAdmin = user?.role === "admin"
+
+  // Only fetch vendors and pickup windows for admins
+  const [ordersResponse, vendors, pickupWindows] = await Promise.all([
     getOrders(params),
-    getVendors(),
+    isAdmin ? getVendors() : Promise.resolve([]),
+    isAdmin ? getPickupWindows() : Promise.resolve([]),
   ])
 
   return (
@@ -33,8 +38,9 @@ export default async function OrdersPage(props: {
       <DataTable
         data={ordersResponse}
         columns={columns}
-        isAdmin={user?.role === "admin"}
+        isAdmin={isAdmin}
         vendors={vendors}
+        pickupWindows={pickupWindows}
       />
     </div>
   )

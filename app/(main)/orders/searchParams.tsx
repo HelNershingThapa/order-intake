@@ -12,10 +12,11 @@ export const ordersSearchParams = {
   page: parseAsInteger.withDefault(1),
   page_size: parseAsInteger.withDefault(20),
   statuses: parseAsArrayOf(parseAsString).withDefault([]),
-  vendor_id: parseAsArrayOf(parseAsString).withDefault([]),
+  vendor_ids: parseAsArrayOf(parseAsString).withDefault([]),
   geocode_status: parseAsString,
   from_: parseAsIsoDate,
   to: parseAsIsoDate,
+  pickup_window: parseAsArrayOf(parseAsString).withDefault([]),
 } as const
 
 export const serializeOrdersSearchParams = createSerializer(ordersSearchParams)

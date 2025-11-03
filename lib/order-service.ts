@@ -26,15 +26,19 @@ export async function getOrders(
       params.append("statuses", status)
     }
   }
-  if (filters.vendor_id) {
-    for (const vendorId of filters.vendor_id) {
-      params.append("vendor_id", vendorId)
+  if (filters.vendor_ids) {
+    for (const vendorId of filters.vendor_ids) {
+      params.append("vendor_ids", vendorId)
+    }
+  }
+  if (filters.pickup_window) {
+    for (const windowId of filters.pickup_window) {
+      params.append("pickup_window", windowId)
     }
   }
 
   if (filters.from_) params.set("from_", format(filters.from_, "yyyy-MM-dd"))
   if (filters.to) params.set("to", format(filters.to, "yyyy-MM-dd"))
-
   return serverFetch<OrderListResponse>(`/orders?${params.toString()}`, {
     next: {
       tags: ["orders", params.toString()],

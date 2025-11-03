@@ -33,7 +33,7 @@ interface DataTableFacetedFilterProps<TData, TValue> {
     value: string
     icon?: React.ComponentType<{ className?: string }>
   }[]
-  filterKey: "statuses" | "vendor_id"
+  filterKey: "statuses" | "vendor_ids" | "pickup_window"
 }
 
 export function DataTableFacetedFilter<TData, TValue>({

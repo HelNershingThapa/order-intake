@@ -8,6 +8,7 @@ import { CalendarIcon, Plus, X } from "lucide-react"
 import { useQueryStates } from "nuqs"
 
 import { ordersSearchParams } from "@/app/(main)/orders/searchParams"
+import type { TimeWindow } from "@/app/(main)/settings/components/schema"
 import { Button } from "@/components/ui/button"
 import { Calendar } from "@/components/ui/calendar"
 import { Input } from "@/components/ui/input"
@@ -17,6 +18,7 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover"
 import type { Vendor } from "@/types/miscellaneous"
+import { convertUTCToLocalTime } from "@/utils/timezone"
 
 import { orderStatuses } from "./config"
 import { ConfirmOrders } from "./confirm-orders"
@@ -27,28 +29,39 @@ interface DataTableToolbarProps<TData> {
   table: Table<TData>
   isAdmin?: boolean
   vendors: Vendor[]
+  pickupWindows: TimeWindow[]
 }
 
 export function DataTableToolbar<TData>({
   table,
   isAdmin = false,
   vendors,
+  pickupWindows,
 }: DataTableToolbarProps<TData>) {
   const vendorOptions = vendors.map((vendor) => ({
     label: vendor.contact_name,
     value: vendor.id,
   }))
-  const [{ search, from_, to, statuses, vendor_id }, setParams] =
-    useQueryStates(ordersSearchParams, {
-      shallow: false,
-    })
+  const pickupWindowOptions = pickupWindows.map((window) => ({
+    label: `${window.name} (${convertUTCToLocalTime(
+      window.start
+    )} - ${convertUTCToLocalTime(window.end)})`,
+    value: window.id,
+  }))
+  const [
+    { search, from_, to, statuses, vendor_ids, pickup_window },
+    setParams,
+  ] = useQueryStates(ordersSearchParams, {
+    shallow: false,
+  })
   const isFiltered =
     table.getState().columnFilters.length > 0 ||
     !!search ||
     !!from_ ||
     !!to ||
     (statuses && statuses.length > 0) ||
-    (vendor_id && vendor_id.length > 0)
+    (vendor_ids && vendor_ids.length > 0) ||
+    (pickup_window && pickup_window.length > 0)
 
   function handleSearch(term: string) {
     setParams({ search: term || null, page: 1 })
@@ -81,12 +94,20 @@ export function DataTableToolbar<TData>({
             filterKey="statuses"
           />
         )}
-        {table.getColumn("vendor_name") && (
+        {isAdmin && table.getColumn("vendor_name") && (
           <DataTableFacetedFilter
             column={table.getColumn("vendor_name")}
             title="Vendor"
             options={vendorOptions}
-            filterKey="vendor_id"
+            filterKey="vendor_ids"
+          />
+        )}
+        {isAdmin && table.getColumn("pickup_window_name") && (
+          <DataTableFacetedFilter
+            column={table.getColumn("pickup_window_name")}
+            title="Pickup Window"
+            options={pickupWindowOptions}
+            filterKey="pickup_window"
           />
         )}
         {isFiltered && (
@@ -94,14 +115,7 @@ export function DataTableToolbar<TData>({
             variant="ghost"
             onClick={() => {
               table.resetColumnFilters()
-              setParams({
-                search: null,
-                statuses: null,
-                vendor_id: null,
-                from_: null,
-                to: null,
-                page: 1,
-              })
+              setParams(null)
             }}
             className="h-8 px-2 lg:px-3"
           >

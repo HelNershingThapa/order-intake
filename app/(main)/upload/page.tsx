@@ -1,85 +1,85 @@
-"use client";
+"use client"
 
-import { useEffect, useRef,useState } from "react";
-import { useMutation } from "@tanstack/react-query";
-import { Check } from "lucide-react";
-import { toast } from "sonner";
+import { useEffect, useRef, useState } from "react"
+import { useMutation } from "@tanstack/react-query"
+import { Check } from "lucide-react"
+import { toast } from "sonner"
 
-import { GeocodeErrorsStep } from "@/components/bulk-import/geocode-errors-step";
-import { MapColumnsStep } from "@/components/bulk-import/map-columns-step";
-import { ReviewStep } from "@/components/bulk-import/review-step";
+import { GeocodeErrorsStep } from "@/components/bulk-import/geocode-errors-step"
+import { MapColumnsStep } from "@/components/bulk-import/map-columns-step"
+import { ReviewStep } from "@/components/bulk-import/review-step"
 import {
   type CanonicalKey,
   createEmptyMapping,
   type GeocodedRow,
   requiredKeys,
   steps,
-} from "@/components/bulk-import/steps";
-import { UploadFileStep } from "@/components/bulk-import/upload-file-step";
-import { useGeocoding } from "@/components/bulk-import/use-geocoding";
-import { CoordinatePickerDialog } from "@/components/map/coordinate-picker-dialog";
-import { Separator } from "@/components/ui/separator";
-import { cn } from "@/lib/utils";
-import { type CsvRow } from "@/utils/csv-parser";
+} from "@/components/bulk-import/steps"
+import { UploadFileStep } from "@/components/bulk-import/upload-file-step"
+import { useGeocoding } from "@/components/bulk-import/use-geocoding"
+import { CoordinatePickerDialog } from "@/components/map/coordinate-picker-dialog"
+import { Separator } from "@/components/ui/separator"
+import { cn } from "@/lib/utils"
+import { type CsvRow } from "@/utils/csv-parser"
 
-import { uploadOrders } from "./actions";
+import { uploadOrders } from "./actions"
 
 export default function Page() {
   // --- Persistence (localStorage) ---
-  const STORAGE_KEY = "bulk-import-state-v1";
+  const STORAGE_KEY = "bulk-import-state-v1"
   interface PersistedState {
-    step: (typeof steps)[number]["value"]; // current step value
-    orders: CsvRow[];
-    headers: string[];
-    mapping: ReturnType<typeof createEmptyMapping>;
+    step: (typeof steps)[number]["value"] // current step value
+    orders: CsvRow[]
+    headers: string[]
+    mapping: ReturnType<typeof createEmptyMapping>
     geocoding?: {
-      rows: GeocodedRow[];
-      started: boolean;
-    };
+      rows: GeocodedRow[]
+      started: boolean
+    }
   }
   // Guard to avoid persisting immediately on first hydration restore
-  const hydratedRef = useRef(false);
+  const hydratedRef = useRef(false)
   const [currentStep, setCurrentStep] = useState<
     (typeof steps)[number]["value"]
-  >(steps[0].value);
-  const [orders, setOrders] = useState<CsvRow[]>([]);
-  const [headers, setHeaders] = useState<string[]>([]);
-  const [mapping, setMapping] = useState(createEmptyMapping());
+  >(steps[0].value)
+  const [orders, setOrders] = useState<CsvRow[]>([])
+  const [headers, setHeaders] = useState<string[]>([])
+  const [mapping, setMapping] = useState(createEmptyMapping())
 
   const updateMapping = (key: CanonicalKey, value: string) =>
-    setMapping((m) => ({ ...m, [key]: value }));
+    setMapping((m) => ({ ...m, [key]: value }))
 
-  const geocode = useGeocoding({ data: orders, mapping });
+  const geocode = useGeocoding({ data: orders, mapping })
 
   const mutation = useMutation({
     mutationFn: uploadOrders,
     onSuccess: (res) => {
-      const created = res?.created?.length ?? 0;
-      const failed = res?.failed?.length ?? 0;
+      const created = res?.created?.length ?? 0
+      const failed = res?.failed?.length ?? 0
       toast.success("Bulk upload complete", {
         description: `Created: ${created} • Failed: ${failed}`,
-      });
+      })
       // Clear persisted state after successful upload
       try {
         if (typeof window !== "undefined") {
-          window.localStorage.removeItem(STORAGE_KEY);
+          window.localStorage.removeItem(STORAGE_KEY)
         }
       } catch {}
 
       // Reset state in UI
-      setOrders([]);
-      setHeaders([]);
-      setMapping(createEmptyMapping());
-      setCurrentStep(steps[0].value);
+      setOrders([])
+      setHeaders([])
+      setMapping(createEmptyMapping())
+      setCurrentStep(steps[0].value)
     },
     onError: (error) => {
       toast.error("Bulk upload failed", {
         description:
           JSON.stringify(error?.message, null, 2) ||
           "An error occurred while uploading orders",
-      });
+      })
     },
-  });
+  })
 
   // Hydrate from localStorage once on mount
   useEffect(() => {
@@ -87,19 +87,19 @@ export default function Page() {
       const raw =
         typeof window !== "undefined"
           ? window.localStorage.getItem(STORAGE_KEY)
-          : null;
-      if (!raw) return;
-      const parsed = JSON.parse(raw) as Partial<PersistedState> | null;
-      if (!parsed) return;
+          : null
+      if (!raw) return
+      const parsed = JSON.parse(raw) as Partial<PersistedState> | null
+      if (!parsed) return
       // Basic validation
       if (parsed.headers && Array.isArray(parsed.headers))
-        setHeaders(parsed.headers);
+        setHeaders(parsed.headers)
       if (parsed.orders && Array.isArray(parsed.orders))
-        setOrders(parsed.orders as CsvRow[]);
+        setOrders(parsed.orders as CsvRow[])
       if (parsed.mapping && typeof parsed.mapping === "object")
-        setMapping(parsed.mapping);
+        setMapping(parsed.mapping)
       if (parsed.step && steps.some((s) => s.value === parsed.step))
-        setCurrentStep(parsed.step);
+        setCurrentStep(parsed.step)
       // Hydrate geocoding rows if present
       if (
         parsed.geocoding &&
@@ -108,25 +108,25 @@ export default function Page() {
       ) {
         geocode.hydrateFromPersisted(
           parsed.geocoding.rows as any[],
-          Boolean(parsed.geocoding.started),
-        );
+          Boolean(parsed.geocoding.started)
+        )
       }
     } catch (e) {
-      console.warn("Failed to hydrate bulk import state", e);
+      console.warn("Failed to hydrate bulk import state", e)
     } finally {
-      hydratedRef.current = true;
+      hydratedRef.current = true
     }
-  }, []);
+  }, [])
 
   // Persist whenever relevant state changes (after hydration)
   useEffect(() => {
-    if (!hydratedRef.current) return; // skip initial render before hydration
-    if (typeof window === "undefined") return;
+    if (!hydratedRef.current) return // skip initial render before hydration
+    if (typeof window === "undefined") return
     try {
       if (!orders.length) {
         // If no orders, clear persisted state to avoid stale data.
-        window.localStorage.removeItem(STORAGE_KEY);
-        return;
+        window.localStorage.removeItem(STORAGE_KEY)
+        return
       }
       const data: PersistedState = {
         step: currentStep,
@@ -137,10 +137,10 @@ export default function Page() {
           rows: geocode.geocodeRows,
           started: geocode.geocodeStarted,
         },
-      };
-      window.localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+      }
+      window.localStorage.setItem(STORAGE_KEY, JSON.stringify(data))
     } catch (e) {
-      console.warn("Failed to persist bulk import state", e);
+      console.warn("Failed to persist bulk import state", e)
     }
   }, [
     orders,
@@ -149,7 +149,7 @@ export default function Page() {
     currentStep,
     geocode.geocodeRows,
     geocode.geocodeStarted,
-  ]);
+  ])
 
   // Auto advance to duplicates when all geocoded
   useEffect(() => {
@@ -158,77 +158,77 @@ export default function Page() {
       geocode.geocodeRows.length &&
       geocode.geocodeRows.every((r) => r.status === "success")
     ) {
-      const t = setTimeout(() => setCurrentStep("review"), 500);
-      return () => clearTimeout(t);
+      const t = setTimeout(() => setCurrentStep("review"), 500)
+      return () => clearTimeout(t)
     }
-  }, [currentStep, geocode.geocodeRows]);
+  }, [currentStep, geocode.geocodeRows])
 
   // If user refreshes while on errors step before geocoding started, resume automatically
   useEffect(() => {
-    if (!hydratedRef.current) return;
+    if (!hydratedRef.current) return
     if (
       currentStep === "errors" &&
       orders.length &&
       !geocode.geocodeRows.length
     ) {
-      geocode.startGeocoding();
+      geocode.startGeocoding()
     }
-  }, [currentStep, orders.length, geocode.geocodeRows.length]);
+  }, [currentStep, orders.length, geocode.geocodeRows.length])
 
   // Build RawOrder[] from successful geocoded rows and submit to backend
   const handleSubmitOrders = async () => {
-    if (mutation.isPending) return;
+    if (mutation.isPending) return
     try {
       const successRows = geocode.geocodeRows.filter(
-        (r) => r.status === "success" && r.lat != null && r.lng != null,
-      );
+        (r) => r.status === "success" && r.lat != null && r.lng != null
+      )
       if (!successRows.length) {
-        toast.error("No geocoded rows to upload");
-        return;
+        toast.error("No geocoded rows to upload")
+        return
       }
 
       const parseNumber = (v: any): number | undefined => {
-        if (typeof v === "number") return Number.isFinite(v) ? v : undefined;
+        if (typeof v === "number") return Number.isFinite(v) ? v : undefined
         const s = String(v ?? "")
           .replace(/,/g, "")
-          .trim();
-        const n = parseFloat(s);
-        return Number.isFinite(n) ? n : undefined;
-      };
+          .trim()
+        const n = parseFloat(s)
+        return Number.isFinite(n) ? n : undefined
+      }
 
       const parseDimensions = (
-        v: any,
+        v: any
       ): { l: number; w: number; h: number } | undefined => {
-        if (v == null) return undefined;
+        if (v == null) return undefined
         if (typeof v === "object") {
-          const l = parseNumber((v as any).l);
-          const w = parseNumber((v as any).w);
-          const h = parseNumber((v as any).h);
-          if (l && w && h) return { l, w, h };
-          return undefined;
+          const l = parseNumber((v as any).l)
+          const w = parseNumber((v as any).w)
+          const h = parseNumber((v as any).h)
+          if (l && w && h) return { l, w, h }
+          return undefined
         }
-        const s = String(v);
+        const s = String(v)
         const nums = s
           .split(/[^0-9.]+/)
           .map((x) => parseFloat(x))
-          .filter((n) => Number.isFinite(n));
+          .filter((n) => Number.isFinite(n))
         if (nums.length >= 3) {
-          return { l: nums[0], w: nums[1], h: nums[2] };
+          return { l: nums[0], w: nums[1], h: nums[2] }
         }
-        return undefined;
-      };
+        return undefined
+      }
 
       const items = successRows.map((r) => {
-        const rawW = parseNumber(r.mapped.parcel_weight);
-        let weight_kg: number;
+        const rawW = parseNumber(r.mapped.parcel_weight)
+        let weight_kg: number
         if (rawW == null || !Number.isFinite(rawW) || rawW <= 0) {
           // enforce > 0 if missing/invalid
-          weight_kg = 0.01;
+          weight_kg = 0.01
         } else if (rawW > 1000) {
           // cap at 1000 if it exceeds
-          weight_kg = 1000;
+          weight_kg = 1000
         } else {
-          weight_kg = rawW;
+          weight_kg = rawW
         }
         return {
           recipient_name: String(r.mapped.recipient_name ?? ""),
@@ -245,16 +245,16 @@ export default function Page() {
           // Ensure weight > 0 and cap at 1000 (assign 1000 if it exceeds)
           weight_kg,
           dimensions: parseDimensions(r.mapped.dimensions),
-        };
-      });
+        }
+      })
 
-      mutation.mutate(items);
+      mutation.mutate(items)
     } catch (e: any) {
       toast.error("Bulk upload failed", {
         description: e?.message || "An error occurred while uploading orders",
-      });
+      })
     }
-  };
+  }
 
   return (
     <div className="space-y-6">
@@ -264,15 +264,13 @@ export default function Page() {
       <div className="space-y-1">
         <ol className="flex flex-wrap items-center gap-2 text-xs md:text-sm">
           {steps.map((step, idx) => {
-            const currentIndex = steps.findIndex(
-              (s) => s.value === currentStep,
-            );
+            const currentIndex = steps.findIndex((s) => s.value === currentStep)
             const status =
               idx < currentIndex
                 ? "completed"
                 : idx === currentIndex
                 ? "current"
-                : "upcoming";
+                : "upcoming"
             return (
               <li key={step.value} className="flex items-center">
                 <div className="flex items-center gap-2">
@@ -293,7 +291,7 @@ export default function Page() {
                     className={cn(
                       status === "current" && "font-semibold",
                       status === "upcoming" && "text-muted-foreground",
-                      status === "completed" && "text-foreground",
+                      status === "completed" && "text-foreground"
                     )}
                   >
                     {step.title}
@@ -303,7 +301,7 @@ export default function Page() {
                   <span className="mx-2 text-muted-foreground">&gt;</span>
                 )}
               </li>
-            );
+            )
           })}
         </ol>
         <p className="text-xs text-muted-foreground">
@@ -315,9 +313,9 @@ export default function Page() {
       {currentStep === "upload" && (
         <UploadFileStep
           onParsed={({ headers, rows }) => {
-            setHeaders(headers);
-            setOrders(rows);
-            setCurrentStep("map");
+            setHeaders(headers)
+            setOrders(rows)
+            setCurrentStep("map")
           }}
         />
       )}
@@ -328,8 +326,8 @@ export default function Page() {
           updateMapping={updateMapping}
           onReset={() => setMapping(createEmptyMapping())}
           onContinue={() => {
-            setCurrentStep("errors");
-            geocode.startGeocoding();
+            setCurrentStep("errors")
+            geocode.startGeocoding()
           }}
         />
       )}
@@ -359,7 +357,7 @@ export default function Page() {
       <CoordinatePickerDialog
         open={geocode.pickerState.open}
         onOpenChange={(o) => {
-          if (!o) geocode.pickerState.close();
+          if (!o) geocode.pickerState.close()
         }}
         initialPoint={geocode.pickerState.currentPoint || undefined}
         rowLabel={
@@ -370,5 +368,5 @@ export default function Page() {
         onSave={(p) => geocode.pickerState.save(p.lat, p.lng)}
       />
     </div>
-  );
+  )
 }

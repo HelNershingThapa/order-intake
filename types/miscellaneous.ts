@@ -29,6 +29,7 @@ export type Admin = {
   is_active: boolean
   created_at: string
   updated_at: string
+  profile_complete: boolean
 }
 
 export type User = {

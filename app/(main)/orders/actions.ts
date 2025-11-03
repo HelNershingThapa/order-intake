@@ -1,8 +1,8 @@
-"use server";
+"use server"
 
-import { revalidateTag } from "next/cache";
+import { revalidateTag } from "next/cache"
 
-import { serverFetch } from "@/lib/serverFetch";
+import { serverFetch } from "@/lib/serverFetch"
 
 export const confirmOrders = async (orderIds: string[]) => {
   const res = await serverFetch("/orders/confirm", {
@@ -11,7 +11,7 @@ export const confirmOrders = async (orderIds: string[]) => {
       order_ids: orderIds,
       status: "order_confirmed",
     }),
-  });
-  revalidateTag("orders");
-  return res;
-};
+  })
+  revalidateTag("orders", "max")
+  return res
+}

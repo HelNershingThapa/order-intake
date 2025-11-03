@@ -1,6 +1,6 @@
 import { serverFetch } from "@/lib/serverFetch"
 
-import { AdminProfileData } from "./components/schema"
+import type { AdminProfileData, TimeWindow } from "./components/schema"
 
 export const updateAdminProfile = async (data: AdminProfileData) => {
   return serverFetch("/admin/vendors/profile", {
@@ -19,5 +19,5 @@ export const getPickupWindows = (isActive?: boolean) => {
   const path = queryString
     ? `/me/pickup-windows?${queryString}`
     : `/me/pickup-windows`
-  return serverFetch(path)
+  return serverFetch<TimeWindow[]>(path)
 }

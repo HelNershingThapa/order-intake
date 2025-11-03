@@ -16,6 +16,7 @@ import {
 import { useQueryStates } from "nuqs"
 
 import { ordersSearchParams } from "@/app/(main)/orders/searchParams"
+import type { TimeWindow } from "@/app/(main)/settings/components/schema"
 import {
   Table,
   TableBody,
@@ -35,6 +36,7 @@ interface DataTableProps<TValue> {
   data: OrderListResponse
   isAdmin?: boolean
   vendors: Vendor[]
+  pickupWindows: TimeWindow[]
 }
 
 export function DataTable<TValue>({
@@ -42,13 +44,12 @@ export function DataTable<TValue>({
   data,
   isAdmin = false,
   vendors,
+  pickupWindows,
 }: DataTableProps<TValue>) {
-  const [{ page, page_size, statuses }, setParams] = useQueryStates(
-    ordersSearchParams,
-    {
+  const [{ page, page_size, statuses, vendor_ids, pickup_window }, setParams] =
+    useQueryStates(ordersSearchParams, {
       shallow: false,
-    }
-  )
+    })
 
   const [columnVisibility, setColumnVisibility] =
     React.useState<VisibilityState>({ vendor_name: isAdmin })
@@ -61,8 +62,14 @@ export function DataTable<TValue>({
     if (statuses && statuses.length > 0) {
       filters.push({ id: "status", value: statuses })
     }
+    if (vendor_ids && vendor_ids.length > 0) {
+      filters.push({ id: "vendor_name", value: vendor_ids })
+    }
+    if (pickup_window && pickup_window.length > 0) {
+      filters.push({ id: "pickup_window_name", value: pickup_window })
+    }
     return filters
-  }, [statuses])
+  }, [statuses, vendor_ids, pickup_window])
 
   const table = useReactTable({
     data: data.items,
@@ -103,7 +110,12 @@ export function DataTable<TValue>({
 
   return (
     <div className="space-y-4">
-      <DataTableToolbar table={table} isAdmin={isAdmin} vendors={vendors} />
+      <DataTableToolbar
+        table={table}
+        isAdmin={isAdmin}
+        vendors={vendors}
+        pickupWindows={pickupWindows}
+      />
       <div className="overflow-hidden rounded-md border">
         <Table>
           <TableHeader>

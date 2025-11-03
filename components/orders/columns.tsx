@@ -82,6 +82,21 @@ export const columns: ColumnDef<Order>[] = [
     ),
   },
   {
+    id: "pickup_window_name",
+    header: ({ column }) => (
+      <DataTableColumnHeader
+        className="hidden"
+        column={column}
+        title="Pickup Window"
+      />
+    ),
+    cell: ({ row }) => (
+      <div className="max-w-[200px] hidden truncate">
+        {row.getValue("pickup_window_name") || "N/A"}
+      </div>
+    ),
+  },
+  {
     accessorKey: "delivery_address_text",
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title="Delivery Address" />
