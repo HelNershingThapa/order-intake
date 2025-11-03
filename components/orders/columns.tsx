@@ -4,6 +4,7 @@ import Link from "next/link"
 import type { ColumnDef } from "@tanstack/react-table"
 import { format } from "date-fns"
 
+import { Badge } from "@/components/ui/badge"
 import { Checkbox } from "@/components/ui/checkbox"
 import type { Order } from "@/types/order"
 
@@ -120,18 +121,12 @@ export const columns: ColumnDef<Order>[] = [
       if (!status) {
         return null
       }
-
       return (
-        <div className="flex items-center">
-          {status.icon && (
-            <status.icon className="mr-2 h-4 w-4 shrink-0 text-muted-foreground" />
-          )}
-          <span>{status.label}</span>
-        </div>
+        <Badge variant={status.variant} className="[&>svg]:size-3.5">
+          {status.icon && <status.icon />}
+          {status.label}
+        </Badge>
       )
-    },
-    filterFn: (row, id, value) => {
-      return value.includes(row.getValue(id))
     },
   },
   {
