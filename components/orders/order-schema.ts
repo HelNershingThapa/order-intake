@@ -1,6 +1,8 @@
-import * as z from "zod";
+import * as z from "zod"
 
-const trimCollapse = (s: string) => s.trim().replace(/\s+/g, " ");
+import { validatePhoneNumber } from "@/utils/validate-phone"
+
+const trimCollapse = (s: string) => s.trim().replace(/\s+/g, " ")
 
 const optFloat = (label: string, min?: number, max?: number) =>
   z.preprocess(
@@ -15,7 +17,7 @@ const optFloat = (label: string, min?: number, max?: number) =>
         message: `${label} must be ≤ ${max}`,
       })
       .optional()
-  );
+  )
 
 const optInt = (label: string, min?: number) =>
   z.preprocess(
@@ -25,7 +27,7 @@ const optInt = (label: string, min?: number) =>
       .int(`${label} must be an integer`)
       .min(min ?? 0, `${label} must be ≥ ${min}`)
       .optional()
-  );
+  )
 
 export const dimensionsSchema = z
   .object({
@@ -35,11 +37,11 @@ export const dimensionsSchema = z
   })
   .refine(
     (vals) => {
-      const provided = [vals.l, vals.w, vals.h].filter((v) => v !== undefined);
-      return provided.length === 0 || provided.length === 3;
+      const provided = [vals.l, vals.w, vals.h].filter((v) => v !== undefined)
+      return provided.length === 0 || provided.length === 3
     },
     { message: "Provide all dimensions or leave all empty" }
-  );
+  )
 
 export const orderSchema = z
   .object({
@@ -48,9 +50,12 @@ export const orderSchema = z
       .min(1, "Recipient name is required")
       .transform(trimCollapse),
     recipient_phone: z
-      .string()
-      .min(1, "Phone is required")
-      .regex(/^\+?\d{7,15}$/, "Phone must be 7-15 digits with optional +"),
+      .string({
+        error: "Contact phone number is required",
+      })
+      .refine(validatePhoneNumber, {
+        message: "Please enter a valid Nepali phone number",
+      }),
     delivery_address_text: z
       .string()
       .min(1, "Delivery address is required")
@@ -83,6 +88,6 @@ export const orderSchema = z
   .refine((vals) => (vals.lat !== undefined) === (vals.lng !== undefined), {
     message: "Provide both lat and lng together",
     path: ["lat"],
-  });
+  })
 
-export type OrderFormData = z.infer<typeof orderSchema>;
+export type OrderFormData = z.infer<typeof orderSchema>

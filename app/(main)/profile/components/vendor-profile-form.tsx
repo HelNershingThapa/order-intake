@@ -138,7 +138,7 @@ export default function VendorProfileForm({
                 name="contact_name"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Name</FormLabel>
+                    <FormLabel required>Name</FormLabel>
                     <FormControl>
                       <Input placeholder="Contact Name" {...field} />
                     </FormControl>
@@ -151,7 +151,7 @@ export default function VendorProfileForm({
                 name="contact_phone"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Contact Phone</FormLabel>
+                    <FormLabel required>Contact Phone</FormLabel>
                     <FormControl>
                       <PhoneInput
                         placeholder="Enter contact number. E.g., 9801234569"
@@ -167,7 +167,7 @@ export default function VendorProfileForm({
                 name="pickup_address_text"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Pickup Address</FormLabel>
+                    <FormLabel required>Pickup Address</FormLabel>
                     <PickupLocationMap />
                     <FormControl>
                       <div className="relative">
@@ -218,7 +218,7 @@ export default function VendorProfileForm({
                 name="pickup_window_id"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Pickup Window</FormLabel>
+                    <FormLabel required>Pickup Window</FormLabel>
                     <FormControl>
                       <Select
                         value={field.value}

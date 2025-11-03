@@ -12,6 +12,6 @@ export const confirmOrders = async (orderIds: string[]) => {
       status: "order_confirmed",
     }),
   })
-  revalidateTag("orders", "max")
+  revalidateTag("orders", "")
   return res
 }

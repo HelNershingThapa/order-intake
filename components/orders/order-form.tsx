@@ -12,6 +12,7 @@ import {
   type OrderFormData,
   orderSchema,
 } from "@/components/orders/order-schema"
+import { PhoneInput } from "@/components/phone-input"
 import { Button } from "@/components/ui/button"
 import {
   Card,
@@ -32,7 +33,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Separator } from "@/components/ui/separator"
 import { createOrder, updateOrder } from "@/lib/order-service"
-import { Order } from "@/types/order"
+import type { Order } from "@/types/order"
 
 type OrderFormProps = {
   initialData?: Order & { id: string }
@@ -120,14 +121,13 @@ export default function OrderForm({ initialData, mode }: OrderFormProps) {
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
           <CardContent className="space-y-6">
-            {/* Recipient Details */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <FormField
                 control={form.control}
                 name="recipient_name"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Recipient Name *</FormLabel>
+                    <FormLabel required>Recipient Name</FormLabel>
                     <FormControl>
                       <Input placeholder="Full name" {...field} />
                     </FormControl>
@@ -140,9 +140,9 @@ export default function OrderForm({ initialData, mode }: OrderFormProps) {
                 name="recipient_phone"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Phone *</FormLabel>
+                    <FormLabel required>Phone</FormLabel>
                     <FormControl>
-                      <Input placeholder="+977 98XXXXXXXX" {...field} />
+                      <PhoneInput {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -154,7 +154,7 @@ export default function OrderForm({ initialData, mode }: OrderFormProps) {
               name="delivery_address_text"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Delivery Address *</FormLabel>
+                  <FormLabel required>Delivery Address</FormLabel>
                   <FormControl>
                     <Input placeholder="Full address" {...field} />
                   </FormControl>
@@ -222,7 +222,7 @@ export default function OrderForm({ initialData, mode }: OrderFormProps) {
                 name="weight_kg"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Weight (kg) *</FormLabel>
+                    <FormLabel required>Weight (kg)</FormLabel>
                     <FormControl>
                       <Input
                         type="number"
