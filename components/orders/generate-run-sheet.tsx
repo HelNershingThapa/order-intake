@@ -12,6 +12,7 @@ import { CalendarIcon } from "lucide-react"
 import { toast } from "sonner"
 import { z } from "zod"
 
+import { getVendors } from "@/app/(main)/vendors/actions"
 import { Button } from "@/components/ui/button"
 import { Calendar } from "@/components/ui/calendar"
 import {
@@ -23,7 +24,6 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form"
-import { Input } from "@/components/ui/input"
 import {
   Popover,
   PopoverContent,
@@ -46,9 +46,23 @@ import {
 } from "@/components/ui/sheet"
 import { generateRun, getRuns } from "@/lib/generate-run"
 import { cn } from "@/lib/utils"
-import { Order } from "@/types/order"
+import type { Order } from "@/types/order"
 
 const STORAGE_KEY = "route360-api-key"
+
+// Helper to combine selected date with a HH:mm time string into UTC ISO without milliseconds
+const toUtcIso = (date: Date, time: string) => {
+  const [hStr = "0", mStr = "0", sStr = "0"] = time.split(":")
+  const y = date.getFullYear()
+  const m = date.getMonth()
+  const d = date.getDate()
+  const hh = Number(hStr)
+  const mm = Number(mStr)
+  const ss = Number(sStr) || 0
+  return new Date(Date.UTC(y, m, d, hh, mm, ss))
+    .toISOString()
+    .replace(/\.\d{3}Z$/, "Z")
+}
 
 interface DataTableToolbarProps<TData> {
   table: Table<TData>
@@ -56,9 +70,6 @@ interface DataTableToolbarProps<TData> {
 
 const formSchema = z.object({
   date: z.date({ error: "Date is required." }),
-  runStartTime: z.iso.time({ error: "Pickup time is required." }),
-  runEndTime: z.iso.time({ error: "End time is required." }),
-  readyToPickupTime: z.iso.time({ error: "Pickup time is required." }),
   runName: z.string().min(1, { message: "Name is required." }),
 })
 
@@ -80,29 +91,72 @@ export function GenerateRunSheet<TData>({
   }, [])
 
   // Selected rows from the table
+  const rowsLength = table.getSelectedRowModel().rows.length
   const selectedOrders = useMemo(
     () => table.getSelectedRowModel().rows.map((row) => row.original as Order),
-    [table.getSelectedRowModel().rows.length]
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [rowsLength]
   )
+
+  // Fetch vendors to get pickup window information
+  const { data: vendors } = useQuery({
+    queryKey: ["vendors"],
+    queryFn: () => getVendors(),
+    enabled: isOpen,
+  })
+
   const { data: runs } = useQuery({
     queryKey: ["runs", apiKey],
     queryFn: () => getRuns(apiKey),
-    enabled: !!apiKey,
-    refetchOnWindowFocus: true,
+    enabled: !!apiKey && isOpen,
   })
+
+  // Derive time windows from vendors of selected orders
+  const derivedTimeWindows = useMemo(() => {
+    if (!vendors || selectedOrders.length === 0) {
+      return { start: null, end: null }
+    }
+
+    // Get unique vendor IDs from selected orders
+    const vendorIds = new Set(selectedOrders.map((order) => order.vendor_id))
+
+    // Filter vendors that have orders selected
+    const relevantVendors = vendors.filter((v) => vendorIds.has(v.id))
+
+    if (relevantVendors.length === 0) {
+      return { start: null, end: null }
+    }
+
+    // Find earliest start time and latest end time
+    let earliestStart: string | null = null
+    let latestEnd: string | null = null
+
+    for (const vendor of relevantVendors) {
+      if (vendor.pickup_window_start) {
+        if (!earliestStart || vendor.pickup_window_start < earliestStart) {
+          earliestStart = vendor.pickup_window_start
+        }
+      }
+      if (vendor.pickup_window_end) {
+        if (!latestEnd || vendor.pickup_window_end > latestEnd) {
+          latestEnd = vendor.pickup_window_end
+        }
+      }
+    }
+
+    return { start: earliestStart, end: latestEnd }
+  }, [vendors, selectedOrders])
 
   // 1. Define your form.
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      runStartTime: "",
-      runEndTime: "",
-      readyToPickupTime: "",
+      runName: "",
     },
   })
 
   // Build a friendly address string from possible fields
-  const buildAddress = (o: any) => {
+  const buildAddress = (o: Order) => {
     const parts = [
       o?.delivery_address_text,
       o?.tole,
@@ -114,8 +168,8 @@ export function GenerateRunSheet<TData>({
   }
 
   const derivedRunBookings = useMemo(() => {
-    return selectedOrders.map((o: any, idx: number) => ({
-      orderId: o?.order_id || o?.id || "",
+    return selectedOrders.map((o: Order, idx: number) => ({
+      orderId: o?.order_id || "",
       priority: idx, // simple priority by selection order
       quantity: 1,
       weight: 4,
@@ -132,7 +186,7 @@ export function GenerateRunSheet<TData>({
   }, [selectedOrders.length])
 
   const mutation = useMutation({
-    mutationFn: (data: any) => generateRun(data),
+    mutationFn: (data: Parameters<typeof generateRun>[0]) => generateRun(data),
     onSuccess: () => {
       toast.success("Run generated successfully!")
       form.reset()
@@ -145,31 +199,26 @@ export function GenerateRunSheet<TData>({
   })
 
   function onSubmit(values: z.infer<typeof formSchema>) {
-    // Helper to combine selected date with a HH:mm time string into UTC ISO without milliseconds
-    const toUtcIso = (date: Date, time: string) => {
-      const [hStr = "0", mStr = "0", sStr = "0"] = time.split(":")
-      const y = date.getFullYear()
-      const m = date.getMonth()
-      const d = date.getDate()
-      const hh = Number(hStr)
-      const mm = Number(mStr)
-      const ss = Number(sStr) || 0
-      return new Date(Date.UTC(y, m, d, hh, mm, ss))
-        .toISOString()
-        .replace(/\.\d{3}Z$/, "Z")
-    }
+    const { date, ...rest } = values
 
-    const { date, runStartTime, runEndTime, readyToPickupTime, ...rest } =
-      values
+    // Use derived time windows from vendors
+    const runStartTime = derivedTimeWindows.start
+      ? toUtcIso(date, derivedTimeWindows.start)
+      : toUtcIso(date, "09:00") // fallback
+
+    const runEndTime = derivedTimeWindows.end
+      ? toUtcIso(date, derivedTimeWindows.end)
+      : toUtcIso(date, "17:00") // fallback
 
     const payload = {
       ...rest,
-      runStartTime: toUtcIso(date, runStartTime),
-      runEndTime: toUtcIso(date, runEndTime),
-      readyToPickupTime: toUtcIso(date, readyToPickupTime),
+      runStartTime,
+      runEndTime,
+      readyToPickupTime: runStartTime,
       runBookings: derivedRunBookings,
+      runType: "delivery" as const,
       apiKey,
-    } // payload matches CreateRunRequest
+    }
     mutation.mutate(payload)
   }
 
@@ -228,118 +277,100 @@ export function GenerateRunSheet<TData>({
               onSubmit={form.handleSubmit(onSubmit)}
               className="space-y-6 p-4"
             >
-              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-                <FormField
-                  control={form.control}
-                  name="runName"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Run Name</FormLabel>
-                      <FormControl>
-                        <Select
-                          onValueChange={field.onChange}
-                          defaultValue={field.value}
-                        >
-                          <FormControl>
-                            <SelectTrigger className="w-full">
-                              <SelectValue placeholder="Select Route360 configured run" />
-                            </SelectTrigger>
-                          </FormControl>
-                          <SelectContent>
-                            {runs?.map((run) => (
-                              <SelectItem value={run.name} key={run.id}>
-                                {run.name}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                      </FormControl>
-                      <FormDescription>
-                        You can manage runs in your Route360 portal
-                      </FormDescription>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  name="date"
-                  render={({ field }) => (
-                    <FormItem className="flex flex-col">
-                      <FormLabel>Date</FormLabel>
-                      <Popover>
-                        <PopoverTrigger asChild>
-                          <FormControl>
-                            <Button
-                              variant={"outline"}
-                              className={cn(
-                                "w-[240px] pl-3 text-left font-normal",
-                                !field.value && "text-muted-foreground"
-                              )}
-                            >
-                              {field.value ? (
-                                format(field.value, "PPP")
-                              ) : (
-                                <span>Pick a date</span>
-                              )}
-                              <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
-                            </Button>
-                          </FormControl>
-                        </PopoverTrigger>
-                        <PopoverContent className="w-auto p-0" align="start">
-                          <Calendar
-                            mode="single"
-                            selected={field.value}
-                            onSelect={field.onChange}
-                            disabled={(date) => date < startOfToday()}
-                            captionLayout="dropdown"
-                          />
-                        </PopoverContent>
-                      </Popover>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  name="runStartTime"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Start Time</FormLabel>
-                      <FormControl>
-                        <Input type="time" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  name="runEndTime"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>End Time</FormLabel>
-                      <FormControl>
-                        <Input type="time" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  name="readyToPickupTime"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Pickup Time</FormLabel>
-                      <FormControl>
-                        <Input type="time" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
+              <FormField
+                control={form.control}
+                name="runName"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Run Name</FormLabel>
+                    <FormControl>
+                      <Select
+                        onValueChange={field.onChange}
+                        defaultValue={field.value}
+                      >
+                        <FormControl>
+                          <SelectTrigger className="w-full">
+                            <SelectValue placeholder="Select Route360 configured run" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          {runs?.map((run) => (
+                            <SelectItem value={run.name} key={run.id}>
+                              {run.name}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </FormControl>
+                    <FormDescription>
+                      You can manage runs in your Route360 portal
+                    </FormDescription>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="date"
+                render={({ field }) => (
+                  <FormItem className="flex flex-col">
+                    <FormLabel>Date</FormLabel>
+                    <Popover>
+                      <PopoverTrigger asChild>
+                        <FormControl>
+                          <Button
+                            variant={"outline"}
+                            className={cn(
+                              "w-[240px] pl-3 text-left font-normal",
+                              !field.value && "text-muted-foreground"
+                            )}
+                          >
+                            {field.value ? (
+                              format(field.value, "PPP")
+                            ) : (
+                              <span>Pick a date</span>
+                            )}
+                            <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                          </Button>
+                        </FormControl>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-auto p-0" align="start">
+                        <Calendar
+                          mode="single"
+                          selected={field.value}
+                          onSelect={field.onChange}
+                          disabled={(date) => date < startOfToday()}
+                          captionLayout="dropdown"
+                        />
+                      </PopoverContent>
+                    </Popover>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              {/* Display derived time windows */}
+              <div className="rounded-md border p-3 text-sm bg-muted/50">
+                <h4 className="font-medium mb-2">
+                  Derived Time Windows (from vendors)
+                </h4>
+                <div className="grid grid-cols-2 gap-2 text-muted-foreground">
+                  <div>
+                    <span className="font-medium">Start Time:</span>{" "}
+                    {derivedTimeWindows.start ?? "09:00"}
+                  </div>
+                  <div>
+                    <span className="font-medium">End Time:</span>{" "}
+                    {derivedTimeWindows.end ?? "17:00"}
+                  </div>
+                </div>
+                {(!derivedTimeWindows.start || !derivedTimeWindows.end) && (
+                  <p className="mt-2 text-xs text-yellow-600 dark:text-yellow-500">
+                    ⚠️ Some vendors don&apos;t have pickup windows configured.
+                    Using default times (9:00 AM - 5:00 PM).
+                  </p>
+                )}
               </div>
+
               <div className="rounded-md border p-3 text-sm text-muted-foreground">
                 {derivedRunBookings.length === 0 ? (
                   <p>
