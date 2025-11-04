@@ -1,17 +1,17 @@
-import { cookies } from "next/headers";
-import { decodeJwt, jwtVerify,SignJWT } from "jose";
+import { cookies } from "next/headers"
+import { decodeJwt, jwtVerify, SignJWT } from "jose"
 
-import type { LoginResponse } from "@/types/miscellaneous";
+import type { LoginResponse } from "@/types/miscellaneous"
 
-import "server-only";
+import "server-only"
 
-const secretKey = process.env.SESSION_SECRET;
-const encodedKey = new TextEncoder().encode(secretKey);
+const secretKey = process.env.SESSION_SECRET
+const encodedKey = new TextEncoder().encode(secretKey)
 
 export async function createSession(loginRes: LoginResponse) {
-  const claims = decodeJwt(loginRes.access_token);
-  const session = await encrypt({ ...loginRes, expiresAt: claims.exp! });
-  const cookieStore = await cookies();
+  const claims = decodeJwt(loginRes.access_token)
+  const session = await encrypt({ ...loginRes, expiresAt: claims.exp! })
+  const cookieStore = await cookies()
 
   cookieStore.set("session", session, {
     httpOnly: true,
@@ -19,7 +19,7 @@ export async function createSession(loginRes: LoginResponse) {
     expires: claims.exp! * 1000,
     sameSite: "lax",
     path: "/",
-  });
+  })
 }
 
 export async function encrypt(payload: LoginResponse & { expiresAt: number }) {
@@ -27,21 +27,21 @@ export async function encrypt(payload: LoginResponse & { expiresAt: number }) {
     .setProtectedHeader({ alg: "HS256" })
     .setIssuedAt()
     .setExpirationTime(payload.expiresAt)
-    .sign(encodedKey);
+    .sign(encodedKey)
 }
 
 export async function decrypt(session: string | undefined = "") {
   try {
     const { payload } = await jwtVerify(session, encodedKey, {
       algorithms: ["HS256"],
-    });
-    return payload;
+    })
+    return payload
   } catch (error) {
-    console.log("Failed to verify session");
+    console.log("Failed to verify session")
   }
 }
 
 export async function deleteSession() {
-  const cookieStore = await cookies();
-  cookieStore.delete("session");
+  const cookieStore = await cookies()
+  cookieStore.delete("session")
 }

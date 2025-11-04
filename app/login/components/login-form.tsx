@@ -1,24 +1,25 @@
-"use client";
+"use client"
 
-import { useActionState } from "react";
-import { Loader2 } from "lucide-react";
+import { useActionState } from "react"
+import { Loader2 } from "lucide-react"
 
-import { Button } from "@/components/ui/button";
+import { Alert, AlertDescription } from "@/components/ui/alert"
+import { Button } from "@/components/ui/button"
 import {
   Card,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card";
-import { Field, FieldError, FieldLabel } from "@/components/ui/field";
-import { Input } from "@/components/ui/input";
-import { cn } from "@/lib/utils";
+} from "@/components/ui/card"
+import { Field, FieldError, FieldLabel } from "@/components/ui/field"
+import { Input } from "@/components/ui/input"
+import { cn } from "@/lib/utils"
 
-import { login } from "../actions";
+import { login } from "../actions"
 
 export function LoginForm({ ...props }) {
-  const [state, action, pending] = useActionState(login, undefined);
+  const [state, action, pending] = useActionState(login, undefined)
 
   return (
     <div className={cn("flex flex-col gap-6")} {...props}>
@@ -32,6 +33,11 @@ export function LoginForm({ ...props }) {
         <CardContent>
           <form action={action}>
             <div className="grid gap-6">
+              {state?.message && (
+                <Alert variant="destructive">
+                  <AlertDescription>{state.message}</AlertDescription>
+                </Alert>
+              )}
               <Field>
                 <FieldLabel htmlFor="email">Email</FieldLabel>
                 <Input
@@ -41,9 +47,11 @@ export function LoginForm({ ...props }) {
                   placeholder="rajeshhamal@gmail.com"
                   defaultValue="gmail@rajeshhamal.com"
                 />
-                {state?.errors?.email && (
-                  <FieldError>{state.errors.email}</FieldError>
-                )}
+                {state?.errors &&
+                  "email" in state.errors &&
+                  state.errors.email && (
+                    <FieldError>{state.errors.email}</FieldError>
+                  )}
               </Field>
               <Field>
                 <FieldLabel htmlFor="password">Password</FieldLabel>
@@ -54,9 +62,11 @@ export function LoginForm({ ...props }) {
                   placeholder="m@example.com"
                   defaultValue="nepal123"
                 />
-                {state?.errors?.password && (
-                  <FieldError>{state.errors.password}</FieldError>
-                )}
+                {state?.errors &&
+                  "password" in state.errors &&
+                  state.errors.password && (
+                    <FieldError>{state.errors.password}</FieldError>
+                  )}
               </Field>
               <Button type="submit" className="w-full" disabled={pending}>
                 {pending && <Loader2 className="animate-spin" />}
@@ -77,5 +87,5 @@ export function LoginForm({ ...props }) {
         and <a href="#">Privacy Policy</a>.
       </div>
     </div>
-  );
+  )
 }
