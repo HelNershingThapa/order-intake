@@ -69,11 +69,11 @@ export type RunBooking = {
 }
 
 export type CreateRunRequest = {
-  businessNumber: string
   runStartTime: string
   runEndTime: string
   readyToPickupTime: string
   runName: string
   runBookings: RunBooking[]
+  runType: "pickup" | "delivery"
   apiKey: string
 }

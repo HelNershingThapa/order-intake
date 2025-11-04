@@ -31,9 +31,9 @@ export async function getOrders(
       params.append("vendor_ids", vendorId)
     }
   }
-  if (filters.pickup_window) {
-    for (const windowId of filters.pickup_window) {
-      params.append("pickup_window", windowId)
+  if (filters.pickup_window_ids) {
+    for (const windowId of filters.pickup_window_ids) {
+      params.append("pickup_window_ids", windowId)
     }
   }
 

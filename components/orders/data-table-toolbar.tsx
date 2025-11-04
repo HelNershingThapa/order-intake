@@ -49,7 +49,7 @@ export function DataTableToolbar<TData>({
     value: window.id,
   }))
   const [
-    { search, from_, to, statuses, vendor_ids, pickup_window },
+    { search, from_, to, statuses, vendor_ids, pickup_window_ids },
     setParams,
   ] = useQueryStates(ordersSearchParams, {
     shallow: false,
@@ -61,7 +61,7 @@ export function DataTableToolbar<TData>({
     !!to ||
     (statuses && statuses.length > 0) ||
     (vendor_ids && vendor_ids.length > 0) ||
-    (pickup_window && pickup_window.length > 0)
+    (pickup_window_ids && pickup_window_ids.length > 0)
 
   function handleSearch(term: string) {
     setParams({ search: term || null, page: 1 })
@@ -107,7 +107,7 @@ export function DataTableToolbar<TData>({
             column={table.getColumn("pickup_window_name")}
             title="Pickup Window"
             options={pickupWindowOptions}
-            filterKey="pickup_window"
+            filterKey="pickup_window_ids"
           />
         )}
         {isFiltered && (

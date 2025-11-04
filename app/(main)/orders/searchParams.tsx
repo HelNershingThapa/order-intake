@@ -16,7 +16,7 @@ export const ordersSearchParams = {
   geocode_status: parseAsString,
   from_: parseAsIsoDate,
   to: parseAsIsoDate,
-  pickup_window: parseAsArrayOf(parseAsString).withDefault([]),
+  pickup_window_ids: parseAsArrayOf(parseAsString).withDefault([]),
 } as const
 
 export const serializeOrdersSearchParams = createSerializer(ordersSearchParams)

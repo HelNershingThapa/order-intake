@@ -1,6 +1,7 @@
 "use client"
 
 import { useEffect, useRef, useState } from "react"
+import { useRouter } from "next/navigation"
 import { useMutation } from "@tanstack/react-query"
 import { Check } from "lucide-react"
 import { toast } from "sonner"
@@ -24,19 +25,21 @@ import { type CsvRow } from "@/utils/csv-parser"
 
 import { uploadOrders } from "./actions"
 
-export default function Page() {
-  // --- Persistence (localStorage) ---
-  const STORAGE_KEY = "bulk-import-state-v1"
-  interface PersistedState {
-    step: (typeof steps)[number]["value"] // current step value
-    orders: CsvRow[]
-    headers: string[]
-    mapping: ReturnType<typeof createEmptyMapping>
-    geocoding?: {
-      rows: GeocodedRow[]
-      started: boolean
-    }
+// --- Persistence (localStorage) ---
+const STORAGE_KEY = "bulk-import-state-v1"
+interface PersistedState {
+  step: (typeof steps)[number]["value"] // current step value
+  orders: CsvRow[]
+  headers: string[]
+  mapping: ReturnType<typeof createEmptyMapping>
+  geocoding?: {
+    rows: GeocodedRow[]
+    started: boolean
   }
+}
+
+export default function Page() {
+  const router = useRouter()
   // Guard to avoid persisting immediately on first hydration restore
   const hydratedRef = useRef(false)
   const [currentStep, setCurrentStep] = useState<
@@ -71,6 +74,7 @@ export default function Page() {
       setHeaders([])
       setMapping(createEmptyMapping())
       setCurrentStep(steps[0].value)
+      router.push("/orders")
     },
     onError: (error) => {
       toast.error("Bulk upload failed", {

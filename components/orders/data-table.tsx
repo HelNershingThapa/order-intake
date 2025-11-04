@@ -46,10 +46,12 @@ export function DataTable<TValue>({
   vendors,
   pickupWindows,
 }: DataTableProps<TValue>) {
-  const [{ page, page_size, statuses, vendor_ids, pickup_window }, setParams] =
-    useQueryStates(ordersSearchParams, {
-      shallow: false,
-    })
+  const [
+    { page, page_size, statuses, vendor_ids, pickup_window_ids },
+    setParams,
+  ] = useQueryStates(ordersSearchParams, {
+    shallow: false,
+  })
 
   const [columnVisibility, setColumnVisibility] =
     React.useState<VisibilityState>({ vendor_name: isAdmin })
@@ -65,11 +67,11 @@ export function DataTable<TValue>({
     if (vendor_ids && vendor_ids.length > 0) {
       filters.push({ id: "vendor_name", value: vendor_ids })
     }
-    if (pickup_window && pickup_window.length > 0) {
-      filters.push({ id: "pickup_window_name", value: pickup_window })
+    if (pickup_window_ids && pickup_window_ids.length > 0) {
+      filters.push({ id: "pickup_window_name", value: pickup_window_ids })
     }
     return filters
-  }, [statuses, vendor_ids, pickup_window])
+  }, [statuses, vendor_ids, pickup_window_ids])
 
   const table = useReactTable({
     data: data.items,
