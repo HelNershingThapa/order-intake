@@ -3,7 +3,7 @@
 import { useFieldArray, useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useMutation } from "@tanstack/react-query"
-import { Loader2, Plus, Trash2 } from "lucide-react"
+import { Loader2, Plus } from "lucide-react"
 import { toast } from "sonner"
 
 import { PhoneInput } from "@/components/phone-input"
@@ -71,7 +71,7 @@ export function AdminProfileForm({
     },
   })
 
-  const { fields, append, remove } = useFieldArray({
+  const { fields, append } = useFieldArray({
     control: form.control,
     name: "pickup_windows",
   })
@@ -168,21 +168,10 @@ export function AdminProfileForm({
 
           {fields.map((field, index) => (
             <Card key={field.id}>
-              <CardHeader className="flex flex-row items-center justify-between">
+              <CardHeader>
                 <CardTitle>
                   <Badge variant="secondary">Window {index + 1}</Badge>
                 </CardTitle>
-                {fields.length > 1 && (
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    size="icon"
-                    className="size-8"
-                    onClick={() => remove(index)}
-                  >
-                    <Trash2 className="size-4 text-destructive" />
-                  </Button>
-                )}
               </CardHeader>
               <CardContent className="space-y-4">
                 <FormField
