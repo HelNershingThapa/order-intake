@@ -18,7 +18,6 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover"
 import type { Vendor } from "@/types/miscellaneous"
-import { convertUTCToLocalTime } from "@/utils/timezone"
 
 import { orderStatuses } from "./config"
 import { ConfirmOrders } from "./confirm-orders"
@@ -43,9 +42,7 @@ export function DataTableToolbar<TData>({
     value: vendor.id,
   }))
   const pickupWindowOptions = pickupWindows.map((window) => ({
-    label: `${window.name} (${convertUTCToLocalTime(
-      window.start
-    )} - ${convertUTCToLocalTime(window.end)})`,
+    label: `${window.name} (${window.start} - ${window.end})`,
     value: window.id,
   }))
   const [

@@ -22,7 +22,6 @@ import {
 } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
 import { Admin } from "@/types/miscellaneous"
-import { convertLocalTimeToUTC, convertUTCToLocalTime } from "@/utils/timezone"
 
 import { updateAdminProfile } from "../actions"
 import { type AdminProfileData, adminProfileSchema } from "./schema"
@@ -44,8 +43,8 @@ export function AdminProfileForm({
         pickupWindows.length > 0
           ? pickupWindows.map((window) => ({
               ...window,
-              start: convertUTCToLocalTime(window.start),
-              end: convertUTCToLocalTime(window.end),
+              start: window.start,
+              end: window.end,
             }))
           : [
               {
@@ -83,8 +82,8 @@ export function AdminProfileForm({
       address: values.address,
       pickup_windows: values.pickup_windows.map((window) => ({
         ...window,
-        start: convertLocalTimeToUTC(window.start),
-        end: convertLocalTimeToUTC(window.end),
+        start: window.start,
+        end: window.end,
       })),
     }
     mutation.mutate(formattedValues)

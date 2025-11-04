@@ -2,7 +2,6 @@ import { type NextRequest, NextResponse } from "next/server"
 
 import { getCurrentUser } from "./app/actions"
 
-// This function can be marked `async` if using `await` inside
 export async function proxy(request: NextRequest) {
   const pathname = request.nextUrl?.pathname ?? new URL(request.url).pathname
 

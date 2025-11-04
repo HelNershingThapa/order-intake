@@ -30,7 +30,6 @@ import {
   SelectValue,
 } from "@/components/ui/select"
 import type { CurrentUser } from "@/types/miscellaneous"
-import { convertUTCToLocalTime } from "@/utils/timezone"
 import { validatePhoneNumber } from "@/utils/validate-phone"
 
 import { TimeWindow } from "../../settings/components/schema"
@@ -246,8 +245,7 @@ export default function VendorProfileForm({
                                     )}
                                   </span>
                                   <p className="text-sm text-muted-foreground">
-                                    {convertUTCToLocalTime(window.start)} -{" "}
-                                    {convertUTCToLocalTime(window.end)}
+                                    {window.start} - {window.end}
                                   </p>
                                 </div>
                               </SelectItem>
