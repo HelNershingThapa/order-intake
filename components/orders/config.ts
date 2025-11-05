@@ -4,6 +4,7 @@ import {
   Clock,
   Loader,
   type LucideIcon,
+  OctagonAlert,
   Package,
   PackageCheck,
   Truck,
@@ -65,6 +66,12 @@ export const orderStatuses = [
     value: "delivery_failed",
     label: "Delivery Failed",
     icon: AlertTriangle,
+    variant: "destructive",
+  },
+  {
+    value: "order_unassigned",
+    label: "Could Not Assign",
+    icon: OctagonAlert,
     variant: "destructive",
   },
 ] satisfies {

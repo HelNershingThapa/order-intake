@@ -71,7 +71,7 @@ interface DataTableToolbarProps<TData> {
 const formSchema = z.object({
   date: z.date({ error: "Date is required." }),
   runName: z.string().min(1, { message: "Name is required." }),
-  runType: z.enum(["pickup", "delivery"], {
+  runType: z.enum(["Pickup", "Delivery"], {
     message: "Run type is required.",
   }),
 })
@@ -127,7 +127,11 @@ export function GenerateRunSheet<TData>({
     enabled: isOpen,
   })
 
-  const { isLoading: isRunsLoading, data: runs } = useQuery({
+  const {
+    isLoading: isRunsLoading,
+    data: runs,
+    error: runsError,
+  } = useQuery({
     queryKey: ["runs", apiKey],
     queryFn: () => getRuns(apiKey),
     enabled: !!apiKey && isOpen,
@@ -147,11 +151,11 @@ export function GenerateRunSheet<TData>({
   const filteredOrders = useMemo(() => {
     if (!selectedRunType) return selectedOrders
 
-    if (selectedRunType === "pickup") {
+    if (selectedRunType === "Pickup") {
       return selectedOrders.filter(
         (order) => order.status === "order_confirmed"
       )
-    } else if (selectedRunType === "delivery") {
+    } else if (selectedRunType === "Delivery") {
       return selectedOrders.filter(
         (order) => order.status === "ready_for_delivery"
       )
@@ -341,7 +345,7 @@ export function GenerateRunSheet<TData>({
                         </FormControl>
                         <SelectContent>
                           <SelectItem
-                            value="pickup"
+                            value="Pickup"
                             disabled={!eligibleRunTypes.pickup}
                           >
                             Pickup Run
@@ -352,7 +356,7 @@ export function GenerateRunSheet<TData>({
                             )}
                           </SelectItem>
                           <SelectItem
-                            value="delivery"
+                            value="Delivery"
                             disabled={!eligibleRunTypes.delivery}
                           >
                             Delivery Run
@@ -383,6 +387,12 @@ export function GenerateRunSheet<TData>({
                       <Select
                         onValueChange={field.onChange}
                         defaultValue={field.value}
+                        disabled={
+                          isRunsLoading ||
+                          !!runsError ||
+                          !runs ||
+                          runs.length === 0
+                        }
                       >
                         <FormControl>
                           <SelectTrigger className="w-full">
@@ -398,9 +408,35 @@ export function GenerateRunSheet<TData>({
                         </SelectContent>
                       </Select>
                     </FormControl>
-                    <FormDescription>
-                      You can manage runs in your Route360 portal
-                    </FormDescription>
+                    {runsError ? (
+                      <FormDescription className="text-yellow-600 dark:text-yellow-500">
+                        ⚠️ Error fetching runs. Your Route360 API key might be
+                        incorrect.{" "}
+                        <Link
+                          href="/settings"
+                          className="font-medium underline"
+                        >
+                          Check Settings
+                        </Link>
+                      </FormDescription>
+                    ) : runs && runs.length === 0 ? (
+                      <FormDescription className="text-yellow-600 dark:text-yellow-500">
+                        ⚠️ No runs configured. Please create a run in your{" "}
+                        <a
+                          href="https://portal.route360.com"
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="font-medium underline"
+                        >
+                          Route360 portal
+                        </a>
+                        .
+                      </FormDescription>
+                    ) : (
+                      <FormDescription>
+                        You can manage runs in your Route360 portal
+                      </FormDescription>
+                    )}
                     <FormMessage />
                   </FormItem>
                 )}
@@ -472,12 +508,12 @@ export function GenerateRunSheet<TData>({
               <div className="rounded-md border p-3 text-sm text-muted-foreground">
                 {(() => {
                   const statusLabel =
-                    selectedRunType === "pickup" ? "confirmed" : "picked up"
+                    selectedRunType === "Pickup" ? "confirmed" : "picked up"
 
                   let orderTypeLabel = "selected orders"
-                  if (selectedRunType === "pickup") {
+                  if (selectedRunType === "Pickup") {
                     orderTypeLabel = "confirmed orders"
-                  } else if (selectedRunType === "delivery") {
+                  } else if (selectedRunType === "Delivery") {
                     orderTypeLabel = "ready-for-delivery orders"
                   }
 

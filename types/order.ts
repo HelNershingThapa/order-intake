@@ -3,6 +3,7 @@ export type OrderStatus =
   | "order_confirmed"
   | "pickup_assigned"
   | "pickup_cancelled"
+  | "order_unassigned"
   | "pickup_collected"
   | "ready_for_delivery"
   | "delivery_assigned"
@@ -74,6 +75,6 @@ export type CreateRunRequest = {
   readyToPickupTime: string
   runName: string
   runBookings: RunBooking[]
-  runType: "pickup" | "delivery"
+  runType: "Pickup" | "Delivery"
   apiKey: string
 }

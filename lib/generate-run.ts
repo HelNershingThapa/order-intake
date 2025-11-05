@@ -50,6 +50,9 @@ export async function getRuns(apiKey: string): Promise<Run[]> {
     },
     cache: "no-store",
   })
+  if (!res.ok) {
+    throw new Error(`Failed to fetch runs, status: ${res.status}`)
+  }
   const { data } = (await res.json()) as RunListResponse
   return data
 }
