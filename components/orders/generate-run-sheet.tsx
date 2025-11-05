@@ -71,6 +71,9 @@ interface DataTableToolbarProps<TData> {
 const formSchema = z.object({
   date: z.date({ error: "Date is required." }),
   runName: z.string().min(1, { message: "Name is required." }),
+  runType: z.enum(["pickup", "delivery"], {
+    message: "Run type is required.",
+  }),
 })
 
 export function GenerateRunSheet<TData>({
@@ -98,27 +101,73 @@ export function GenerateRunSheet<TData>({
     [rowsLength]
   )
 
+  // Determine eligible run types based on selected orders
+  const eligibleRunTypes = useMemo(() => {
+    if (selectedOrders.length === 0) {
+      return { pickup: false, delivery: false }
+    }
+
+    const hasOrderConfirmed = selectedOrders.some(
+      (order) => order.status === "order_confirmed"
+    )
+    const hasReadyForDelivery = selectedOrders.some(
+      (order) => order.status === "ready_for_delivery"
+    )
+
+    return {
+      pickup: hasOrderConfirmed,
+      delivery: hasReadyForDelivery,
+    }
+  }, [selectedOrders])
+
   // Fetch vendors to get pickup window information
-  const { data: vendors } = useQuery({
+  const { isLoading: isVendorsLoading, data: vendors } = useQuery({
     queryKey: ["vendors"],
     queryFn: () => getVendors(),
     enabled: isOpen,
   })
 
-  const { data: runs } = useQuery({
+  const { isLoading: isRunsLoading, data: runs } = useQuery({
     queryKey: ["runs", apiKey],
     queryFn: () => getRuns(apiKey),
     enabled: !!apiKey && isOpen,
   })
 
+  const form = useForm<z.infer<typeof formSchema>>({
+    resolver: zodResolver(formSchema),
+    defaultValues: {
+      runName: "",
+    },
+  })
+
+  // Watch the runType field to filter orders
+  const selectedRunType = form.watch("runType")
+
+  // Filter orders based on selected run type
+  const filteredOrders = useMemo(() => {
+    if (!selectedRunType) return selectedOrders
+
+    if (selectedRunType === "pickup") {
+      return selectedOrders.filter(
+        (order) => order.status === "order_confirmed"
+      )
+    } else if (selectedRunType === "delivery") {
+      return selectedOrders.filter(
+        (order) => order.status === "ready_for_delivery"
+      )
+    }
+
+    return selectedOrders
+  }, [selectedOrders, selectedRunType])
+
   // Derive time windows from vendors of selected orders
   const derivedTimeWindows = useMemo(() => {
-    if (!vendors || selectedOrders.length === 0) {
+    if (!vendors || filteredOrders.length === 0) {
       return { start: null, end: null }
     }
 
-    // Get unique vendor IDs from selected orders
-    const vendorIds = new Set(selectedOrders.map((order) => order.vendor_id))
+    // Get unique vendor IDs from filtered orders
+    const vendorIds = new Set(filteredOrders.map((order) => order.vendor_id))
 
     // Filter vendors that have orders selected
     const relevantVendors = vendors.filter((v) => vendorIds.has(v.id))
@@ -145,15 +194,7 @@ export function GenerateRunSheet<TData>({
     }
 
     return { start: earliestStart, end: latestEnd }
-  }, [vendors, selectedOrders])
-
-  // 1. Define your form.
-  const form = useForm<z.infer<typeof formSchema>>({
-    resolver: zodResolver(formSchema),
-    defaultValues: {
-      runName: "",
-    },
-  })
+  }, [vendors, filteredOrders])
 
   // Build a friendly address string from possible fields
   const buildAddress = (o: Order) => {
@@ -168,7 +209,7 @@ export function GenerateRunSheet<TData>({
   }
 
   const derivedRunBookings = useMemo(() => {
-    return selectedOrders.map((o: Order, idx: number) => ({
+    return filteredOrders.map((o: Order, idx: number) => ({
       orderId: o?.order_id || "",
       priority: idx, // simple priority by selection order
       quantity: 1,
@@ -183,7 +224,7 @@ export function GenerateRunSheet<TData>({
       address: buildAddress(o) || "",
     }))
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [selectedOrders.length])
+  }, [filteredOrders.length])
 
   const mutation = useMutation({
     mutationFn: (data: Parameters<typeof generateRun>[0]) => generateRun(data),
@@ -199,7 +240,7 @@ export function GenerateRunSheet<TData>({
   })
 
   function onSubmit(values: z.infer<typeof formSchema>) {
-    const { date, ...rest } = values
+    const { date, runType, ...rest } = values
 
     // Use derived time windows from vendors
     const runStartTime = derivedTimeWindows.start
@@ -216,7 +257,7 @@ export function GenerateRunSheet<TData>({
       runEndTime,
       readyToPickupTime: runStartTime,
       runBookings: derivedRunBookings,
-      runType: "delivery" as const,
+      runType,
       apiKey,
     }
     mutation.mutate(payload)
@@ -258,9 +299,14 @@ export function GenerateRunSheet<TData>({
           <SheetHeader>
             <SheetTitle>Generate Run</SheetTitle>
             <SheetDescription>
-              Create a delivery run for {selectedOrders.length} selected order
-              {selectedOrders.length === 1 ? "" : "s"}. Review details and
-              submit to generate the run in Baato VRS.
+              Create a run for {selectedOrders.length} selected order
+              {selectedOrders.length === 1 ? "" : "s"}.
+              <br />
+              <span className="font-medium">Pickup runs:</span> Collect orders
+              from vendors
+              <br />
+              <span className="font-medium">Delivery runs:</span> Deliver orders
+              to customers
               {!apiKey && (
                 <span className="block mt-2 text-yellow-600 dark:text-yellow-500">
                   ⚠️ API key not configured. Please{" "}
@@ -277,6 +323,56 @@ export function GenerateRunSheet<TData>({
               onSubmit={form.handleSubmit(onSubmit)}
               className="space-y-6 p-4"
             >
+              <FormField
+                control={form.control}
+                name="runType"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Run Type</FormLabel>
+                    <FormControl>
+                      <Select
+                        onValueChange={field.onChange}
+                        defaultValue={field.value}
+                      >
+                        <FormControl>
+                          <SelectTrigger className="w-full">
+                            <SelectValue placeholder="Select run type" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          <SelectItem
+                            value="pickup"
+                            disabled={!eligibleRunTypes.pickup}
+                          >
+                            Pickup Run
+                            {!eligibleRunTypes.pickup && (
+                              <span className="text-xs text-muted-foreground ml-0.5">
+                                (No confirmed orders)
+                              </span>
+                            )}
+                          </SelectItem>
+                          <SelectItem
+                            value="delivery"
+                            disabled={!eligibleRunTypes.delivery}
+                          >
+                            Delivery Run
+                            {!eligibleRunTypes.delivery && (
+                              <span className="text-xs text-muted-foreground ml-0.5">
+                                (No picked up orders)
+                              </span>
+                            )}
+                          </SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </FormControl>
+                    <FormDescription>
+                      Pickup runs collect orders from vendors. Delivery runs
+                      deliver to customers.
+                    </FormDescription>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
               <FormField
                 control={form.control}
                 name="runName"
@@ -363,33 +459,65 @@ export function GenerateRunSheet<TData>({
                     {derivedTimeWindows.end ?? "17:00"}
                   </div>
                 </div>
-                {(!derivedTimeWindows.start || !derivedTimeWindows.end) && (
-                  <p className="mt-2 text-xs text-yellow-600 dark:text-yellow-500">
-                    ⚠️ Some vendors don&apos;t have pickup windows configured.
-                    Using default times (9:00 AM - 5:00 PM).
-                  </p>
-                )}
+                {!isVendorsLoading &&
+                  !isRunsLoading &&
+                  (!derivedTimeWindows.start || !derivedTimeWindows.end) && (
+                    <p className="mt-2 text-xs text-yellow-600 dark:text-yellow-500">
+                      ⚠️ Some vendors don&apos;t have pickup windows configured.
+                      Using default times (9:00 AM - 5:00 PM).
+                    </p>
+                  )}
               </div>
 
               <div className="rounded-md border p-3 text-sm text-muted-foreground">
-                {derivedRunBookings.length === 0 ? (
-                  <p>
-                    No orders selected. Select orders from the table to include
-                    in this run.
-                  </p>
-                ) : (
-                  <p>
-                    {derivedRunBookings.length} booking
-                    {derivedRunBookings.length === 1 ? "" : "s"} will be
-                    generated from selected orders.
-                  </p>
-                )}
+                {(() => {
+                  const statusLabel =
+                    selectedRunType === "pickup" ? "confirmed" : "picked up"
+
+                  let orderTypeLabel = "selected orders"
+                  if (selectedRunType === "pickup") {
+                    orderTypeLabel = "confirmed orders"
+                  } else if (selectedRunType === "delivery") {
+                    orderTypeLabel = "ready-for-delivery orders"
+                  }
+
+                  if (derivedRunBookings.length === 0) {
+                    return (
+                      <p>
+                        {selectedRunType
+                          ? `No orders with ${statusLabel} status in your selection.`
+                          : "Select a run type to see eligible orders."}
+                      </p>
+                    )
+                  }
+
+                  return (
+                    <>
+                      <p>
+                        {derivedRunBookings.length} booking
+                        {derivedRunBookings.length === 1 ? "" : "s"} will be
+                        generated from {orderTypeLabel}.
+                      </p>
+                      {filteredOrders.length < selectedOrders.length && (
+                        <p className="mt-2 text-xs text-yellow-600 dark:text-yellow-500">
+                          ⚠️ {selectedOrders.length - filteredOrders.length}{" "}
+                          order(s) filtered out due to incompatible status.
+                        </p>
+                      )}
+                    </>
+                  )
+                })()}
               </div>
               <SheetFooter className="px-0">
                 <div className="flex items-center gap-2">
                   <Button
                     type="submit"
-                    disabled={mutation.isPending || !hasSelection || !apiKey}
+                    disabled={
+                      mutation.isPending ||
+                      !hasSelection ||
+                      !apiKey ||
+                      derivedRunBookings.length === 0
+                    }
                   >
                     {mutation.isPending ? "Generating..." : "Generate Run"}
                   </Button>

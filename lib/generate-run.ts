@@ -1,13 +1,13 @@
-"use server";
+"use server"
 
-import type { CreateRunRequest } from "@/types/order";
-import type { Run, RunListResponse } from "@/types/vrs";
+import type { CreateRunRequest } from "@/types/order"
+import type { Run, RunListResponse } from "@/types/vrs"
 
 export async function generateRun({
   apiKey,
   ...payload
 }: CreateRunRequest): Promise<void> {
-  const url = "https://vrs.baato.io/api/v1/run/generate";
+  const url = "https://route360.au/api/v1/run/generate"
   const res = await fetch(url, {
     method: "POST",
     headers: {
@@ -17,9 +17,9 @@ export async function generateRun({
     },
     cache: "no-store",
     body: JSON.stringify(payload),
-  });
+  })
 
-  const data = await res.json();
+  const data = await res.json()
   // if (!res.ok) {
   //   let msg = "";
   //   try {
@@ -38,18 +38,18 @@ export async function generateRun({
   // }
 
   // Endpoint may return a body; callers currently ignore it and expect void
-  return data;
+  return data
 }
 
 export async function getRuns(apiKey: string): Promise<Run[]> {
-  const res = await fetch("https://vrs.baato.io/api/v1/run/run-list", {
+  const res = await fetch("https://route360.au/api/v1/run/run-list", {
     method: "GET",
     headers: {
       Accept: "application/json",
       "X-Token": apiKey,
     },
     cache: "no-store",
-  });
-  const { data } = (await res.json()) as RunListResponse;
-  return data;
+  })
+  const { data } = (await res.json()) as RunListResponse
+  return data
 }
