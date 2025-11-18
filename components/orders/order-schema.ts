@@ -1,12 +1,12 @@
-import * as z from "zod"
+import * as z from 'zod'
 
-import { validatePhoneNumber } from "@/utils/validate-phone"
+import { validatePhoneNumber } from '@/utils/validate-phone'
 
-const trimCollapse = (s: string) => s.trim().replace(/\s+/g, " ")
+const trimCollapse = (s: string) => s.trim().replace(/\s+/g, ' ')
 
 const optFloat = (label: string, min?: number, max?: number) =>
   z.preprocess(
-    (v) => (v === "" || v === null || v === undefined ? undefined : Number(v)),
+    (v) => (v === '' || v === null || v === undefined ? undefined : Number(v)),
     z
       .number()
       .refine((n) => !Number.isNaN(n), { message: `${label} must be a number` })
@@ -16,49 +16,49 @@ const optFloat = (label: string, min?: number, max?: number) =>
       .refine((n) => (max === undefined ? true : n <= max), {
         message: `${label} must be ≤ ${max}`,
       })
-      .optional()
+      .optional(),
   )
 
 const optInt = (label: string, min?: number) =>
   z.preprocess(
-    (v) => (v === "" || v === null || v === undefined ? undefined : Number(v)),
+    (v) => (v === '' || v === null || v === undefined ? undefined : Number(v)),
     z
       .number()
       .int(`${label} must be an integer`)
       .min(min ?? 0, `${label} must be ≥ ${min}`)
-      .optional()
+      .optional(),
   )
 
 export const dimensionsSchema = z
   .object({
-    l: optInt("Length", 1),
-    w: optInt("Width", 1),
-    h: optInt("Height", 1),
+    l: optInt('Length', 1),
+    w: optInt('Width', 1),
+    h: optInt('Height', 1),
   })
   .refine(
     (vals) => {
       const provided = [vals.l, vals.w, vals.h].filter((v) => v !== undefined)
       return provided.length === 0 || provided.length === 3
     },
-    { message: "Provide all dimensions or leave all empty" }
+    { message: 'Provide all dimensions or leave all empty' },
   )
 
 export const orderSchema = z
   .object({
     recipient_name: z
       .string()
-      .min(1, "Recipient name is required")
+      .min(1, 'Recipient name is required')
       .transform(trimCollapse),
     recipient_phone: z
       .string({
-        error: "Contact phone number is required",
+        error: 'Contact phone number is required',
       })
       .refine(validatePhoneNumber, {
-        message: "Please enter a valid Nepali phone number",
+        message: 'Please enter a valid Nepali phone number',
       }),
     delivery_address_text: z
       .string()
-      .min(1, "Delivery address is required")
+      .min(1, 'Delivery address is required')
       .transform(trimCollapse),
     municipality: z
       .string()
@@ -76,18 +76,30 @@ export const orderSchema = z
       .string()
       .optional()
       .transform((v) => (v ? trimCollapse(v) : undefined)),
-    lat: optFloat("Latitude", -90, 90),
-    lng: optFloat("Longitude", -180, 180),
+    lat: optFloat('Latitude', -90, 90),
+    lng: optFloat('Longitude', -180, 180),
+    cod_amount: z.preprocess(
+      (v) => {
+        if (v === '' || v === null || v === undefined) return undefined
+        const num = Number(v)
+        return isNaN(num) ? undefined : num
+      },
+      z
+        .number({
+          message: 'COD amount is required',
+        })
+        .gte(0, 'COD must be >= 0'),
+    ),
     weight_kg: z.preprocess(
       (v) =>
-        v === "" || v === null || v === undefined ? undefined : Number(v),
-      z.number().gt(0, "Weight must be > 0").lte(1000, "Max 1000 kg")
+        v === '' || v === null || v === undefined ? undefined : Number(v),
+      z.number().gt(0, 'Weight must be > 0').lte(1000, 'Max 1000 kg'),
     ),
     dimensions: dimensionsSchema.optional(),
   })
   .refine((vals) => (vals.lat !== undefined) === (vals.lng !== undefined), {
-    message: "Provide both lat and lng together",
-    path: ["lat"],
+    message: 'Provide both lat and lng together',
+    path: ['lat'],
   })
 
 export type OrderFormData = z.infer<typeof orderSchema>

@@ -1,16 +1,16 @@
 export type OrderStatus =
-  | "order_placed"
-  | "order_confirmed"
-  | "pickup_assigned"
-  | "pickup_cancelled"
-  | "order_unassigned"
-  | "pickup_collected"
-  | "ready_for_delivery"
-  | "delivery_assigned"
-  | "delivery_successfull"
-  | "delivery_failed"
+  | 'order_placed'
+  | 'order_confirmed'
+  | 'pickup_assigned'
+  | 'pickup_cancelled'
+  | 'order_unassigned'
+  | 'pickup_collected'
+  | 'ready_for_delivery'
+  | 'delivery_assigned'
+  | 'delivery_successfull'
+  | 'delivery_failed'
 
-export type GeocodeStatus = "pending" | "ok" | "failed"
+export type GeocodeStatus = 'pending' | 'ok' | 'failed'
 
 export type OrderSummary = {
   order_id: string
@@ -22,6 +22,7 @@ export type OrderSummary = {
 }
 
 export type Order = OrderSummary & {
+  cod_amount: number
   recipient_name: string
   recipient_phone: string
   delivery_address_text: string
@@ -75,6 +76,6 @@ export type CreateRunRequest = {
   readyToPickupTime: string
   runName: string
   runBookings: RunBooking[]
-  runType: "Pickup" | "Delivery"
+  runType: 'Pickup' | 'Delivery'
   apiKey: string
 }

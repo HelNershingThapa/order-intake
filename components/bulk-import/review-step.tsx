@@ -1,36 +1,36 @@
-"use client";
+'use client'
 
-import { useMemo, useRef, useState } from "react";
-import { Layer, Map, type MapMouseEvent,Source } from "react-map-gl/maplibre";
-import type { GeoJSONSource } from "maplibre-gl";
+import { useMemo, useRef, useState } from 'react'
+import { Layer, Map, type MapMouseEvent, Source } from 'react-map-gl/maplibre'
+import type { GeoJSONSource } from 'maplibre-gl'
 
-import { Button } from "@/components/ui/button";
-import { ScrollArea } from "@/components/ui/scroll-area";
-import { Separator } from "@/components/ui/separator";
-import { cn } from "@/lib/utils";
+import { Button } from '@/components/ui/button'
+import { ScrollArea } from '@/components/ui/scroll-area'
+import { Separator } from '@/components/ui/separator'
+import { cn } from '@/lib/utils'
 
 import {
   clusterCountLayer,
   clusterLayer,
   unclusteredPointLayer,
-} from "./layers";
-import { type GeocodedRow } from "./steps";
+} from './layers'
+import { type GeocodedRow } from './steps'
 interface ReviewStepProps {
-  rows: GeocodedRow[]; // includes all; we will filter to successful
-  onBack?: () => void;
-  onSubmit?: () => void;
-  isPending: boolean;
+  rows: GeocodedRow[] // includes all; we will filter to successful
+  onBack?: () => void
+  onSubmit?: () => void
+  isPending: boolean
 }
 
-type Feature = GeoJSON.Feature<GeoJSON.Point, { id: number; label?: string }>;
+type Feature = GeoJSON.Feature<GeoJSON.Point, { id: number; label?: string }>
 
 function toGeoJSON(rows: GeocodedRow[]): GeoJSON.FeatureCollection {
   const feats: Feature[] = rows
-    .filter((r) => r.status === "success" && r.lat != null && r.lng != null)
+    .filter((r) => r.status === 'success' && r.lat != null && r.lng != null)
     .map((r) => ({
-      type: "Feature",
+      type: 'Feature',
       geometry: {
-        type: "Point",
+        type: 'Point',
         coordinates: [r.lng as number, r.lat as number],
       },
       properties: {
@@ -39,8 +39,8 @@ function toGeoJSON(rows: GeocodedRow[]): GeoJSON.FeatureCollection {
           r.mapped.reference_id ?? r.mapped.recipient_name ?? r.id + 1,
         ),
       },
-    }));
-  return { type: "FeatureCollection", features: feats };
+    }))
+  return { type: 'FeatureCollection', features: feats }
 }
 
 export function ReviewStep({
@@ -49,22 +49,22 @@ export function ReviewStep({
   onSubmit,
   isPending,
 }: ReviewStepProps) {
-  const geojson = useMemo(() => toGeoJSON(rows), [rows]);
-  const mapRef = useRef<any>(null);
-  const [selectedId, setSelectedId] = useState<number | null>(null);
+  const geojson = useMemo(() => toGeoJSON(rows), [rows])
+  const mapRef = useRef<any>(null)
+  const [selectedId, setSelectedId] = useState<number | null>(null)
 
-  const MAPTILER_KEY = process.env.NEXT_PUBLIC_MAPTILER_KEY;
+  const MAPTILER_KEY = process.env.NEXT_PUBLIC_MAPTILER_KEY
   const MAP_STYLE = MAPTILER_KEY
     ? `https://api.maptiler.com/maps/streets/style.json?key=${MAPTILER_KEY}`
-    : "https://basemaps.cartocdn.com/gl/positron-gl-style/style.json";
+    : 'https://basemaps.cartocdn.com/gl/positron-gl-style/style.json'
 
   const successRows = useMemo(
     () =>
       rows.filter(
-        (r) => r.status === "success" && r.lat != null && r.lng != null,
+        (r) => r.status === 'success' && r.lat != null && r.lng != null,
       ),
     [rows],
-  );
+  )
 
   // Compute map bounds from successful rows
   const mapBounds = useMemo(() => {
@@ -73,19 +73,19 @@ export function ReviewStep({
       return [
         [85.276729, 27.655014],
         [85.372076, 27.751516],
-      ] as const;
+      ] as const
     }
 
     let minLng = Infinity,
       minLat = Infinity,
       maxLng = -Infinity,
-      maxLat = -Infinity;
+      maxLat = -Infinity
     for (const r of successRows) {
-      if (r.lng == null || r.lat == null) continue;
-      if (r.lng < minLng) minLng = r.lng;
-      if (r.lng > maxLng) maxLng = r.lng;
-      if (r.lat < minLat) minLat = r.lat;
-      if (r.lat > maxLat) maxLat = r.lat;
+      if (r.lng == null || r.lat == null) continue
+      if (r.lng < minLng) minLng = r.lng
+      if (r.lng > maxLng) maxLng = r.lng
+      if (r.lat < minLat) minLat = r.lat
+      if (r.lat > maxLat) maxLat = r.lat
     }
 
     if (
@@ -98,7 +98,7 @@ export function ReviewStep({
       return [
         [85.276729, 27.655014],
         [85.372076, 27.751516],
-      ] as const;
+      ] as const
     }
 
     // If all points are identical, create a tiny padded box
@@ -107,47 +107,47 @@ export function ReviewStep({
       return [
         [minLng, minLat],
         [maxLng, maxLat],
-      ] as const;
+      ] as const
     }
 
     return [
       [minLng, minLat],
       [maxLng, maxLat],
-    ] as const;
-  }, [successRows]);
+    ] as const
+  }, [successRows])
 
   const handleMapClick = async (event: MapMouseEvent) => {
-    const feature = event.features?.[0];
+    const feature = event.features?.[0]
     if (!feature) {
-      return;
+      return
     }
     if (feature.properties.cluster) {
-      const clusterId = feature.properties.cluster_id;
+      const clusterId = feature.properties.cluster_id
 
-      const geojsonSource: GeoJSONSource = mapRef.current.getSource("orders");
+      const geojsonSource: GeoJSONSource = mapRef.current.getSource('orders')
 
-      const zoom = await geojsonSource.getClusterExpansionZoom(clusterId);
+      const zoom = await geojsonSource.getClusterExpansionZoom(clusterId)
 
       mapRef.current.easeTo({
         center: feature.geometry.coordinates,
         zoom,
         duration: 500,
-      });
+      })
     } else {
-      const id = (feature.properties as any)?.id;
+      const id = (feature.properties as any)?.id
       mapRef.current.setFeatureState(
-        { source: "orders", id: selectedId },
+        { source: 'orders', id: selectedId },
         { selected: false },
-      );
+      )
       mapRef.current.setFeatureState(
-        { source: "orders", id: id },
+        { source: 'orders', id: id },
         { selected: true },
-      );
-      setSelectedId(id);
+      )
+      setSelectedId(id)
     }
 
     // Single point
-  };
+  }
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-12 gap-4">
@@ -165,30 +165,36 @@ export function ReviewStep({
         <ScrollArea className="h-[420px]">
           <ul className="divide-y">
             {successRows.map((r, idx) => {
-              const selected = r.id === selectedId;
+              const selected = r.id === selectedId
               const title = String(
                 r.mapped.reference_id ??
                   r.mapped.recipient_name ??
-                  "Row " + (r.id + 1),
-              );
-              const address = String(r.mapped.delivery_address_text ?? "");
+                  'Row ' + (r.id + 1),
+              )
+              const address = String(r.mapped.delivery_address_text ?? '')
+              const codAmount = r.mapped.cod_amount
+                ? Number(r.mapped.cod_amount)
+                : 0
+              const weight = r.mapped.parcel_weight
+                ? Number(r.mapped.parcel_weight)
+                : 0
               return (
                 <li key={r.id}>
                   <button
                     type="button"
                     className={cn(
-                      "w-full text-left p-3 flex gap-3 items-start hover:bg-muted/50",
-                      selected && "bg-primary/5",
+                      'w-full text-left p-3 flex gap-3 items-start hover:bg-muted/50',
+                      selected && 'bg-primary/5',
                     )}
                     onClick={() => {
-                      setSelectedId(r.id);
-                      const map = mapRef.current;
+                      setSelectedId(r.id)
+                      const map = mapRef.current
                       if (map && r.lat != null && r.lng != null)
-                        map.easeTo({ center: [r.lng, r.lat], zoom: 14 });
+                        map.easeTo({ center: [r.lng, r.lat], zoom: 14 })
                     }}
                   >
                     <span className="inline-flex items-center justify-center size-6 rounded bg-muted text-xs font-medium">
-                      {(idx + 1).toString().padStart(2, "0")}
+                      {(idx + 1).toString().padStart(2, '0')}
                     </span>
                     <span className="min-w-0">
                       <span
@@ -205,10 +211,18 @@ export function ReviewStep({
                           {address}
                         </span>
                       )}
+                      <div className="flex gap-3 text-[10px] text-muted-foreground mt-1">
+                        {codAmount > 0 && (
+                          <span className="font-medium">
+                            COD: Rs. {codAmount.toLocaleString()}
+                          </span>
+                        )}
+                        {weight > 0 && <span>Weight: {weight}kg</span>}
+                      </div>
                     </span>
                   </button>
                 </li>
-              );
+              )
             })}
             {successRows.length === 0 && (
               <li className="p-3 text-xs text-muted-foreground">
@@ -256,7 +270,7 @@ export function ReviewStep({
             bounds={mapBounds}
             fitBoundsOptions={{ padding: 15 }}
             mapStyle={MAP_STYLE}
-            interactiveLayerIds={[clusterLayer.id!, "unclustered-point"]}
+            interactiveLayerIds={[clusterLayer.id!, 'unclustered-point']}
             attributionControl={false}
             onClick={handleMapClick}
           >
@@ -267,7 +281,7 @@ export function ReviewStep({
               cluster
               clusterMaxZoom={14}
               clusterRadius={40}
-              promoteId={"id"}
+              promoteId={'id'}
             >
               <Layer {...clusterLayer} />
               <Layer {...clusterCountLayer} />
@@ -277,5 +291,5 @@ export function ReviewStep({
         </div>
       </div>
     </div>
-  );
+  )
 }

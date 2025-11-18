@@ -1,6 +1,6 @@
-"use client"
+'use client'
 
-import * as React from "react"
+import * as React from 'react'
 import {
   ColumnDef,
   ColumnFiltersState,
@@ -12,11 +12,11 @@ import {
   SortingState,
   useReactTable,
   VisibilityState,
-} from "@tanstack/react-table"
-import { useQueryStates } from "nuqs"
+} from '@tanstack/react-table'
+import { useQueryStates } from 'nuqs'
 
-import { ordersSearchParams } from "@/app/(main)/orders/searchParams"
-import type { TimeWindow } from "@/app/(main)/settings/components/schema"
+import { ordersSearchParams } from '@/app/(main)/orders/searchParams'
+import type { TimeWindow } from '@/app/(main)/settings/components/schema'
 import {
   Table,
   TableBody,
@@ -24,12 +24,12 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@/components/ui/table"
-import type { Vendor } from "@/types/miscellaneous"
-import type { Order, OrderListResponse } from "@/types/order"
+} from '@/components/ui/table'
+import type { Vendor } from '@/types/miscellaneous'
+import type { Order, OrderListResponse } from '@/types/order'
 
-import { DataTablePagination } from "./data-table-pagination"
-import { DataTableToolbar } from "./data-table-toolbar"
+import { DataTablePagination } from './data-table-pagination'
+import { DataTableToolbar } from './data-table-toolbar'
 
 interface DataTableProps<TValue> {
   columns: ColumnDef<Order, TValue>[]
@@ -53,6 +53,8 @@ export function DataTable<TValue>({
     shallow: false,
   })
 
+  console.log('data', data)
+
   const [columnVisibility, setColumnVisibility] =
     React.useState<VisibilityState>({ vendor_name: isAdmin })
   const [sorting, setSorting] = React.useState<SortingState>([])
@@ -62,13 +64,13 @@ export function DataTable<TValue>({
   const columnFilters = React.useMemo<ColumnFiltersState>(() => {
     const filters: ColumnFiltersState = []
     if (statuses && statuses.length > 0) {
-      filters.push({ id: "status", value: statuses })
+      filters.push({ id: 'status', value: statuses })
     }
     if (vendor_ids && vendor_ids.length > 0) {
-      filters.push({ id: "vendor_name", value: vendor_ids })
+      filters.push({ id: 'vendor_name', value: vendor_ids })
     }
     if (pickup_window_ids && pickup_window_ids.length > 0) {
-      filters.push({ id: "pickup_window_name", value: pickup_window_ids })
+      filters.push({ id: 'pickup_window_name', value: pickup_window_ids })
     }
     return filters
   }, [statuses, vendor_ids, pickup_window_ids])
@@ -93,7 +95,7 @@ export function DataTable<TValue>({
     onPaginationChange: (updater) => {
       // Update search params on pagination change
       const next =
-        typeof updater === "function"
+        typeof updater === 'function'
           ? updater(table.getState().pagination)
           : updater
       setParams({
@@ -130,7 +132,7 @@ export function DataTable<TValue>({
                         ? null
                         : flexRender(
                             header.column.columnDef.header,
-                            header.getContext()
+                            header.getContext(),
                           )}
                     </TableHead>
                   )
@@ -143,13 +145,13 @@ export function DataTable<TValue>({
               table.getRowModel().rows.map((row) => (
                 <TableRow
                   key={row.id}
-                  data-state={row.getIsSelected() && "selected"}
+                  data-state={row.getIsSelected() && 'selected'}
                 >
                   {row.getVisibleCells().map((cell) => (
                     <TableCell key={cell.id}>
                       {flexRender(
                         cell.column.columnDef.cell,
-                        cell.getContext()
+                        cell.getContext(),
                       )}
                     </TableCell>
                   ))}
