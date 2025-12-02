@@ -1,25 +1,25 @@
-'use client'
+"use client";
 
-import Link from 'next/link'
-import type { ColumnDef } from '@tanstack/react-table'
-import { format } from 'date-fns'
+import Link from "next/link";
+import type { ColumnDef } from "@tanstack/react-table";
+import { format } from "date-fns";
 
-import { Badge } from '@/components/ui/badge'
-import { Checkbox } from '@/components/ui/checkbox'
-import type { Order } from '@/types/order'
+import { Badge } from "@/components/ui/badge";
+import { Checkbox } from "@/components/ui/checkbox";
+import type { Order } from "@/types/order";
 
-import { orderStatuses } from './config'
-import { DataTableColumnHeader } from './data-table-column-header'
-import { DataTableRowActions } from './data-table-row-actions'
+import { orderStatuses } from "./config";
+import { DataTableColumnHeader } from "./data-table-column-header";
+import { DataTableRowActions } from "./data-table-row-actions";
 
 export const columns: ColumnDef<Order>[] = [
   {
-    id: 'select',
+    id: "select",
     header: ({ table }) => (
       <Checkbox
         checked={
           table.getIsAllPageRowsSelected() ||
-          (table.getIsSomePageRowsSelected() && 'indeterminate')
+          (table.getIsSomePageRowsSelected() && "indeterminate")
         }
         onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
         aria-label="Select all"
@@ -38,17 +38,17 @@ export const columns: ColumnDef<Order>[] = [
     enableHiding: false,
   },
   {
-    accessorKey: 'order_id',
+    accessorKey: "order_id",
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title="Order ID" />
     ),
     cell: ({ row }) => (
       <div className="max-w-[200px] truncate">
         <Link
-          href={`/orders/${row.getValue('order_id')}`}
+          href={`/orders/${row.getValue("order_id")}`}
           className="font-medium hover:underline"
         >
-          {row.getValue('order_id')}
+          {row.getValue("order_id")}
         </Link>
       </div>
     ),
@@ -56,18 +56,18 @@ export const columns: ColumnDef<Order>[] = [
     enableHiding: false,
   },
   {
-    accessorKey: 'recipient_name',
+    accessorKey: "recipient_name",
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title="Recipient" />
     ),
     cell: ({ row }) => (
       <div className="max-w-[200px] truncate font-medium">
-        {row.getValue('recipient_name')}
+        {row.getValue("recipient_name")}
       </div>
     ),
   },
   {
-    accessorKey: 'vendor_name',
+    accessorKey: "vendor_name",
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title="Vendor" />
     ),
@@ -77,13 +77,13 @@ export const columns: ColumnDef<Order>[] = [
           href={`/vendors/${row.original.vendor_id}`}
           className="font-medium hover:underline"
         >
-          {row.getValue('vendor_name')}
+          {row.getValue("vendor_name")}
         </Link>
       </div>
     ),
   },
   {
-    id: 'pickup_window_name',
+    id: "pickup_window_name",
     header: ({ column }) => (
       <DataTableColumnHeader
         className="hidden"
@@ -93,63 +93,63 @@ export const columns: ColumnDef<Order>[] = [
     ),
     cell: ({ row }) => (
       <div className="max-w-[200px] hidden truncate">
-        {row.getValue('pickup_window_name') || 'N/A'}
+        {row.getValue("pickup_window_name") || "N/A"}
       </div>
     ),
   },
   {
-    accessorKey: 'delivery_address_text',
+    accessorKey: "delivery_address_text",
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title="Delivery Address" />
     ),
     cell: ({ row }) => (
       <div className="max-w-[300px] truncate">
-        {row.getValue('delivery_address_text')}
+        {row.getValue("delivery_address_text")}
       </div>
     ),
   },
   {
-    accessorKey: 'cod_amount',
+    accessorKey: "cod_amount",
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title="COD" />
     ),
     cell: ({ row }) => {
-      const amount = row.getValue('cod_amount') as number
-      return <div>रु&nbsp;{amount.toLocaleString()}</div>
+      const amount = row.getValue("cod_amount") as number;
+      return <div>रु&nbsp;{amount.toLocaleString()}</div>;
     },
   },
   {
-    accessorKey: 'status',
+    accessorKey: "status",
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title="Status" />
     ),
     cell: ({ row }) => {
       const status = orderStatuses.find(
-        (status) => status.value === row.getValue('status'),
-      )
+        (status) => status.value === row.getValue("status"),
+      );
 
       if (!status) {
-        return null
+        return null;
       }
       return (
         <Badge variant={status.variant} className="[&>svg]:size-3.5">
           {status.icon && <status.icon />}
           {status.label}
         </Badge>
-      )
+      );
     },
   },
   {
-    accessorKey: 'created_at',
+    accessorKey: "created_at",
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title="Created At" />
     ),
     cell: ({ row }) =>
-      format(new Date(row.getValue('created_at')), 'LLL do, HH:mm'),
+      format(new Date(row.getValue("created_at")), "LLL do, HH:mm"),
     enableSorting: true,
   },
   {
-    id: 'actions',
+    id: "actions",
     cell: ({ row }) => <DataTableRowActions row={row} />,
   },
-]
+];

@@ -9,9 +9,9 @@ import Map, {
   useMap,
 } from "react-map-gl/maplibre";
 import Image from "next/image";
-import { useQuery } from "@tanstack/react-query";
 import { Loader2 } from "lucide-react";
 import { toast } from "sonner";
+import useSWR from "swr";
 
 import {
   Command,
@@ -22,7 +22,7 @@ import {
   CommandLoading,
 } from "@/components/ui/command";
 import { places, search } from "@/lib/baato";
-import { BaatoSearchResponse } from "@/types/baato";
+import type { BaatoSearchResponse } from "@/types/baato";
 
 import "maplibre-gl/dist/maplibre-gl.css";
 
@@ -81,11 +81,8 @@ export const SearchAddress = () => {
   const [hidden, setHidden] = useState(true);
   const [isPlaceLoading, setIsPlaceLoading] = useState(false);
 
-  const { data, isLoading } = useQuery({
-    queryKey: ["search-address", query],
-    queryFn: async ({ signal }) => await search(query),
-    enabled: !!query,
-    select: (data) => data.data,
+  const { data, isLoading } = useSWR(query || null, () => search(query), {
+    fallbackData: [],
   });
 
   const handleSearchResultSelect = async (

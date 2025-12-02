@@ -2,15 +2,17 @@ export type BaatoSearchResponse = {
   timestamp: string;
   status: number;
   message: string;
-  data: Array<{
-    placeId: number;
-    osmId: number;
-    name: string;
-    address: string;
-    type: string;
-    score: number;
-    radialDistanceInKm: number;
-  }>;
+  data: Array<SearchResult>;
+};
+
+export type SearchResult = {
+  placeId: number;
+  osmId: number;
+  name: string;
+  address: string;
+  type: string;
+  score: number;
+  radialDistanceInKm: number;
 };
 
 export type BaatoPlaceResponse = {

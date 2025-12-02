@@ -1,75 +1,75 @@
-"use client"
+"use client";
 
-import * as React from "react"
-import { type DateRange } from "react-day-picker"
-import Link from "next/link"
-import { usePathname, useRouter, useSearchParams } from "next/navigation"
-import { format } from "date-fns"
-import { CalendarIcon } from "lucide-react"
+import * as React from "react";
+import { type DateRange } from "react-day-picker";
+import Link from "next/link";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { format } from "date-fns";
+import { CalendarIcon } from "lucide-react";
 
-import { Button } from "@/components/ui/button"
-import { Calendar } from "@/components/ui/calendar"
+import { Button } from "@/components/ui/button";
+import { Calendar } from "@/components/ui/calendar";
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
-} from "@/components/ui/popover"
+} from "@/components/ui/popover";
 
-import { dateRanges, TimeRange } from "./config"
+import { dateRanges, TimeRange } from "./config";
 
 function parseDate(str?: string | null): Date | undefined {
-  if (!str || str === "all") return undefined
-  const d = new Date(str)
-  return isNaN(d.getTime()) ? undefined : d
+  if (!str || str === "all") return undefined;
+  const d = new Date(str);
+  return isNaN(d.getTime()) ? undefined : d;
 }
 
 // Helper: check if from/to match a preset
 function getTimeRangeFromParams(
   from: string | null,
-  to: string | null
+  to: string | null,
 ): TimeRange {
   // If no date params, return '7D' as default
-  if (!from && !to) return "7D" as TimeRange
+  if (!from && !to) return "7D" as TimeRange;
 
   for (const [key, value] of Object.entries(dateRanges)) {
     if (value.from === from && value.to === to) {
-      return key as TimeRange
+      return key as TimeRange;
     }
   }
-  return "custom"
+  return "custom";
 }
 
 export function DateRangeSelector() {
-  const [open, setOpen] = React.useState(false)
-  const searchParams = useSearchParams()
-  const from = searchParams.get("from")
-  const to = searchParams.get("to")
-  const pathname = usePathname()
-  const timeRange = getTimeRangeFromParams(from, to)
-  const router = useRouter()
+  const [open, setOpen] = React.useState(false);
+  const searchParams = useSearchParams();
+  const from = searchParams.get("from");
+  const to = searchParams.get("to");
+  const pathname = usePathname();
+  const timeRange = getTimeRangeFromParams(from, to);
+  const router = useRouter();
 
   // Only set dateRange if custom
   const initialDateRange =
     timeRange === "custom" && from && to
       ? { from: parseDate(from), to: parseDate(to) }
-      : undefined
+      : undefined;
 
   const [dateRange, setDateRange] = React.useState<DateRange | undefined>(
-    initialDateRange
-  )
+    initialDateRange,
+  );
 
   // Helper to update the search params for 'from' and 'to' in the URL
   const updateDateParams = (range: DateRange | undefined) => {
-    if (!range?.from) return
-    const params = new URLSearchParams(searchParams)
-    params.set("from", format(range.from, "yyyy-MM-dd"))
+    if (!range?.from) return;
+    const params = new URLSearchParams(searchParams);
+    params.set("from", format(range.from, "yyyy-MM-dd"));
     if (range.to) {
-      params.set("to", format(range.to, "yyyy-MM-dd"))
+      params.set("to", format(range.to, "yyyy-MM-dd"));
     } else {
-      params.delete("to")
+      params.delete("to");
     }
-    router.replace(`${pathname}?${params.toString()}`)
-  }
+    router.replace(`${pathname}?${params.toString()}`);
+  };
 
   return (
     <div className="flex gap-2">
@@ -86,7 +86,11 @@ export function DateRangeSelector() {
           }
           asChild
         >
-          <Link href={`/dashboard?from=${value.from}&to=${value.to}`} replace>
+          <Link
+            href={`/dashboard?from=${value.from}&to=${value.to}`}
+            prefetch={false}
+            replace
+          >
             {key === "ALL" ? "All Time" : key}
           </Link>
         </Button>
@@ -108,8 +112,8 @@ export function DateRangeSelector() {
             defaultMonth={dateRange?.from}
             selected={dateRange}
             onSelect={(newRange) => {
-              setDateRange(newRange)
-              updateDateParams(newRange)
+              setDateRange(newRange);
+              updateDateParams(newRange);
             }}
             numberOfMonths={2}
             className="rounded-lg border shadow-sm"
@@ -120,5 +124,5 @@ export function DateRangeSelector() {
         </PopoverContent>
       </Popover>
     </div>
-  )
+  );
 }
